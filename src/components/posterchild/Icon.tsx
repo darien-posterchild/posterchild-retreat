@@ -33,7 +33,36 @@ export type PosterChildIconName =
   | 'users-02'
   | 'calendar'
   | 'chevron-up'
-  | 'chevron-right';
+  | 'chevron-right'
+  | 'arrow-up-right'
+  | 'bookmark'
+  | 'share-04'
+  | 'dots-horizontal'
+  | 'dots-vertical'
+  | 'target-05'
+  | 'marker-pin-01'
+  | 'building-02'
+  | 'sparkles'
+  | 'globe-01'
+  | 'check-circle'
+  | 'bank'
+  | 'instagram'
+  | 'download'
+  | 'carousel'
+  | 'poster'
+  | 'eye'
+  | 'undo'
+  | 'redo'
+  | 'bold'
+  | 'italic'
+  | 'underline'
+  | 'align-left'
+  | 'align-center'
+  | 'align-right'
+  | 'list'
+  | 'list-ordered'
+  | 'link-01'
+  | 'image-03';
 
 export interface PosterChildIconProps extends React.SVGProps<SVGSVGElement> {
   name: PosterChildIconName;
@@ -66,7 +95,11 @@ const ICON_PATHS: Record<string, React.ReactNode> = {
     </>
   ),
   'calendar-heart-02': (
-    <path d="M21 10H3m18 1.5V8.8c0-1.68 0-2.52-.327-3.162a3 3 0 0 0-1.311-1.311C18.72 4 17.88 4 16.2 4H7.8c-1.68 0-2.52 0-3.162.327a3 3 0 0 0-1.311 1.311C3 6.28 3 7.12 3 8.8v8.4c0 1.68 0 2.52.327 3.162a3 3 0 0 0 1.311 1.311C5.28 22 6.12 22 7.8 22h4.7M16 2v4M8 2v4m9.498 9.712c-.7-.78-1.867-.989-2.744-.275-.877.713-1 1.906-.311 2.75.688.844 3.055 2.813s2.366-1.97 3.055-2.813c.688-.844.58-2.044-.312-2.75-.892-.706-2.044-.504-2.743.275Z" />
+    <path
+      d="M17.5 8.33268H2.5M17.5 9.58268V7.33268C17.5 5.93255 17.5 5.23249 17.2275 4.69771C16.9878 4.2273 16.6054 3.84485 16.135 3.60517C15.6002 3.33268 14.9001 3.33268 13.5 3.33268H6.5C5.09987 3.33268 4.3998 3.33268 3.86502 3.60517C3.39462 3.84485 3.01217 4.2273 2.77248 4.69771C2.5 5.23249 2.5 5.93255 2.5 7.33268V14.3327C2.5 15.7328 2.5 16.4329 2.77248 16.9677C3.01217 17.4381 3.39462 17.8205 3.86502 18.0602C4.3998 18.3327 5.09987 18.3327 6.5 18.3327H10.4167M13.3333 1.66602V4.99935M6.66667 1.66602V4.99935M14.5813 13.0926C13.9982 12.4433 13.0258 12.2687 12.2951 12.8632C11.5645 13.4578 11.4616 14.4518 12.0354 15.155C12.6092 15.8582 14.5813 17.4993 14.5813 17.4993C14.5813 17.4993 16.5535 15.8582 17.1273 15.155C17.7011 14.4518 17.6107 13.4515 16.8676 12.8632C16.1244 12.2749 15.1645 12.4433 14.5813 13.0926Z"
+      transform="scale(1.2)"
+      vectorEffect="non-scaling-stroke"
+    />
   ),
   'file-06': (
     <path d="M14 2.27V6.4c0 .56 0 .84.109 1.054a1 1 0 0 0 .437.437c.214.11.494.11 1.054.11h4.13M16 13H8m8 4H8m2-8H8m6-7H8.8c-1.68 0-2.52 0-3.162.327a3 3 0 0 0-1.311 1.311C4 4.28 4 5.12 4 6.8v10.4c0 1.68 0 2.52.327 3.162a3 3 0 0 0 1.311 1.311C6.28 22 7.12 22 8.8 22h6.4c1.68 0 2.52 0 3.162-.327a3 3 0 0 0 1.311-1.311C20 19.72 20 18.88 20 17.2V8l-6-6Z" />
@@ -130,6 +163,169 @@ const ICON_PATHS: Record<string, React.ReactNode> = {
   ),
   'chevron-up': <path d="m18 15-6-6-6 6" />,
   'chevron-right': <path d="m9 18 6-6-6-6" />,
+  'arrow-up-right': <path d="M7 17 17 7M7 7h10v10" />,
+  bookmark: <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16Z" />,
+  'share-04': (
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14 21 3" />
+  ),
+  'dots-horizontal': (
+    <>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="5" cy="12" r="1.5" fill="currentColor" stroke="none" />
+    </>
+  ),
+  'dots-vertical': (
+    <>
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="5" r="1.5" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="19" r="1.5" fill="currentColor" stroke="none" />
+    </>
+  ),
+  'target-05': (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <circle cx="12" cy="12" r="6" />
+      <circle cx="12" cy="12" r="2" />
+    </>
+  ),
+  'marker-pin-01': (
+    <>
+      <path d="M12 13a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" />
+      <path d="M12 22s8-4 8-10a8 8 0 1 0-16 0c0 6 8 10 8 10Z" />
+    </>
+  ),
+  'building-02': (
+    <path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18ZM2 22h20M10 6h4M10 10h4M10 14h4M10 18h4" />
+  ),
+  sparkles: (
+    <path d="m12 3 1.912 5.885L20 10.5l-6.088 1.615L12 18l-1.912-5.885L4 10.5l6.088-1.615L12 3Z" />
+  ),
+  'globe-01': (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10Z" />
+    </>
+  ),
+  'check-circle': (
+    <>
+      <circle cx="12" cy="12" r="10" />
+      <path d="m8 12 2.5 2.5L16 9" />
+    </>
+  ),
+  bank: (
+    <path d="M3 21h18M5 10v7M9 10v7M15 10v7M19 10v7M12 3 2 8h20L12 3Z" />
+  ),
+  instagram: (
+    <>
+      <rect width="20" height="20" x="2" y="2" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" x2="17.51" y1="6.5" y2="6.5" />
+    </>
+  ),
+  download: (
+    <>
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+      <polyline points="7 10 12 15 17 10" />
+      <line x1="12" x2="12" y1="15" y2="3" />
+    </>
+  ),
+  carousel: (
+    <>
+      <rect width="18" height="18" x="3" y="3" rx="2" />
+      <path d="M7 3v18M17 3v18" />
+    </>
+  ),
+  poster: (
+    <>
+      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+    </>
+  ),
+  eye: (
+    <>
+      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </>
+  ),
+  undo: (
+    <>
+      <path d="M3 7v6h6" />
+      <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+    </>
+  ),
+  redo: (
+    <>
+      <path d="M21 7v6h-6" />
+      <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
+    </>
+  ),
+  bold: (
+    <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z" />
+  ),
+  italic: (
+    <>
+      <line x1="19" y1="4" x2="10" y2="4" />
+      <line x1="14" y1="20" x2="5" y2="20" />
+      <line x1="15" y1="4" x2="9" y2="20" />
+    </>
+  ),
+  underline: (
+    <>
+      <path d="M6 3v7a6 6 0 0 0 12 0V3" />
+      <line x1="4" y1="21" x2="20" y2="21" />
+    </>
+  ),
+  'align-left': (
+    <>
+      <line x1="21" y1="6" x2="3" y2="6" />
+      <line x1="15" y1="12" x2="3" y2="12" />
+      <line x1="17" y1="18" x2="3" y2="18" />
+    </>
+  ),
+  'align-center': (
+    <>
+      <line x1="21" y1="6" x2="3" y2="6" />
+      <line x1="17" y1="12" x2="7" y2="12" />
+      <line x1="19" y1="18" x2="5" y2="18" />
+    </>
+  ),
+  'align-right': (
+    <>
+      <line x1="21" y1="6" x2="3" y2="6" />
+      <line x1="21" y1="12" x2="9" y2="12" />
+      <line x1="21" y1="18" x2="7" y2="18" />
+    </>
+  ),
+  list: (
+    <>
+      <line x1="8" y1="6" x2="21" y2="6" />
+      <line x1="8" y1="12" x2="21" y2="12" />
+      <line x1="8" y1="18" x2="21" y2="18" />
+      <circle cx="3.5" cy="6" r="1" fill="currentColor" stroke="none" />
+      <circle cx="3.5" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="3.5" cy="18" r="1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  'list-ordered': (
+    <>
+      <line x1="10" y1="6" x2="21" y2="6" />
+      <line x1="10" y1="12" x2="21" y2="12" />
+      <line x1="10" y1="18" x2="21" y2="18" />
+      <path d="M4 6h1v4M4 10h2M6 18H4c0-1 2-2 2-3s-1-1.5-2-1" />
+    </>
+  ),
+  'link-01': (
+    <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+  ),
+  'image-03': (
+    <>
+      <rect width="18" height="18" x="3" y="3" rx="2" ry="2" />
+      <circle cx="9" cy="9" r="2" />
+      <path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />
+    </>
+  ),
 };
 
 export const PosterChildIcon: React.FC<PosterChildIconProps> = ({

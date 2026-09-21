@@ -7,6 +7,7 @@ import { useSidebar } from '../context/SidebarContext';
 import {
   PRODUCT_NAVIGATION,
   buildProductUrl,
+  isNavChildActive,
   normalizeProductPath,
 } from '../navigation/productNavigation';
 
@@ -26,11 +27,11 @@ export default function Sidebar({ onTabChange, showTrialPromo = false }: Sidebar
 
   // Determine which parent section is active
   const activeParentId =
-    currentSubPath.startsWith('tell')
+    currentSubPath === 'tell' || currentSubPath.startsWith('tell/')
       ? 'tell'
-      : currentSubPath.startsWith('raise')
+      : currentSubPath === 'raise' || currentSubPath.startsWith('raise/')
       ? 'raise'
-      : currentSubPath.startsWith('manage')
+      : currentSubPath === 'manage' || currentSubPath.startsWith('manage/')
       ? 'manage'
       : 'home';
 
@@ -182,9 +183,14 @@ export default function Sidebar({ onTabChange, showTrialPromo = false }: Sidebar
 
             // Expanded Mode
             const isAnyChildActive = Boolean(
-              hasChildren && item.children?.some((child) => currentSubPath === child.subPath)
+              hasChildren &&
+                item.children?.some((child) =>
+                  isNavChildActive(currentSubPath, item.subPath, child.subPath, child.id)
+                )
             );
-            const isParentDirectlyActive = currentSubPath === item.subPath;
+            const isParentDirectlyActive =
+              currentSubPath === item.subPath ||
+              currentSubPath === `${item.subPath}/overview`;
 
             return (
               <NavGroup key={item.id}>
@@ -222,7 +228,12 @@ export default function Sidebar({ onTabChange, showTrialPromo = false }: Sidebar
                 {hasChildren && isExpanded && (
                   <div className="pc-ref-nav-sub-list">
                     {item.children!.map((child) => {
-                      const isChildActive = currentSubPath === child.subPath;
+                      const isChildActive = isNavChildActive(
+                        currentSubPath,
+                        item.subPath,
+                        child.subPath,
+                        child.id
+                      );
                       const childIcon = child.icon || 'bar-chart-square-02';
 
                       return (

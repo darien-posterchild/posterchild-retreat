@@ -4,17 +4,25 @@ import ProductPage from '../../components/posterchild/ProductPage';
 import { Button } from '../../components/posterchild/Button';
 import { Badge } from '../../components/posterchild/Badge';
 import { PosterChildIcon } from '../../components/posterchild/Icon';
+import { InsightBanner } from '../../components/posterchild/InsightBanner';
 import { Scene, DecisionStatus } from '../../types/session';
 import { useDemoState } from '../../useDemoState';
+
+import thumbYouthCareer from '../../assets/screens/connect/thumb-youth-career.png';
+import thumbSpringAlumni from '../../assets/screens/connect/thumb-spring-alumni.png';
+import thumbProgramExp from '../../assets/screens/connect/thumb-program-exp.png';
+import thumbLeadership from '../../assets/screens/connect/thumb-leadership.png';
 
 interface ConversationItem {
   id: string;
   title: string;
   type: string;
-  responses: number;
-  status: 'ready' | 'immediate' | 'upcoming';
+  thumbnail: string;
+  responses: string;
+  statusVariant: 'upcoming' | 'neutral' | 'ready';
   statusLabel: string;
   nextStep: string;
+  lastUpdated: string;
 }
 
 const CONVERSATIONS: ConversationItem[] = [
@@ -22,37 +30,45 @@ const CONVERSATIONS: ConversationItem[] = [
     id: 'conv-1',
     title: 'Youth Career Pathways Check-in',
     type: 'Program check-in',
-    responses: 23,
-    status: 'ready',
+    thumbnail: thumbYouthCareer,
+    responses: '23 responses',
+    statusVariant: 'upcoming', // warm yellow badge
     statusLabel: 'Active',
-    nextStep: 'Review transportation theme.'
+    nextStep: 'Review transportation theme.',
+    lastUpdated: '2 days ago'
   },
   {
     id: 'conv-2',
     title: 'Spring Alumni Stories',
     type: 'Story collection',
-    responses: 14,
-    status: 'ready',
+    thumbnail: thumbSpringAlumni,
+    responses: '14 responses',
+    statusVariant: 'neutral', // neutral gray badge
     statusLabel: 'Active',
-    nextStep: 'Review 3 strong responses.'
+    nextStep: 'Review 3 strong responses.',
+    lastUpdated: '4 days ago'
   },
   {
     id: 'conv-3',
     title: 'Program Experience',
     type: 'Community feedback',
-    responses: 42,
-    status: 'upcoming',
+    thumbnail: thumbProgramExp,
+    responses: '42 responses',
+    statusVariant: 'ready', // green badge
     statusLabel: 'Analysis ready',
-    nextStep: 'Review themes and signals.'
+    nextStep: 'Review themes and signals.',
+    lastUpdated: '2 weeks ago'
   },
   {
     id: 'conv-4',
     title: 'Community Leadership Follow-up',
     type: 'Follow-up request',
-    responses: 0,
-    status: 'immediate',
+    thumbnail: thumbLeadership,
+    responses: '0 responses',
+    statusVariant: 'neutral', // neutral gray badge
     statusLabel: 'Draft',
-    nextStep: 'Send the request.'
+    nextStep: 'Send the request.',
+    lastUpdated: '1 week ago'
   }
 ];
 
@@ -103,19 +119,23 @@ export default function TellConnect() {
       description="Collect experiences, voices, and perspectives that can become stories."
       primaryAction={
         isCompleted ? (
-          <Button variant="primary" size="md" iconLeading="arrow-left" onClick={returnHome}>
-            Return to Home
+          <Button variant="primary" size="md" iconLeading="check" onClick={returnHome}>
+            Return to Home [H]
           </Button>
         ) : isResult && winningOptionId === 'use-in-story' ? (
           <Button variant="primary" size="md" iconLeading="arrow-right" onClick={convergeToStory}>
             Use in Youth Career Story
           </Button>
-        ) : isResult ? (
-          <Button variant="primary" size="md" iconLeading="check" onClick={completeMission}>
-            Complete Mission
-          </Button>
         ) : (
-          <Button variant="primary" size="md" iconLeading="plus">
+          <Button
+            variant="primary"
+            size="md"
+            iconLeading="plus"
+            onClick={() => {
+              // Future retreat concept:
+              // PosterChild generates a follow-up form from detected community signals.
+            }}
+          >
             Ask your community
           </Button>
         )
@@ -275,173 +295,86 @@ export default function TellConnect() {
           </div>
         )}
 
-        {/* 1. PosterChild Noticed Card */}
-        <section className="pc-product-section" aria-label="PosterChild noticed callout">
-          <h2 className="pc-product-section__title" style={{ fontSize: '16px', fontWeight: 600, color: '#101828', margin: '0 0 12px 0' }}>
-            PosterChild noticed
-          </h2>
-          <div
-            className="pc-product-card pc-product-card--callout"
-            style={{
-              backgroundColor: '#FFFBEB',
-              border: '1px solid #FEF08A',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              alignItems: 'flex-start',
-              gap: '16px'
+        {/* 1. PosterChild Insight Banner */}
+        <section aria-label="PosterChild community insight">
+          <InsightBanner
+            title="Transportation keeps coming up. Is there more to understand?"
+            description="PosterChild found transportation mentioned across 7 recent Youth Career Pathways responses. It may be worth asking a follow-up before turning the theme into a story."
+            actionLabel="Ask your community"
+            onAction={() => {
+              // Future retreat concept:
+              // PosterChild generates a follow-up form from detected community signals.
             }}
-          >
-            <div
-              style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '8px',
-                backgroundColor: '#FEF08A',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}
-            >
-              <PosterChildIcon name="stars-01" size={20} color="#8F6500" strokeWidth={2} />
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', flex: 1 }}>
-              <span
-                style={{
-                  fontSize: '15px',
-                  fontWeight: 600,
-                  color: '#713F12',
-                  lineHeight: 1.4
-                }}
-              >
-                Transportation keeps coming up. Is there more to understand?
-              </span>
-              <p
-                style={{
-                  fontSize: '13px',
-                  color: '#854D0E',
-                  lineHeight: 1.5,
-                  margin: 0
-                }}
-              >
-                PosterChild found transportation mentioned across 7 recent Youth Career Pathways responses. It may be worth asking a follow-up before turning the theme into a story.
-              </p>
-            </div>
-          </div>
+          />
         </section>
 
-        {/* 2. Active Conversations Table */}
-        <section className="pc-product-section" aria-label="Active conversations">
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-            <h2 className="pc-product-section__title" style={{ fontSize: '16px', fontWeight: 600, color: '#101828', margin: 0 }}>
+        {/* 2. Active Conversations Table Section */}
+        <section className="pc-connect-section" aria-label="Active conversations">
+          <div className="pc-connect-section-header">
+            <h2 className="pc-connect-section-title">
               Active conversations
             </h2>
             <button
               type="button"
-              style={{
-                background: 'transparent',
-                border: 'none',
-                color: '#8F6500',
-                fontSize: '13px',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '4px'
-              }}
+              className="pc-connect-view-all-btn"
             >
-              <span>View all conversations</span>
-              <PosterChildIcon name="arrow-right" size={13} color="#8F6500" />
+              <span>View all</span>
+              <PosterChildIcon name="arrow-right" size={14} color="#8F6500" strokeWidth={2} />
             </button>
           </div>
 
-          <div
-            className="pc-product-table-card"
-            style={{
-              backgroundColor: '#FFFFFF',
-              border: '1px solid #E5E5E5',
-              borderRadius: '12px',
-              overflow: 'hidden'
-            }}
-          >
-            <div
-              className="pc-product-table-header"
-              style={{
-                display: 'grid',
-                gridTemplateColumns: '1.4fr 120px 100px 120px 1.2fr',
-                padding: '12px 18px',
-                backgroundColor: '#F9FAFB',
-                borderBottom: '1px solid #EAECF0',
-                fontSize: '12px',
-                fontWeight: 600,
-                color: '#667085',
-                textTransform: 'uppercase',
-                letterSpacing: '0.05em'
-              }}
-            >
+          <div className="pc-connect-table-card">
+            {/* Table Header */}
+            <div className="pc-connect-table-header">
               <span>Conversation</span>
-              <span>Type</span>
-              <span>Responses</span>
               <span>Status</span>
+              <span>Responses</span>
               <span>Next step</span>
+              <span>Last updated</span>
             </div>
 
-            <div className="pc-product-table-body">
-              {CONVERSATIONS.map((conv, idx) => (
-                <div
-                  key={conv.id}
-                  className="pc-product-table-row"
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1.4fr 120px 100px 120px 1.2fr',
-                    padding: '16px 18px',
-                    borderBottom: idx < CONVERSATIONS.length - 1 ? '1px solid #EAECF0' : 'none',
-                    alignItems: 'center'
-                  }}
-                >
-                  <span style={{ fontSize: '14px', fontWeight: 600, color: '#101828' }}>
-                    {conv.title}
-                  </span>
-                  <span style={{ fontSize: '13px', color: '#667085' }}>
-                    {conv.type}
-                  </span>
-                  <span style={{ fontSize: '14px', fontWeight: 500, color: '#101828' }}>
-                    {conv.responses}
-                  </span>
-                  <div>
-                    <Badge variant={conv.status} size="sm">
+            {/* Table Rows */}
+            <div className="pc-connect-table-body">
+              {CONVERSATIONS.map((conv) => (
+                <div key={conv.id} className="pc-connect-table-row">
+                  {/* Conversation Column */}
+                  <div className="pc-connect-cell-conv">
+                    <img
+                      src={conv.thumbnail}
+                      alt={conv.title}
+                      className="pc-connect-conv-thumb"
+                    />
+                    <div className="pc-connect-conv-info">
+                      <h3 className="pc-connect-conv-title">{conv.title}</h3>
+                      <span className="pc-connect-conv-type">{conv.type}</span>
+                    </div>
+                  </div>
+
+                  {/* Status Column */}
+                  <div className="pc-connect-cell-status">
+                    <Badge variant={conv.statusVariant} size="sm">
                       {conv.statusLabel}
                     </Badge>
                   </div>
-                  <span style={{ fontSize: '13px', color: '#475467' }}>
+
+                  {/* Responses Column */}
+                  <div className="pc-connect-cell-responses">
+                    {conv.responses}
+                  </div>
+
+                  {/* Next step Column */}
+                  <div className="pc-connect-cell-nextstep">
                     {conv.nextStep}
-                  </span>
+                  </div>
+
+                  {/* Last updated Column */}
+                  <div className="pc-connect-cell-updated">
+                    {conv.lastUpdated}
+                  </div>
                 </div>
               ))}
             </div>
           </div>
-        </section>
-
-        {/* 3. Postie Context Assistant Box */}
-        <section
-          style={{
-            backgroundColor: '#F9FAFB',
-            border: '1px solid #EAECF0',
-            borderRadius: '12px',
-            padding: '18px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '8px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#475467' }}>
-            <PosterChildIcon name="stars-01" size={16} />
-            <strong style={{ fontSize: '13px' }}>Postie Community Intelligence</strong>
-          </div>
-          <p style={{ margin: 0, fontSize: '13px', color: '#344054', lineHeight: 1.5 }}>
-            <em>“Transportation is the clearest recurring theme in Youth Career Pathways. I also found 3 Spring Alumni responses detailed enough to review as possible story sources.”</em>
-          </p>
         </section>
       </div>
     </ProductPage>

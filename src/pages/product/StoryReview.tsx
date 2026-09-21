@@ -1,11 +1,17 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSearchParams, useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import ProductPage from '../../components/posterchild/ProductPage';
 import { Button } from '../../components/posterchild/Button';
 import { Badge } from '../../components/posterchild/Badge';
 import { PosterChildIcon } from '../../components/posterchild/Icon';
+import { Tabs } from '../../components/posterchild/Tabs';
 import { Scene, DecisionStatus } from '../../types/session';
 import { useDemoState } from '../../useDemoState';
+import communityCatalystLogo from '../../assets/screens/story-review-social/community-catalyst-logo.png';
+import galleryImg1 from '../../assets/screens/story-review-article/gallery-1.png';
+import galleryImg2 from '../../assets/screens/story-review-article/gallery-2.png';
+import galleryImg3 from '../../assets/screens/story-review-article/gallery-3.png';
+import galleryImg4 from '../../assets/screens/story-review-article/gallery-4.png';
 
 interface StoryData {
   id: string;
@@ -62,6 +68,19 @@ const STORY_REGISTRY: Record<string, StoryData> = {
 };
 
 type StoryTab = 'social' | 'article' | 'content-source';
+type StoryFormat = 'carousel' | 'single-poster';
+
+interface BrandColorSwatch {
+  id: string;
+  color: string;
+  label: string;
+}
+
+const BRAND_COLORS: BrandColorSwatch[] = [
+  { id: 'dark-teal', color: '#00382E', label: 'Dark Teal' },
+  { id: 'cadet-blue', color: '#5B9B9B', label: 'Cadet Blue' },
+  { id: 'orange', color: '#EB5E28', label: 'Orange' },
+];
 
 interface StoryReviewOutletContext {
   scene?: Scene;
@@ -88,6 +107,12 @@ export default function StoryReview() {
   const tabParam = (searchParams.get('tab') as StoryTab) || 'social';
   const activeTab: StoryTab = ['social', 'article', 'content-source'].includes(tabParam) ? tabParam : 'social';
 
+  // Format switcher and color selection state
+  const [format, setFormat] = useState<StoryFormat>('carousel');
+  const [selectedColorId, setSelectedColorId] = useState<string>('dark-teal');
+
+  const activeColor = BRAND_COLORS.find((c) => c.id === selectedColorId)?.color || '#00382E';
+
   const scene = outletCtx.scene ?? state.scene ?? 'dashboard';
   const decisionStatus = outletCtx.decisionStatus ?? state.decisionStatus ?? 'idle';
   const winningOptionId = outletCtx.winningOptionId ?? state.winningOptionId ?? state.winner ?? null;
@@ -111,9 +136,7 @@ export default function StoryReview() {
     navigate(`/present/${sessionId}`);
   };
 
-  const backToStories = () => {
-    navigate(`/present/${sessionId}/tell/stories`);
-  };
+  const activeActionLabel = activeTab === 'social' ? 'Publish to Socials' : 'Share article';
 
   return (
     <ProductPage
@@ -121,26 +144,17 @@ export default function StoryReview() {
       description={story.category}
       primaryAction={
         isCompleted ? (
-          <Button variant="primary" size="md" iconLeading="arrow-left" onClick={returnHome}>
-            Return to Home
+          <Button variant="primary" size="md" iconLeading="check" onClick={returnHome}>
+            Return to Home [H]
           </Button>
-        ) : isResult ? (
+        ) : (
           <Button
             variant="primary"
             size="md"
             iconLeading="check"
             onClick={completeMission}
           >
-            {activeTab === 'social' ? 'Publish to Socials' : 'Share Article'}
-          </Button>
-        ) : (
-          <Button
-            variant="secondary"
-            size="md"
-            iconLeading="arrow-left"
-            onClick={backToStories}
-          >
-            Stories Catalog
+            {activeActionLabel}
           </Button>
         )
       }
@@ -235,269 +249,351 @@ export default function StoryReview() {
           </div>
         )}
 
-        {/* 1. Tab Bar Navigation */}
-        <div
-          style={{
-            display: 'flex',
-            gap: '8px',
-            borderBottom: '1px solid #E4E7EC',
-            paddingBottom: '2px'
-          }}
-          role="tablist"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'social'}
-            onClick={() => setTab('social')}
-            style={{
-              padding: '10px 16px',
-              fontSize: '14px',
-              fontWeight: activeTab === 'social' ? 600 : 500,
-              color: activeTab === 'social' ? '#7F56D9' : '#667085',
-              border: 'none',
-              borderBottom: activeTab === 'social' ? '2px solid #7F56D9' : '2px solid transparent',
-              background: 'transparent',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <PosterChildIcon name="message-square-quote" size={16} />
-            <span>Social Media</span>
-            {isResult && winningOptionId === 'social' && (
-              <Badge variant="brand" size="sm">Winner</Badge>
-            )}
-          </button>
+        {/* 1. Primary Content Tabs */}
+        <Tabs<StoryTab>
+          ariaLabel="Story review sections"
+          activeId={activeTab}
+          onChange={setTab}
+          items={[
+            {
+              id: 'social',
+              label: 'Social Media',
+              badge: isResult && winningOptionId === 'social' ? (
+                <Badge variant="brand" size="sm">Winner</Badge>
+              ) : undefined,
+            },
+            {
+              id: 'article',
+              label: 'Article',
+              badge: isResult && winningOptionId === 'article' ? (
+                <Badge variant="brand" size="sm">Winner</Badge>
+              ) : undefined,
+            },
+            {
+              id: 'content-source',
+              label: 'Content Source',
+            },
+          ]}
+        />
 
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'article'}
-            onClick={() => setTab('article')}
-            style={{
-              padding: '10px 16px',
-              fontSize: '14px',
-              fontWeight: activeTab === 'article' ? 600 : 500,
-              color: activeTab === 'article' ? '#7F56D9' : '#667085',
-              border: 'none',
-              borderBottom: activeTab === 'article' ? '2px solid #7F56D9' : '2px solid transparent',
-              background: 'transparent',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <PosterChildIcon name="file-06" size={16} />
-            <span>Article</span>
-            {isResult && winningOptionId === 'article' && (
-              <Badge variant="brand" size="sm">Winner</Badge>
-            )}
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeTab === 'content-source'}
-            onClick={() => setTab('content-source')}
-            style={{
-              padding: '10px 16px',
-              fontSize: '14px',
-              fontWeight: activeTab === 'content-source' ? 600 : 500,
-              color: activeTab === 'content-source' ? '#7F56D9' : '#667085',
-              border: 'none',
-              borderBottom: activeTab === 'content-source' ? '2px solid #7F56D9' : '2px solid transparent',
-              background: 'transparent',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px'
-            }}
-          >
-            <PosterChildIcon name="folder" size={16} />
-            <span>Content Source</span>
-            <span style={{ fontSize: '11px', background: '#F2F4F7', color: '#667085', padding: '2px 6px', borderRadius: '4px' }}>
-              Pending
-            </span>
-          </button>
-        </div>
-
-        {/* 2. Tab Content Panels */}
+        {/* 2. Secondary Format Switcher */}
         {activeTab === 'social' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Social Header & Controls */}
-            <div
-              style={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E5E5E5',
-                borderRadius: '12px',
-                padding: '24px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '20px'
-              }}
+          <div className="pc-story-format-switcher">
+            <button
+              type="button"
+              className={`pc-story-format-btn ${format === 'carousel' ? 'is-active' : ''}`}
+              onClick={() => setFormat('carousel')}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#101828', margin: 0 }}>
-                    Instagram Spotlight Carousel
-                  </h2>
-                  <p style={{ fontSize: '14px', color: '#667085', margin: '4px 0 0 0' }}>
-                    Formatted multi-slide quote carousel ready for Instagram and LinkedIn publishing.
-                  </p>
-                </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <Button variant="secondary" size="sm" iconLeading="file-06">
-                    Download All
-                  </Button>
-                  <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
-                    Publish to Socials
-                  </Button>
-                </div>
-              </div>
+              <PosterChildIcon name="carousel" size={15} />
+              <span>Carousel</span>
+            </button>
+            <button
+              type="button"
+              className={`pc-story-format-btn ${format === 'single-poster' ? 'is-active' : ''}`}
+              onClick={() => setFormat('single-poster')}
+            >
+              <PosterChildIcon name="poster" size={15} />
+              <span>Single Poster</span>
+              <Badge variant="upcoming" size="sm">New</Badge>
+            </button>
+          </div>
+        )}
 
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-                  gap: '16px'
-                }}
-              >
-                {/* Slide 1 Preview */}
-                <div
-                  style={{
-                    backgroundColor: '#1D2939',
-                    color: '#FFFFFF',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    minHeight: '200px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <span style={{ fontSize: '11px', color: '#98A2B3', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    PosterChild • Slide 1
-                  </span>
-                  <p style={{ fontSize: '16px', fontWeight: 500, lineHeight: 1.4, margin: '16px 0' }}>
-                    “Building confidence wasn’t just about code. It was about knowing we had a team in our corner.”
-                  </p>
-                  <span style={{ fontSize: '12px', color: '#D0D5DD' }}>
-                    — Participant, Youth Career Pathways
-                  </span>
+        {/* 3. Tab Content Panels */}
+        {activeTab === 'social' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {/* Horizontal Control Bar */}
+            <div className="pc-story-control-bar">
+              <div className="pc-story-controls-left">
+                {/* OUTPUT */}
+                <div className="pc-story-control-group">
+                  <span className="pc-story-control-label">Output</span>
+                  <button type="button" className="pc-story-control-dropdown">
+                    <PosterChildIcon name="instagram" size={18} color="#E1306C" strokeWidth={1.8} />
+                    <span>Instagram: Carousel</span>
+                    <PosterChildIcon name="chevron-down" size={16} color="#737373" strokeWidth={2} />
+                  </button>
                 </div>
 
-                {/* Slide 2 Preview */}
-                <div
-                  style={{
-                    backgroundColor: '#F9FAFB',
-                    border: '1px solid #EAECF0',
-                    borderRadius: '12px',
-                    padding: '24px',
-                    minHeight: '200px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between'
-                  }}
-                >
-                  <span style={{ fontSize: '11px', color: '#667085', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    PosterChild • Slide 2
-                  </span>
-                  <div>
-                    <strong style={{ fontSize: '24px', color: '#7F56D9', display: 'block' }}>80% → 100%</strong>
-                    <p style={{ fontSize: '13px', color: '#475467', margin: '6px 0 0 0' }}>
-                      Program retention across summer apprenticeships with full stipend support.
-                    </p>
+                <div className="pc-story-control-divider" />
+
+                {/* CAROUSEL TEMPLATE */}
+                <div className="pc-story-control-group">
+                  <span className="pc-story-control-label">Carousel Template</span>
+                  <button type="button" className="pc-story-control-dropdown">
+                    <span>Spotlight Quote</span>
+                    <PosterChildIcon name="chevron-down" size={16} color="#737373" strokeWidth={2} />
+                  </button>
+                </div>
+
+                <div className="pc-story-control-divider" />
+
+                {/* BRAND COLORS */}
+                <div className="pc-story-control-group">
+                  <span className="pc-story-control-label">Brand Colors</span>
+                  <div className="pc-story-swatches-row">
+                    {BRAND_COLORS.map((swatch) => {
+                      const isSelected = selectedColorId === swatch.id;
+                      return (
+                        <button
+                          key={swatch.id}
+                          type="button"
+                          title={swatch.label}
+                          aria-label={`Select ${swatch.label}`}
+                          className={`pc-story-swatch-btn ${isSelected ? 'is-selected' : ''}`}
+                          style={{ backgroundColor: swatch.color }}
+                          onClick={() => setSelectedColorId(swatch.id)}
+                        />
+                      );
+                    })}
                   </div>
-                  <span style={{ fontSize: '12px', color: '#98A2B3' }}>
-                    #YouthVoices #Belonging
-                  </span>
                 </div>
               </div>
 
-              {/* Postie Context Box */}
-              <div
-                style={{
-                  backgroundColor: '#F9FAFB',
-                  border: '1px solid #EAECF0',
-                  borderRadius: '8px',
-                  padding: '14px 16px'
-                }}
-              >
-                <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#475467', fontWeight: 600 }}>
-                  💬 Caption Optimization with Postie
-                </p>
-                <p style={{ margin: 0, fontSize: '13px', color: '#344054', lineHeight: 1.5 }}>
-                  <em>Postie: “I’d make the opening more direct and keep the proof point in the second sentence. I can also adapt it for LinkedIn or Instagram without changing the core story.”</em>
-                </p>
+              {/* ACTION BUTTONS RIGHT */}
+              <div className="pc-story-controls-right">
+                <Button variant="secondary" size="sm" iconLeading="edit-02">
+                  Edit Slides
+                </Button>
+                <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
+                  Publish to Socials
+                </Button>
+              </div>
+            </div>
+
+            {/* Split Preview Grid */}
+            <div className="pc-story-preview-grid">
+              {/* Left Column: Post Details */}
+              <div className="pc-story-details-col">
+                <div className="pc-story-details-section">
+                  <div className="pc-story-section-header">
+                    <h3 className="pc-story-section-title">Caption</h3>
+                    <span className="pc-story-char-count">128 chars</span>
+                  </div>
+                  <div className="pc-story-textarea-wrap">
+                    <textarea
+                      className="pc-story-textarea"
+                      rows={4}
+                      defaultValue="For many young people, career confidence doesn’t begin with a résumé. It begins when they can see what’s possible. #YouthCareerPathways"
+                    />
+                    <div className="pc-story-textarea-actions">
+                      <Button variant="secondary" size="sm" iconLeading="stars-01">
+                        Regenerate
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pc-story-details-section">
+                  <h3 className="pc-story-section-title">Scheduled Channel</h3>
+                  <div className="pc-story-channel-card">
+                    <div className="pc-story-channel-icon-wrap">
+                      <PosterChildIcon name="instagram" size={20} color="#E1306C" />
+                    </div>
+                    <div className="pc-story-channel-info">
+                      <div className="pc-story-channel-name">Instagram Business</div>
+                      <div className="pc-story-channel-handle">@communitycatalyst · Auto-scheduled</div>
+                    </div>
+                    <Badge variant="ready" size="sm">Connected</Badge>
+                  </div>
+                </div>
+
+                <div className="pc-story-details-section">
+                  <h3 className="pc-story-section-title">Target Audience</h3>
+                  <div className="pc-story-tags-row">
+                    <span className="pc-story-tag">Local Donors</span>
+                    <span className="pc-story-tag">Corporate Partners</span>
+                    <span className="pc-story-tag">Youth Advocates</span>
+                    <span className="pc-story-tag">Alumni Network</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Column: Dynamic Slide Visual Preview */}
+              <div className="pc-story-visual-col">
+                <div className="pc-story-artwork-preview" style={{ backgroundColor: activeColor }}>
+                  <div className="pc-story-artwork-brand">
+                    <img
+                      src={communityCatalystLogo}
+                      alt="Community Catalyst Logo"
+                      className="pc-story-artwork-brand-img"
+                    />
+                  </div>
+
+                  <div className="pc-story-artwork-content">
+                    <div className="pc-story-artwork-quote-icon">“</div>
+                    <p className="pc-story-artwork-quote-text">
+                      I didn’t know people in this field before. Now I know who to ask, what to look for, and what I can do next.
+                    </p>
+                    <div className="pc-story-artwork-attribution">
+                      — Youth Career Pathways participant
+                    </div>
+                  </div>
+
+                  <div className="pc-story-artwork-brand" style={{ justifyContent: 'space-between', width: '100%' }}>
+                    <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em' }}>
+                      COMMUNITY CATALYST
+                    </span>
+                    <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>
+                      01 / 04
+                    </span>
+                  </div>
+                </div>
+
+                {/* Preview Navigation */}
+                <div className="pc-story-preview-actions">
+                  <Button variant="secondary" size="sm">
+                    Preview all 4 slides
+                  </Button>
+                  <Button variant="secondary" size="sm" iconLeading="download">
+                    Export Assets
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
         )}
 
         {activeTab === 'article' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            {/* Article Content Card */}
-            <div
-              style={{
-                backgroundColor: '#FFFFFF',
-                border: '1px solid #E5E5E5',
-                borderRadius: '12px',
-                padding: '32px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '24px'
-              }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <span style={{ fontSize: '12px', fontWeight: 600, color: '#7F56D9', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                    Article / Blog / Newsletter
-                  </span>
-                  <h2 style={{ fontSize: '24px', fontWeight: 700, color: '#101828', margin: '6px 0 8px 0' }}>
-                    Youth Career Pathways: Networks that build confidence
-                  </h2>
-                  <p style={{ fontSize: '14px', color: '#667085', margin: 0 }}>
-                    A complete article draft ready to edit, share, or adapt.
+          <div className="pc-article-card">
+            {/* Header */}
+            <div className="pc-article-header">
+              <div className="pc-article-header-left">
+                <h3 className="pc-article-header-title">Article / Blog / Newsletter</h3>
+                <p className="pc-article-header-subtitle">A complete article draft ready to edit, share, or adapt.</p>
+              </div>
+              <div className="pc-article-header-actions">
+                <Button variant="secondary" size="sm">
+                  Edit HTML
+                </Button>
+                <Button variant="primary" size="sm" onClick={completeMission}>
+                  Share Article
+                </Button>
+              </div>
+            </div>
+
+            {/* Visual Editor Toolbar */}
+            <div className="pc-article-toolbar">
+              {/* Undo / Redo */}
+              <div className="pc-article-toolbar-group">
+                <button type="button" className="pc-article-tool-btn" title="Undo" aria-label="Undo">
+                  <PosterChildIcon name="undo" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-tool-btn" title="Redo" aria-label="Redo">
+                  <PosterChildIcon name="redo" size={20} strokeWidth={1.67} />
+                </button>
+              </div>
+
+              <div className="pc-article-toolbar-divider" />
+
+              {/* Font selector: Inter / Font size: 16px */}
+              <div className="pc-article-toolbar-group">
+                <button type="button" className="pc-article-tool-select" title="Font family">
+                  <span>Inter</span>
+                  <PosterChildIcon name="chevron-down" size={14} strokeWidth={2} color="#737373" />
+                </button>
+                <button type="button" className="pc-article-tool-select" title="Font size">
+                  <span>16px</span>
+                  <PosterChildIcon name="chevron-down" size={14} strokeWidth={2} color="#737373" />
+                </button>
+              </div>
+
+              <div className="pc-article-toolbar-divider" />
+
+              {/* Formatting: bold, italic, underline & color swatch */}
+              <div className="pc-article-toolbar-group">
+                <button type="button" className="pc-article-tool-btn" title="Bold" aria-label="Bold">
+                  <PosterChildIcon name="bold" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-tool-btn" title="Italic" aria-label="Italic">
+                  <PosterChildIcon name="italic" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-tool-btn" title="Underline" aria-label="Underline">
+                  <PosterChildIcon name="underline" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-color-swatch-wrapper" title="Text color" aria-label="Text color">
+                  <span className="pc-article-color-swatch" />
+                </button>
+              </div>
+
+              <div className="pc-article-toolbar-divider" />
+
+              {/* Alignment controls */}
+              <div className="pc-article-toolbar-group">
+                <button type="button" className="pc-article-tool-btn is-active" title="Align left" aria-label="Align left">
+                  <PosterChildIcon name="align-left" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-tool-btn" title="Align center" aria-label="Align center">
+                  <PosterChildIcon name="align-center" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-tool-btn" title="Align right" aria-label="Align right">
+                  <PosterChildIcon name="align-right" size={20} strokeWidth={1.67} />
+                </button>
+              </div>
+
+              <div className="pc-article-toolbar-divider" />
+
+              {/* List controls */}
+              <div className="pc-article-toolbar-group">
+                <button type="button" className="pc-article-tool-btn" title="Bullet list" aria-label="Bullet list">
+                  <PosterChildIcon name="list" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-tool-btn" title="Numbered list" aria-label="Numbered list">
+                  <PosterChildIcon name="list-ordered" size={20} strokeWidth={1.67} />
+                </button>
+              </div>
+
+              <div className="pc-article-toolbar-divider" />
+
+              {/* Link, Image, Sparkles */}
+              <div className="pc-article-toolbar-group">
+                <button type="button" className="pc-article-tool-btn" title="Insert link" aria-label="Insert link">
+                  <PosterChildIcon name="link-01" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-tool-btn" title="Insert image" aria-label="Insert image">
+                  <PosterChildIcon name="image-03" size={20} strokeWidth={1.67} />
+                </button>
+                <button type="button" className="pc-article-tool-btn" title="AI Assistant" aria-label="AI Assistant">
+                  <PosterChildIcon name="sparkles" size={20} strokeWidth={1.67} color="#8F6500" />
+                </button>
+              </div>
+            </div>
+
+            {/* Article Canvas Area */}
+            <div className="pc-article-canvas">
+              {/* 4-up Image Gallery */}
+              <div className="pc-article-gallery">
+                <img src={galleryImg1} alt="Participant testimonial 1" className="pc-article-gallery-img" />
+                <img src={galleryImg2} alt="Participant testimonial 2" className="pc-article-gallery-img" />
+                <img src={galleryImg3} alt="Participant testimonial 3" className="pc-article-gallery-img" />
+                <img src={galleryImg4} alt="Participant testimonial 4" className="pc-article-gallery-img" />
+              </div>
+
+              {/* Article Content */}
+              <div className="pc-article-content-body">
+                <h2 className="pc-article-content-title">
+                  Youth Career Pathways: Networks that build confidence
+                </h2>
+
+                <p className="pc-article-p">
+                  For many young people, career confidence does not begin with a résumé. It begins when they can see people, places, and opportunities that make a future feel possible.
+                </p>
+
+                <p className="pc-article-p">
+                  Four recent Youth Career Pathways testimonials point to the same pattern: mentors, peers, and professional connections help participants understand what comes next and feel more prepared to take that step.
+                </p>
+
+                <div className="pc-article-pullquote">
+                  <p className="pc-article-pullquote-body">
+                    “I didn’t know people in this field before. Now I know who to ask, what to look for, and what I can do next.”
+                  </p>
+                  <p className="pc-article-pullquote-attribution">
+                    — Youth Career Pathways participant
                   </p>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <Button variant="secondary" size="sm" iconLeading="file-06">
-                    Edit HTML
-                  </Button>
-                  <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
-                    Share Article
-                  </Button>
-                </div>
-              </div>
 
-              <hr style={{ border: 'none', borderTop: '1px solid #EAECF0', margin: 0 }} />
-
-              <div style={{ fontSize: '15px', lineHeight: 1.7, color: '#334155', display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <p style={{ margin: 0 }}>
-                  {story.excerpt}
-                </p>
-                <p style={{ margin: 0 }}>
-                  When youth are asked what makes the largest difference in career readiness, technical skills are only half the answer. The defining factor is relational capital: having mentors who have navigated the same barriers and having a cohort of peers to lean on when the learning curve steepens.
-                </p>
-              </div>
-
-              {/* Postie Article Assistant Box */}
-              <div
-                style={{
-                  backgroundColor: '#F9FAFB',
-                  border: '1px solid #EAECF0',
-                  borderRadius: '8px',
-                  padding: '14px 16px'
-                }}
-              >
-                <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#475467', fontWeight: 600 }}>
-                  💬 Article Tone Tuning with Postie
-                </p>
-                <p style={{ margin: 0, fontSize: '13px', color: '#344054', lineHeight: 1.5 }}>
-                  <em>Postie: “I’d open with the participant insight first, then explain the pattern across all four testimonials. That makes the article feel more human before introducing the broader program context.”</em>
+                <p className="pc-article-p">
+                  That sense of connection is becoming a repeatable part of the program’s impact. PosterChild can adapt this story for a newsletter, donor update, website article, or other distribution channel once the article is approved.
                 </p>
               </div>
             </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FeaturedIcon, FeaturedIconVariant } from './FeaturedIcon';
 import { PosterChildIcon, PosterChildIconName } from './Icon';
+import { Badge } from './Badge';
 
 export interface ManageInventoryItem {
   label: string;
@@ -92,13 +93,19 @@ export const ManageCategoryCard: React.FC<ManageCategoryCardProps> = ({
           return (
             <div key={`${item.label}-${index}`} className="pc-manage-card__inventory-row">
               <span className="pc-manage-card__inventory-label">{item.label}</span>
-              <span
-                className={`pc-manage-card__inventory-value ${
-                  isConnected ? 'is-connected' : isAction ? 'is-action' : ''
-                }`}
-              >
-                {item.value}
-              </span>
+              {isConnected ? (
+                <Badge variant="ready" size="sm">
+                  {item.value}
+                </Badge>
+              ) : (
+                <span
+                  className={`pc-manage-card__inventory-value ${
+                    isAction ? 'is-action' : ''
+                  }`}
+                >
+                  {item.value}
+                </span>
+              )}
             </div>
           );
         })}

@@ -6,13 +6,12 @@ import { Button } from './posterchild/Button';
 import { PosterChildIcon } from './posterchild/Icon';
 import { MetricCard } from './posterchild/MetricCard';
 import { SuggestedStoryCard } from './posterchild/SuggestedStoryCard';
+import { InsightBanner } from './posterchild/InsightBanner';
 import { DecisionChoice } from './retreat/DecisionChoice';
 import { getDecision, getDecisionTallies } from '../config/retreatDecisions';
 import { getMission, RETREAT_CONFIG } from '../config/retreatFlow';
 import { useDemoState } from '../useDemoState';
 import headerLandscape from '../assets/screens/home/header-landscape.png';
-import noticedHills from '../assets/screens/home/noticed-hills.png';
-import posterchildMark from '../assets/posterchild/brand/posterchild-mark.svg';
 
 interface HomeWorkspaceProps {
   scene?: Scene;
@@ -217,57 +216,14 @@ export default function HomeWorkspace(props: HomeWorkspaceProps) {
         />
       </section>
 
-      {/* 3. PosterChild Noticed — section title above card per reference */}
+      {/* 3. PosterChild Noticed — no visible heading per final Figma CSS */}
       <section className="pc-ref-noticed-section" aria-label="PosterChild notice">
-        <h2 className="pc-ref-section-title">PosterChild noticed</h2>
-
-        {/* Banner card: light editorial feel, amber border, 16px radius */}
-        <div className="pc-ref-noticed-card">
-          {/* Decorative hills art — absolute, right side, behind content, z-index 0 */}
-          <img
-            src={noticedHills}
-            alt=""
-            className="pc-ref-noticed-graphic"
-            aria-hidden="true"
-          />
-
-          {/* Main content row: PosterChild mark icon + text stack */}
-          <div className="pc-ref-noticed-content-row">
-            {/* PosterChild brand mark — 24x24 inside 24x32 wrapper */}
-            <div className="pc-ref-noticed-logo-wrap" aria-hidden="true">
-              <img
-                src={posterchildMark}
-                alt=""
-                width={24}
-                height={24}
-                className="pc-ref-noticed-logo-icon"
-              />
-            </div>
-
-            {/* Text + action column */}
-            <div className="pc-ref-noticed-body-col">
-              {/* Text block: title + supporting */}
-              <div className="pc-ref-noticed-text-block">
-                <h3 className="pc-ref-noticed-headline">
-                  You haven't shared a workforce development story in 6 weeks.
-                </h3>
-                <p className="pc-ref-noticed-desc">
-                  You’re pursuing 3 funders focused on workforce development, and you have 4 new testimonials from that program.
-                </p>
-              </div>
-
-              {/* Action link */}
-              <a
-                href="#"
-                className="pc-ref-noticed-link"
-                onClick={(e) => e.preventDefault()}
-              >
-                <span>See why this matters</span>
-                <PosterChildIcon name="arrow-right" size={20} color="#8F6500" strokeWidth={1.67} />
-              </a>
-            </div>
-          </div>
-        </div>
+        <InsightBanner
+          title="You haven't shared a workforce development story in 6 weeks."
+          description="You’re pursuing 3 funders focused on workforce development, and you have 4 new testimonials from that program."
+          actionLabel="See why this matters"
+          onAction={() => {}}
+        />
       </section>
 
       {/* 4. Needs Your Attention — Table */}

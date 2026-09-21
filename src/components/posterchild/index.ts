@@ -30,6 +30,12 @@ export { ManageCategoryCard, default as ManageCategoryCardDefault } from './Mana
 export * from './SuggestedStoryCard';
 export { SuggestedStoryCard, default as SuggestedStoryCardDefault } from './SuggestedStoryCard';
 
+export * from './Tabs';
+export { Tabs, default as TabsDefault } from './Tabs';
+
+export * from './InsightBanner';
+export { InsightBanner, default as InsightBannerDefault } from './InsightBanner';
+
 // Re-export shared application components
 export { default as Sidebar } from '../Sidebar';
 export { default as AttentionTable } from '../AttentionTable';

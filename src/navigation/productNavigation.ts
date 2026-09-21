@@ -41,6 +41,9 @@ export const PRODUCT_NAVIGATION: NavItemConfig[] = [
     icon: 'coins-hand',
     children: [
       { id: 'raise-overview', label: 'Overview', subPath: 'raise', icon: 'bar-chart-square-02' },
+      { id: 'raise-opportunities', label: 'Opportunities', subPath: 'raise/opportunities', icon: 'coins-hand' },
+      { id: 'raise-relationships', label: 'Relationships', subPath: 'raise/relationships', icon: 'users-02' },
+      { id: 'raise-funding-plan', label: 'Funding plan', subPath: 'raise/funding-plan', icon: 'file-06' },
     ],
   },
   {
@@ -60,11 +63,14 @@ export const PRODUCT_NAVIGATION: NavItemConfig[] = [
  * Example: "/present/PC26/tell/connect" -> "tell/connect"
  */
 export function normalizeProductPath(pathname: string): string {
-  // Strip out leading /present or /present/:sessionId
-  const match = pathname.match(/^\/present(?:\/[^/]+)?(?:\/(.*))?$/);
-  if (!match) return '';
-  const sub = match[1] || '';
-  return sub.replace(/\/+$/, '');
+  if (!pathname) return '';
+  // Strip out leading /present or /present/:sessionId if present
+  let clean = pathname.replace(/^\/present(?:\/[^/]+)?(?:\/|$)/, '');
+  // If not prefixed by /present, strip leading slash
+  if (clean === pathname) {
+    clean = pathname.replace(/^\/+/, '');
+  }
+  return clean.replace(/\/+$/, '');
 }
 
 /**
@@ -78,13 +84,43 @@ export function getProductPageContext(pathname: string): string {
   if (sub === 'tell/stories') return 'Tell · Stories';
   if (sub === 'tell/connect') return 'Tell · Connect';
   if (sub === 'tell/calendar') return 'Tell · Calendar';
-  if (sub === 'raise') return 'Raise';
+  if (sub.startsWith('raise')) return 'Raise';
   if (sub === 'manage') return 'Manage';
   if (sub === 'manage/assets') return 'Manage · Assets';
 
   // Fallback for custom or nested paths
   const parts = sub.split('/');
   return parts.map((p) => p.charAt(0).toUpperCase() + p.slice(1)).join(' · ');
+}
+
+/**
+ * Determines whether a specific sidebar sub-item is active based on the current normalized product path.
+ * - Overview sub-items match only when currentSubPath is the parent route or the explicit overview route.
+ * - Other sub-items match on exact equality or prefix with '/' (for nested detail views).
+ */
+export function isNavChildActive(
+  currentSubPath: string,
+  parentSubPath: string,
+  childSubPath: string,
+  childId: string
+): boolean {
+  const isOverview =
+    childId.endsWith('-overview') ||
+    childSubPath === parentSubPath ||
+    childSubPath === `${parentSubPath}/overview`;
+
+  if (isOverview) {
+    return (
+      currentSubPath === parentSubPath ||
+      currentSubPath === `${parentSubPath}/overview` ||
+      (parentSubPath === '' && currentSubPath === '')
+    );
+  }
+
+  return (
+    currentSubPath === childSubPath ||
+    (childSubPath.length > 0 && currentSubPath.startsWith(`${childSubPath}/`))
+  );
 }
 
 /**

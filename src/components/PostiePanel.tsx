@@ -200,7 +200,7 @@ function getRetreatDynamicReply(
       ];
     }
   } else if (pathname.includes('/raise/opportunities/kresge')) {
-    replyText = 'Kresge closes in 12 days with a 92% match. Postie recommendation: verify the workforce development budget readiness checklist.';
+    replyText = 'Kresge closes in 12 days with a 92% match. Your Youth Career Pathways work aligns well with Kresge’s focus on economic mobility, equity, and opportunity.';
     usedCtx = ['Kresge Foundation', '92% Match'];
     actions = [];
   } else if (pathname.includes('/tell/connect')) {
@@ -212,6 +212,10 @@ function getRetreatDynamicReply(
   } else if (pathname.includes('/tell/stories/review')) {
     replyText = 'Youth Career Pathways draft is ready for review. Recommended primary output: Social media spotlight carousel.';
     usedCtx = ['Youth Career Pathways', 'Social Media'];
+    actions = [];
+  } else if (pathname.includes('/manage')) {
+    replyText = 'This is the context PosterChild uses to understand your organization — your knowledge, assets, people, connections, and operations.';
+    usedCtx = ['Manage', 'Organization'];
     actions = [];
   }
 
@@ -233,7 +237,14 @@ export function PostiePanel({
   const navigate = useNavigate();
   const { sessionId = 'PC26' } = useParams<{ sessionId?: string }>();
 
-  const effectiveContextLabel = contextLabel || getProductPageContext(location.pathname);
+  const effectiveContextLabel =
+    location.pathname.includes('/tell/stories/review')
+      ? 'Youth Career Pathways'
+      : location.pathname.includes('/tell/connect')
+        ? 'Connect'
+        : location.pathname.includes('/manage')
+          ? 'Manage'
+          : contextLabel || getProductPageContext(location.pathname);
   const activeSuggestions = suggestions || DEFAULT_HOME_SUGGESTIONS;
 
   // Dropdown & Popover states
@@ -248,10 +259,14 @@ export function PostiePanel({
 
   // Attached context & composer input
   const [attachedContext, setAttachedContext] = useState<AttachedContextItem[]>([
-    { id: 'ctx-stories', title: '3 stories ready for review', category: 'Stories', iconType: 'story' }
+    { id: 'ctx-default', label: effectiveContextLabel, type: 'page' }
   ]);
   const [inputValue, setInputValue] = useState('');
   const [selectedPrompt, setSelectedPrompt] = useState<string | null>(null);
+
+  useEffect(() => {
+    setAttachedContext([{ id: 'ctx-default', label: effectiveContextLabel, type: 'page' }]);
+  }, [effectiveContextLabel]);
 
   // Explicit Conversation State: Empty by default so initial state is rendered on Home
   const [messages, setMessages] = useState<Message[]>([]);
@@ -271,6 +286,93 @@ export function PostiePanel({
       setIsTyping(false);
     }
   }, [scene]);
+
+  // On Kresge Opportunity Detail, Story Review, or Connect screen, initialize conversation state per reference spec
+  useEffect(() => {
+    if (location.pathname.includes('/raise/opportunities/kresge')) {
+      setMessages([
+        {
+          id: 'kresge-user-q',
+          role: 'user',
+          text: 'Which funding opportunity should I focus on first?',
+          time: 'Just now'
+        },
+        {
+          id: 'kresge-postie-reply',
+          role: 'assistant',
+          text: 'I’d start with Kresge. Your Youth Career Pathways work aligns well with Kresge’s focus on economic mobility, equity, and opportunity for people with low incomes. You already have strong participant stories and impact evidence. The main readiness gap is the workforce program budget, last updated in 2025.',
+          time: 'Just now',
+          usedContext: ['Raise', 'Needs attention', 'Kresge Foundation'],
+          actions: []
+        }
+      ]);
+    } else if (location.pathname.includes('/tell/connect')) {
+      setMessages([
+        {
+          id: 'connect-user-q',
+          role: 'user',
+          text: 'What are we hearing from our community?',
+          time: 'Just now'
+        },
+        {
+          id: 'connect-postie-reply',
+          role: 'assistant',
+          text: 'Transportation is the clearest recurring theme in Youth Career Pathways. I also found 3 Spring Alumni responses detailed enough to review as possible story sources.',
+          time: 'Just now',
+          usedContext: ['Connect', 'Youth Career Pathways', 'Testimonials'],
+          actions: []
+        }
+      ]);
+    } else if (location.pathname.includes('/tell/stories/review')) {
+      const isArticleTab = location.search.includes('tab=article');
+      if (isArticleTab) {
+        setMessages([
+          {
+            id: 'story-review-user-q-article',
+            role: 'user',
+            text: 'Can you make the opening stronger?',
+            time: 'Just now'
+          },
+          {
+            id: 'story-review-postie-reply-article',
+            role: 'assistant',
+            text: 'Yes. I’d open with the participant insight first, then explain the pattern across all four testimonials. That makes the article feel more human before introducing the broader program context.',
+            time: 'Just now',
+            usedContext: ['Youth Career Pathways', 'Article'],
+            actions: []
+          }
+        ]);
+      } else {
+        setMessages([
+          {
+            id: 'story-review-user-q',
+            role: 'user',
+            text: 'Can you tighten the short caption?',
+            time: 'Just now'
+          },
+          {
+            id: 'story-review-postie-reply',
+            role: 'assistant',
+            text: 'Yes. I’d make the opening more direct and keep the proof point in the second sentence. I can also adapt it for LinkedIn or Instagram without changing the core story.',
+            time: 'Just now',
+            usedContext: ['Youth Career Pathways', 'Social Media', 'Carousel'],
+            actions: []
+          }
+        ]);
+      }
+    } else if (location.pathname.includes('/manage')) {
+      setMessages([
+        {
+          id: 'manage-overview-postie-info',
+          role: 'assistant',
+          text: 'This is the context PosterChild uses to understand your organization — your knowledge, assets, people, connections, and operations.',
+          time: 'Just now',
+          usedContext: ['Manage', 'Organization'],
+          actions: []
+        }
+      ]);
+    }
+  }, [location.pathname, location.search]);
 
   // Outside click handler for popovers
   useEffect(() => {

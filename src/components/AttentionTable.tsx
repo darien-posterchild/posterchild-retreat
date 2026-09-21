@@ -28,7 +28,7 @@ const PRIORITIES: PriorityItem[] = [
     primaryText: 'Tomorrow',
     supportingText: '3 stories could strengthen your update.',
     actionLabel: 'Review stories',
-    iconName: 'calendar',
+    iconName: 'calendar-heart-02',
     iconVariant: 'brand'        // warm amber bg (#FFF9E8), amber icon (#8F6500)
   },
   {
@@ -126,9 +126,8 @@ export default function AttentionTable({
             return (
               <div
                 key={item.id}
-                className={`pc-ref-table-row ${isWinner ? 'is-team-choice' : ''} ${
-                  isMuted ? 'is-muted-item' : ''
-                } ${isVoting ? 'is-voting' : ''}`}
+                className={`pc-ref-table-row ${isWinner ? 'is-team-choice' : ''} ${isMuted ? 'is-muted-item' : ''
+                  } ${isVoting ? 'is-voting' : ''}`}
               >
                 {/* Col 1: Item */}
                 <div className="pc-ref-td--item">

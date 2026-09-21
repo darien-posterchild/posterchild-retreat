@@ -119,7 +119,7 @@ export default function ManageOverview() {
 
   return (
     <div className="pc-manage-page" data-figma-node="512:6840">
-      {/* Manage Header (Fraunces 48px/60px, DM Sans 18px/28px, gap 2px) */}
+      {/* Manage Header (Fraunces 36px/44px, DM Sans 16px/24px, gap 2px) */}
       <header className="pc-manage-header">
         <h1 className="pc-manage-title">Your organization, all in one place.</h1>
         <p className="pc-manage-description">

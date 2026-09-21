@@ -1,10 +1,23 @@
 import React from 'react';
 import { PosterChildIcon, PosterChildIconName } from './Icon';
 
-export type BadgeVariant = 'immediate' | 'upcoming' | 'ready' | 'brand' | 'neutral' | 'gray';
+export type BadgeVariant =
+  | 'immediate'
+  | 'upcoming'
+  | 'ready'
+  | 'brand'
+  | 'neutral'
+  | 'gray'
+  | 'blue'
+  | 'success'
+  | 'amber'
+  | 'warning';
+
+export type BadgeSize = 'sm' | 'md' | 'lg';
 
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
+  size?: BadgeSize;
   showDot?: boolean;
   iconLeading?: PosterChildIconName;
   iconTrailing?: PosterChildIconName;
@@ -39,6 +52,18 @@ const VARIANT_STYLES: Record<
     text: '#8F6500',
     dot: '#F4B400',
   },
+  amber: {
+    bg: '#FFF9E8',
+    border: '#FDE68A',
+    text: '#8F6500',
+    dot: '#F4B400',
+  },
+  warning: {
+    bg: '#FFF7ED',
+    border: '#FED7AA',
+    text: '#C2410C',
+    dot: '#F97316',
+  },
   neutral: {
     bg: '#F9FAFB',
     border: '#E5E7EB',
@@ -51,10 +76,29 @@ const VARIANT_STYLES: Record<
     text: '#374151',
     dot: '#9CA3AF',
   },
+  blue: {
+    bg: '#EFF8FF',
+    border: '#B2DDFF',
+    text: '#175CD3',
+    dot: '#2E90FA',
+  },
+  success: {
+    bg: '#ECFDF3',
+    border: '#A6F4C5',
+    text: '#027A48',
+    dot: '#12B76A',
+  },
+};
+
+const SIZE_STYLES: Record<BadgeSize, { height: string; padding: string; fontSize: string; lineHeight: string }> = {
+  sm: { height: '20px', padding: '1px 6px', fontSize: '11px', lineHeight: '14px' },
+  md: { height: '22px', padding: '2px 6px', fontSize: '12px', lineHeight: '18px' },
+  lg: { height: '24px', padding: '2px 8px', fontSize: '13px', lineHeight: '18px' },
 };
 
 export const Badge: React.FC<BadgeProps> = ({
   variant = 'brand',
+  size = 'md',
   showDot = false,
   iconLeading,
   iconTrailing,
@@ -64,14 +108,15 @@ export const Badge: React.FC<BadgeProps> = ({
   ...props
 }) => {
   const current = VARIANT_STYLES[variant] || VARIANT_STYLES.brand;
+  const currentSize = SIZE_STYLES[size] || SIZE_STYLES.md;
 
   const baseStyle: React.CSSProperties = {
     boxSizing: 'border-box',
     display: 'inline-flex',
     flexDirection: 'row',
     alignItems: 'center',
-    height: '22px',
-    padding: '2px 6px',
+    height: currentSize.height,
+    padding: currentSize.padding,
     gap: '4px',
     borderRadius: '6px',
     backgroundColor: current.bg,
@@ -80,8 +125,8 @@ export const Badge: React.FC<BadgeProps> = ({
     fontFamily: "'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
     fontStyle: 'normal',
     fontWeight: 500,
-    fontSize: '12px',
-    lineHeight: '18px',
+    fontSize: currentSize.fontSize,
+    lineHeight: currentSize.lineHeight,
     whiteSpace: 'nowrap',
   };
 

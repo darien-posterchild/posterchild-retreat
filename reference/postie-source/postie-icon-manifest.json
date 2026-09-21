@@ -1,0 +1,178 @@
+[
+  {
+    "name": "chevron-down",
+    "source": "PosterChild DS (Untitled UI Icons / chevron-down)",
+    "localPath": "src/assets/posterchild/icons/chevron-down.svg",
+    "usageLocation": "Postie Topbar > Chats dropdown chevron",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "plus",
+    "source": "PosterChild DS (Untitled UI Icons / plus)",
+    "localPath": "src/assets/posterchild/icons/plus.svg",
+    "usageLocation": "Postie Topbar > New chat button (40x40)",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "plus",
+    "source": "PosterChild DS (Untitled UI Icons / plus)",
+    "localPath": "src/assets/posterchild/icons/plus.svg",
+    "usageLocation": "Postie Topbar > Chats menu > New chat item",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "window-position-sidebar",
+    "source": "PosterChild DS (Untitled UI Icons / window-position-sidebar)",
+    "localPath": "src/assets/posterchild/icons/window-position-sidebar.svg",
+    "usageLocation": "Postie Topbar > Panel view selector button (docked mode)",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "window-position-floating",
+    "source": "PosterChild DS (Untitled UI Icons / window-position-floating)",
+    "localPath": "src/assets/posterchild/icons/window-position-floating.svg",
+    "usageLocation": "Postie Topbar > Panel view selector button (floating mode)",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "window-position-sidebar",
+    "source": "PosterChild DS (Untitled UI Icons / window-position-sidebar)",
+    "localPath": "src/assets/posterchild/icons/window-position-sidebar.svg",
+    "usageLocation": "Postie View Menu > Option 1: Sidebar",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "window-position-floating",
+    "source": "PosterChild DS (Untitled UI Icons / window-position-floating)",
+    "localPath": "src/assets/posterchild/icons/window-position-floating.svg",
+    "usageLocation": "Postie View Menu > Option 2: Floating",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "minus",
+    "source": "PosterChild DS (Untitled UI Icons / minus)",
+    "localPath": "src/assets/posterchild/icons/minus.svg",
+    "usageLocation": "Postie View Menu > Option 3: Hide chat (minimize)",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "check",
+    "source": "PosterChild DS (Untitled UI Icons / check)",
+    "localPath": "src/assets/posterchild/icons/check.svg",
+    "usageLocation": "Postie View Menu > Active option checkmark",
+    "size": "14px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "home-line",
+    "source": "PosterChild DS (Untitled UI Icons / home-line)",
+    "localPath": "src/assets/posterchild/icons/home-line.svg",
+    "usageLocation": "Context Bar > Current page chip (Home)",
+    "size": "12px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "x-close",
+    "source": "PosterChild DS (Untitled UI Icons / x-close)",
+    "localPath": "src/assets/posterchild/icons/x-close.svg",
+    "usageLocation": "Context Bar > Remove attached context chip",
+    "size": "12px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "plus",
+    "source": "PosterChild DS (Untitled UI Icons / plus)",
+    "localPath": "src/assets/posterchild/icons/plus.svg",
+    "usageLocation": "Context Bar > Add context trigger link (+ Add)",
+    "size": "12px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "plus",
+    "source": "PosterChild DS (Untitled UI Icons / plus)",
+    "localPath": "src/assets/posterchild/icons/plus.svg",
+    "usageLocation": "Composer > Left tools > Plus button (36x36)",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "settings-04",
+    "source": "PosterChild DS (Untitled UI Icons / settings-04)",
+    "localPath": "src/assets/posterchild/icons/settings-04.svg",
+    "usageLocation": "Composer > Left tools > Settings/sliders button (36x36)",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "microphone-01",
+    "source": "PosterChild DS (Untitled UI Icons / microphone-01)",
+    "localPath": "src/assets/posterchild/icons/microphone-01.svg",
+    "usageLocation": "Composer > Right tools > Microphone voice button (36x36)",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "arrow-up",
+    "source": "PosterChild DS (Untitled UI Icons / arrow-up)",
+    "localPath": "src/assets/posterchild/icons/arrow-up.svg",
+    "usageLocation": "Composer > Right tools > Send button (36x36 gold)",
+    "size": "20px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "copy",
+    "source": "PosterChild DS (Untitled UI Icons / copy)",
+    "localPath": "src/assets/posterchild/icons/copy.svg",
+    "usageLocation": "Message Header > Copy message button",
+    "size": "14px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "check",
+    "source": "PosterChild DS (Untitled UI Icons / check)",
+    "localPath": "src/assets/posterchild/icons/check.svg",
+    "usageLocation": "Message Header > Copied feedback indicator",
+    "size": "14px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "arrow-right",
+    "source": "PosterChild DS (Untitled UI Icons / arrow-right)",
+    "localPath": "src/assets/posterchild/icons/arrow-right.svg",
+    "usageLocation": "Postie Response Actions > Navigate action card",
+    "size": "14px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "edit-02",
+    "source": "PosterChild DS (Untitled UI Icons / edit-02)",
+    "localPath": "src/assets/posterchild/icons/edit-02.svg",
+    "usageLocation": "Postie Response Actions > Prompt action card",
+    "size": "14px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "search-sm",
+    "source": "PosterChild DS (Untitled UI Icons / search-sm)",
+    "localPath": "src/assets/posterchild/icons/search-sm.svg",
+    "usageLocation": "Context Picker Popover > Search field input",
+    "size": "16px",
+    "resolvedStatus": "resolved"
+  },
+  {
+    "name": "postie-brand",
+    "source": "PosterChild DS (Postie Animated Rotating Brand Mark)",
+    "localPath": "src/components/posterchild/PostieAnimatedIcon.tsx",
+    "usageLocation": "Identity header & Collapsed launcher button (40x40)",
+    "size": "20px / 40px",
+    "resolvedStatus": "resolved"
+  }
+]

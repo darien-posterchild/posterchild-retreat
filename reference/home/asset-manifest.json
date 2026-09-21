@@ -1,0 +1,178 @@
+[
+  {
+    "name": "posterchild-logo",
+    "type": "brand",
+    "source": "PosterChild DS (🤖 DS – 2026 / v8.0)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/brand/posterchild-logo.svg",
+    "description": "Full PosterChild brand logo including mark and typography"
+  },
+  {
+    "name": "posterchild-mark",
+    "type": "brand",
+    "source": "PosterChild DS (🤖 DS – 2026 / v8.0)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/brand/posterchild-mark.svg",
+    "description": "PosterChild standalone geometric brand mark icon"
+  },
+  {
+    "name": "home-line",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/home-line.svg",
+    "description": "Left sidebar primary navigation icon for Home"
+  },
+  {
+    "name": "announcement-02",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/announcement-02.svg",
+    "description": "Left sidebar navigation icon for Tell (megaphone)"
+  },
+  {
+    "name": "coins-hand",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/coins-hand.svg",
+    "description": "Left sidebar navigation icon for Raise"
+  },
+  {
+    "name": "folder",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/folder.svg",
+    "description": "Left sidebar navigation icon for Manage"
+  },
+  {
+    "name": "life-buoy-01",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/life-buoy-01.svg",
+    "description": "Left sidebar footer utility icon for Support"
+  },
+  {
+    "name": "settings-01",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/settings-01.svg",
+    "description": "Left sidebar footer utility icon for Settings"
+  },
+  {
+    "name": "calendar-heart-02",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/calendar-heart-02.svg",
+    "description": "Featured icon in Needs Attention row (Donation drive)"
+  },
+  {
+    "name": "file-06",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/file-06.svg",
+    "description": "Featured icon in Needs Attention row (Impact report draft)"
+  },
+  {
+    "name": "alert-triangle",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/alert-triangle.svg",
+    "description": "Featured icon in Needs Attention row (Grant deadline)"
+  },
+  {
+    "name": "stars-01",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/stars-01.svg",
+    "description": "Featured AI stars icon for Postie sidebar header & AI actions"
+  },
+  {
+    "name": "plus",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/plus.svg",
+    "description": "Button leading icon for New / Add actions"
+  },
+  {
+    "name": "arrow-right",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/arrow-right.svg",
+    "description": "Action card footer navigation link arrow"
+  },
+  {
+    "name": "arrow-up",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/arrow-up.svg",
+    "description": "Metric trend indicator icon inside Badge"
+  },
+  {
+    "name": "chevron-down",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/chevron-down.svg",
+    "description": "Dropdown and accordion indicator icon"
+  },
+  {
+    "name": "chevron-selector-vertical",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/chevron-selector-vertical.svg",
+    "description": "Sidebar account selector / dropdown indicator"
+  },
+  {
+    "name": "window-position-sidebar",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons - layout-left / layout-right)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/layout-left.svg",
+    "description": "Postie sidebar collapse / toggle panel icon"
+  },
+  {
+    "name": "settings-04",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/settings-04.svg",
+    "description": "Postie suggestion action card filter / slider icon"
+  },
+  {
+    "name": "microphone-01",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/microphone-01.svg",
+    "description": "Postie prompt bar voice / dictation input icon"
+  },
+  {
+    "name": "check",
+    "type": "icon",
+    "source": "PosterChild DS (Untitled UI Icons - _Message status icon)",
+    "status": "resolved",
+    "localPath": "src/assets/posterchild/icons/check.svg",
+    "description": "Postie message status delivery indicator"
+  },
+  {
+    "name": "avatar-user-olivia-rhye",
+    "type": "image",
+    "source": "PosterChild Screen (Figma node 493:5128)",
+    "status": "needs-export",
+    "localPath": null,
+    "description": "Square avatar photo (40x40) of Olivia Rhye in sidebar account section"
+  }
+]

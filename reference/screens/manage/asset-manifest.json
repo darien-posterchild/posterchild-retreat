@@ -1,0 +1,179 @@
+{
+  "screen": "Manage Overview",
+  "figmaNode": "512:6840",
+  "generatedAt": "2026-09-18T21:18:00Z",
+  "summary": {
+    "totalAssets": 11,
+    "resolved": 11,
+    "needsExport": 0
+  },
+  "assets": {
+    "BRAND": [
+      {
+        "key": "brand-logo",
+        "htmlClass": "brand-logo-img",
+        "role": "Application brand logo in sidebar header",
+        "expectedType": "svg",
+        "sourceFile": "posterchild-logo.svg",
+        "resolvedAsset": "src/assets/posterchild/brand/posterchild-logo.svg",
+        "status": "resolved"
+      }
+    ],
+    "NAVIGATION": [
+      {
+        "key": "nav-home",
+        "htmlClass": "nav-item-icon",
+        "role": "Home nav item leading icon",
+        "expectedType": "svg",
+        "sourceFile": "home-line.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/home-line.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "nav-tell",
+        "htmlClass": "nav-item-icon",
+        "role": "Tell nav item leading icon",
+        "expectedType": "svg",
+        "sourceFile": "folder.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/folder.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "nav-raise",
+        "htmlClass": "nav-item-icon",
+        "role": "Raise nav item leading icon",
+        "expectedType": "svg",
+        "sourceFile": "announcement-02.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/announcement-02.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "nav-manage",
+        "htmlClass": "nav-item-icon",
+        "role": "Manage nav item leading icon",
+        "expectedType": "svg",
+        "sourceFile": "settings-01.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/settings-01.svg",
+        "status": "resolved"
+      }
+    ],
+    "MANAGE_CATEGORY_ICONS": [
+      {
+        "key": "category-knowledge",
+        "htmlClass": "featured-icon-img",
+        "role": "Knowledge category featured icon",
+        "expectedType": "svg",
+        "sourceFile": "folder.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/folder.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "category-assets",
+        "htmlClass": "featured-icon-img",
+        "role": "Assets category featured icon",
+        "expectedType": "svg",
+        "sourceFile": "file-06.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/file-06.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "category-organization",
+        "htmlClass": "featured-icon-img",
+        "role": "Organization category featured icon",
+        "expectedType": "svg",
+        "sourceFile": "home-line.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/home-line.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "category-people",
+        "htmlClass": "featured-icon-img",
+        "role": "People category featured icon",
+        "expectedType": "svg",
+        "sourceFile": "users-02.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/users-02.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "category-connections",
+        "htmlClass": "featured-icon-img",
+        "role": "Connections category featured icon",
+        "expectedType": "svg",
+        "sourceFile": "settings-04.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/settings-04.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "category-admin",
+        "htmlClass": "featured-icon-img",
+        "role": "Admin category featured icon",
+        "expectedType": "svg",
+        "sourceFile": "settings-01.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/settings-01.svg",
+        "status": "resolved"
+      }
+    ],
+    "CHEVRONS": [
+      {
+        "key": "chevron-card-action",
+        "htmlClass": "card-chevron-icon",
+        "role": "Card header top trailing navigation chevron",
+        "expectedType": "svg",
+        "sourceFile": "arrow-right.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/arrow-right.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "chevron-footer-cta",
+        "htmlClass": "manage-card-cta-icon",
+        "role": "Card bottom footer CTA trailing arrow",
+        "expectedType": "svg",
+        "sourceFile": "arrow-right.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/arrow-right.svg",
+        "status": "resolved"
+      },
+      {
+        "key": "chevron-user-menu",
+        "htmlClass": "user-dropdown-icon",
+        "role": "Sidebar footer user profile dropdown selector",
+        "expectedType": "svg",
+        "sourceFile": "chevron-selector-vertical.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/chevron-selector-vertical.svg",
+        "status": "resolved"
+      }
+    ],
+    "AVATAR": [
+      {
+        "key": "user-avatar-initials",
+        "htmlClass": "user-avatar-initials",
+        "role": "User account initials avatar tile (DM)",
+        "expectedType": "component",
+        "sourceFile": null,
+        "resolvedAsset": "src/components/Sidebar.tsx",
+        "status": "resolved"
+      }
+    ],
+    "POSTIE": [
+      {
+        "key": "postie-brand-mark",
+        "htmlClass": "postie-mark-img",
+        "role": "Postie animated icon / brand mark",
+        "expectedType": "svg",
+        "sourceFile": "posterchild-mark.svg",
+        "resolvedAsset": "src/assets/posterchild/brand/posterchild-mark.svg",
+        "status": "resolved"
+      }
+    ],
+    "OTHER": [
+      {
+        "key": "btn-icon-plus",
+        "htmlClass": "btn-icon-leading",
+        "role": "Header Add button leading icon",
+        "expectedType": "svg",
+        "sourceFile": "plus.svg",
+        "resolvedAsset": "src/assets/posterchild/icons/plus.svg",
+        "status": "resolved"
+      }
+    ]
+  }
+}

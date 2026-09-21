@@ -1,0 +1,226 @@
+[
+  {
+    "name": "home-line",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["Sidebar", "PostiePanel"]
+  },
+  {
+    "name": "announcement-02",
+    "source": "Untitled UI v8.0 / Communication",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["Sidebar", "HomeWorkspace (Campaigns Card)"]
+  },
+  {
+    "name": "coins-hand",
+    "source": "Untitled UI v8.0 / Finance",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["Sidebar", "AttentionTable (Row 2)"]
+  },
+  {
+    "name": "folder",
+    "source": "Untitled UI v8.0 / Files",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["Sidebar", "MetricCard (Stories)", "HomeWorkspace"]
+  },
+  {
+    "name": "life-buoy-01",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["Sidebar (Support)"]
+  },
+  {
+    "name": "settings-01",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["Sidebar (Settings)"]
+  },
+  {
+    "name": "chevron-down",
+    "source": "Untitled UI v8.0 / Arrows",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Chats Dropdown)", "Breadcrumbs"]
+  },
+  {
+    "name": "plus",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (New Chat, Composer Plus, Add Context)", "HomeWorkspace (Create Story)"]
+  },
+  {
+    "name": "window-position-sidebar",
+    "source": "Untitled UI v8.0 / Layout",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Docked View Toggle)"]
+  },
+  {
+    "name": "window-position-floating",
+    "source": "Untitled UI v8.0 / Layout",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Floating View Toggle)"]
+  },
+  {
+    "name": "layout-left",
+    "source": "Untitled UI v8.0 / Layout",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Dock Left)", "Sidebar Toggle"]
+  },
+  {
+    "name": "layout-right",
+    "source": "Untitled UI v8.0 / Layout",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Dock Right)"]
+  },
+  {
+    "name": "settings-04",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Composer Settings)"]
+  },
+  {
+    "name": "microphone-01",
+    "source": "Untitled UI v8.0 / Media",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Voice Input)"]
+  },
+  {
+    "name": "arrow-up",
+    "source": "Untitled UI v8.0 / Arrows",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Send Button)"]
+  },
+  {
+    "name": "x-close",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Close, Remove Context Chip)"]
+  },
+  {
+    "name": "minus",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Collapse)"]
+  },
+  {
+    "name": "copy",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Copy Message)"]
+  },
+  {
+    "name": "edit-02",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Edit Message)"]
+  },
+  {
+    "name": "check",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["PostiePanel (Copied State)", "Selection Indicators"]
+  },
+  {
+    "name": "alert-triangle",
+    "source": "Untitled UI v8.0 / Alerts",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["HomeWorkspace (Quotes Card)", "Warning Badges"]
+  },
+  {
+    "name": "stars-01",
+    "source": "Untitled UI v8.0 / Brand",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["HomeWorkspace (PosterChild Noticed)"]
+  },
+  {
+    "name": "arrow-right",
+    "source": "Untitled UI v8.0 / Arrows",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["HomeWorkspace (See why this matters Link)"]
+  },
+  {
+    "name": "calendar-heart-02",
+    "source": "Untitled UI v8.0 / Time",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["AttentionTable (Row 1)"]
+  },
+  {
+    "name": "file-06",
+    "source": "Untitled UI v8.0 / Files",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["AttentionTable (Row 3)"]
+  },
+  {
+    "name": "chevron-selector-vertical",
+    "source": "Untitled UI v8.0 / Arrows",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["Sidebar (Workspace / Account Switcher)", "AttentionTable Rows"]
+  },
+  {
+    "name": "search-sm",
+    "source": "Untitled UI v8.0 / General",
+    "retreatAsset": "src/components/posterchild/Icon.tsx",
+    "status": "MATCH",
+    "usedBy": ["Command Palette", "Search Inputs"]
+  },
+  {
+    "name": "dots-vertical",
+    "source": "posterchild-prototype/public/posterchild-card-header-dots-vertical.svg",
+    "retreatAsset": "Missing in Icon.tsx",
+    "status": "MISSING",
+    "usedBy": ["CardHeader Actions", "Row Action Menus"]
+  },
+  {
+    "name": "help-circle",
+    "source": "posterchild-prototype/public/posterchild-input-help-circle.svg",
+    "retreatAsset": "Missing in Icon.tsx",
+    "status": "MISSING",
+    "usedBy": ["Input Tooltips", "Textarea Help Labels"]
+  },
+  {
+    "name": "check-circle",
+    "source": "posterchild-prototype/public/posterchild-input-check-circle.svg",
+    "retreatAsset": "Missing in Icon.tsx",
+    "status": "MISSING",
+    "usedBy": ["Input Success Validation", "Dialog Confirmations"]
+  },
+  {
+    "name": "eye",
+    "source": "posterchild-prototype/public/posterchild-input-eye.svg",
+    "retreatAsset": "Missing in Icon.tsx",
+    "status": "MISSING",
+    "usedBy": ["Password & Key Inputs"]
+  },
+  {
+    "name": "trash-01",
+    "source": "posterchild-prototype/public/posterchild-dialog-trash.svg",
+    "retreatAsset": "Missing in Icon.tsx",
+    "status": "MISSING",
+    "usedBy": ["Destructive Modals", "Session Deletion"]
+  }
+]

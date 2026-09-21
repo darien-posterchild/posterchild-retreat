@@ -1,0 +1,352 @@
+/* ============================================================
+   PosterChild Home Screen Reference CSS (Figma Node 493:5128)
+   ============================================================ */
+
+.app-shell {
+  width: 100%;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  background-color: var(--brand-50);
+  box-sizing: border-box;
+}
+
+/* 1. Sidebar Rail */
+.sidebar-navigation {
+  width: calc(var(--sidebar-expanded-width) + var(--app-edge-padding));
+  min-width: calc(var(--sidebar-expanded-width) + var(--app-edge-padding));
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: var(--app-edge-padding) 0px var(--app-edge-padding) var(--app-edge-padding);
+  box-sizing: border-box;
+  flex-shrink: 0;
+}
+
+.sidebar-card {
+  width: var(--sidebar-expanded-width);
+  height: calc(100vh - 48px);
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--shell-panel-radius);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+/* 2. Center Product Workspace */
+.home-workspace {
+  flex: 1 1 0%;
+  min-width: 0;
+  width: 100%;
+  padding: var(--app-edge-padding) var(--app-edge-padding) 40px var(--app-edge-padding);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.home-content {
+  width: 100%;
+  max-width: var(--product-content-max-width);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-24);
+  box-sizing: border-box;
+}
+
+/* 3. Header */
+.home-header {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 70px;
+}
+
+.home-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.home-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 36px;
+  line-height: 44px;
+  letter-spacing: -0.02em;
+  color: var(--neutral-900);
+}
+
+.home-subtitle {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: var(--neutral-600);
+}
+
+.btn-primary {
+  appearance: none;
+  border: 0;
+  height: 40px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--brand-600);
+  color: var(--neutral-900);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+/* 4. Metric Cards (Fill Container) */
+.metrics-row {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-24);
+}
+
+.metric-card {
+  box-sizing: border-box;
+  height: 102px;
+  padding: var(--space-20);
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+}
+
+.metric-heading {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 14px;
+  line-height: 24px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--neutral-900);
+}
+
+.metric-value {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 30px;
+  line-height: 38px;
+  color: var(--neutral-900);
+}
+
+.metric-icon-box {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metric-icon-box.success { background: var(--feedback-success-bg); color: var(--feedback-success-text); }
+.metric-icon-box.blue { background: var(--feedback-blue-bg); color: var(--feedback-blue-text); }
+.metric-icon-box.warning { background: var(--feedback-warning-bg); color: var(--feedback-warning-text); }
+
+/* 5. PosterChild Noticed Luxury Card */
+.noticed-card {
+  width: 100%;
+  background: linear-gradient(135deg, #FFFDF5 0%, #FEF0C7 100%);
+  border: 1px solid var(--brand-300);
+  border-radius: 12px;
+  padding: var(--space-20);
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  position: relative;
+  overflow: hidden;
+}
+
+.noticed-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+.noticed-title {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--neutral-900);
+}
+
+.noticed-body {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-600);
+}
+
+.noticed-action {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--brand-900);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 6. Attention Table Section */
+.section-header-row {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.section-title {
+  margin: 0;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 24px;
+  color: var(--neutral-900);
+}
+
+.section-action-link {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--brand-900);
+  text-decoration: none;
+}
+
+.attention-table {
+  width: 100%;
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.table-header {
+  height: 40px;
+  background: var(--neutral-50);
+  border-bottom: 1px solid var(--neutral-200);
+  display: grid;
+  grid-template-columns: 224px 110px 1fr;
+  align-items: center;
+  padding: 0 12px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--neutral-500);
+}
+
+.table-row {
+  height: 64px;
+  border-bottom: 1px solid var(--neutral-200);
+  display: grid;
+  grid-template-columns: 224px 110px 1fr;
+  align-items: center;
+  padding: 0 12px;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* 7. Suggested for You Card */
+.suggested-card {
+  width: 100%;
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-200);
+  border-radius: 12px;
+  padding: var(--space-20);
+  display: flex;
+  flex-direction: row;
+  gap: var(--space-20);
+  box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.suggested-image {
+  width: 250px;
+  height: 224px;
+  border-radius: 10px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.suggested-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.suggested-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 24px;
+  line-height: 32px;
+  color: var(--neutral-900);
+}
+
+.suggested-description {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--neutral-600);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 6px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+}
+
+/* 8. Right Postie Panel */
+.postie-panel-docked {
+  width: var(--postie-docked-width);
+  min-width: var(--postie-docked-width);
+  height: calc(100vh - 48px);
+  position: sticky;
+  top: var(--app-edge-padding);
+  margin-right: var(--app-edge-padding);
+  background: var(--neutral-white);
+  border: 1px solid var(--neutral-200);
+  border-radius: var(--shell-panel-radius);
+  box-shadow: 0px 4px 20px -2px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}

@@ -1,0 +1,15 @@
+{
+  "screen": "<screen-name>",
+  "figmaNode": "<figma-node-id>",
+  "assets": [
+    {
+      "key": "example-icon",
+      "role": "icon",
+      "sourceClass": "example-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": null,
+      "status": "needs-export"
+    }
+  ]
+}

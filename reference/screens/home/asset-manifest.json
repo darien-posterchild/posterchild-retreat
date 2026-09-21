@@ -1,0 +1,152 @@
+{
+  "screen": "Home",
+  "canonicalFrame": "1728x1117",
+  "figmaNode": "493:5128",
+  "assetSummary": {
+    "totalDetected": 14,
+    "resolved": 14,
+    "needsExport": 0
+  },
+  "assets": [
+    {
+      "key": "brand-logo",
+      "group": "BRAND",
+      "role": "Brand logo lockup in sidebar header",
+      "sourceClass": "brand-logo-img",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/brand/posterchild-logo.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "brand-mark",
+      "group": "BRAND",
+      "role": "Compact brand mark in collapsed sidebar header",
+      "sourceClass": "brand-mark-img",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/brand/posterchild-mark.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-plus",
+      "group": "HOME HEADER",
+      "role": "Create story button icon",
+      "sourceClass": "btn-create-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/plus.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-metric-stories",
+      "group": "HOME METRICS",
+      "role": "Stories metric card featured icon",
+      "sourceClass": "metric-icon-box.success",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/folder.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-metric-campaigns",
+      "group": "HOME METRICS",
+      "role": "Campaigns metric card featured icon",
+      "sourceClass": "metric-icon-box.blue",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/announcement-02.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-metric-quotes",
+      "group": "HOME METRICS",
+      "role": "Quotes metric card featured icon",
+      "sourceClass": "metric-icon-box.warning",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/alert-triangle.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-noticed-stars",
+      "group": "POSTERCHILD NOTICED",
+      "role": "AI insight notice header icon",
+      "sourceClass": "noticed-header-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/stars-01.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-table-stories",
+      "group": "TABLE",
+      "role": "Row 1 FeaturedIcon (3 stories ready)",
+      "sourceClass": "table-featured-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/calendar.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-table-campaign",
+      "group": "TABLE",
+      "role": "Row 2 FeaturedIcon (Campaign ready)",
+      "sourceClass": "table-featured-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/coins-hand.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-table-quotes",
+      "group": "TABLE",
+      "role": "Row 3 FeaturedIcon (5 strong quotes)",
+      "sourceClass": "table-featured-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/file-06.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-table-chevron",
+      "group": "TABLE",
+      "role": "Row action expand chevron",
+      "sourceClass": "table-chevron-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/chevron-selector-vertical.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-postie-sparkle",
+      "group": "POSTIE",
+      "role": "Postie avatar/AI badge icon",
+      "sourceClass": "postie-badge-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/stars-01.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "icon-layout-left",
+      "group": "SIDEBAR",
+      "role": "Sidebar collapse/expand toggle",
+      "sourceClass": "sidebar-toggle-icon",
+      "expectedType": "svg",
+      "rawAsset": null,
+      "canonicalAsset": "src/assets/posterchild/icons/layout-left.svg",
+      "status": "resolved"
+    },
+    {
+      "key": "image-suggested-story",
+      "group": "SUGGESTED STORY",
+      "role": "Photographic cover for Elena Mentorship story card",
+      "sourceClass": "suggested-image",
+      "expectedType": "png",
+      "rawAsset": "reference/screens/home/assets/raw/elena-mentorship.png",
+      "canonicalAsset": "src/assets/screens/home/elena-mentorship.png",
+      "status": "resolved"
+    }
+  ]
+}

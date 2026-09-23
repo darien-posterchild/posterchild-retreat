@@ -13,7 +13,8 @@ export type RetreatTimelineEventType =
   | 'postie-response'
   | 'action-completed'
   | 'mission-completed'
-  | 'article-review-ready';
+  | 'article-review-ready'
+  | 'postie-thinking';
 
 export interface RetreatTimelineEvent {
   id: string;
@@ -77,6 +78,8 @@ export interface PostieContextValue {
   clearRetreatTimeline: () => void;
   hasRetreatTimelineEventOfType: (type: RetreatTimelineEventType, dedupKey?: string, forDecisionId?: string) => boolean;
   getRetreatEventOfType: (type: RetreatTimelineEventType, dedupKey?: string, forDecisionId?: string) => RetreatTimelineEvent | undefined;
+  isPostieThinking: boolean;
+  setIsPostieThinking: (thinking: boolean) => void;
 }
 
 const STORAGE_KEY = 'postie_view';
@@ -159,6 +162,7 @@ export function PostieProvider({ children }: { children: ReactNode }) {
 
   // Shared retreat timeline — persists across all routes during one session
   const [retreatTimeline, setRetreatTimeline] = useState<RetreatTimelineEvent[]>([]);
+  const [isPostieThinking, setIsPostieThinking] = useState(false);
 
   useEffect(() => {
     try {
@@ -331,7 +335,9 @@ export function PostieProvider({ children }: { children: ReactNode }) {
         removeRetreatEvent,
         clearRetreatTimeline,
         hasRetreatTimelineEventOfType,
-        getRetreatEventOfType
+        getRetreatEventOfType,
+        isPostieThinking,
+        setIsPostieThinking
       }}
     >
       {children}

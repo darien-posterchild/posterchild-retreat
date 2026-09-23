@@ -13,6 +13,7 @@ import {
   getPostieContextKey
 } from '../context/PostieContext';
 import { getProductPageContext } from '../navigation/productNavigation';
+import { PostieThinkingIndicator } from './PostieThinkingIndicator';
 
 export type { ActionItem, Message, PostieSuggestion };
 
@@ -40,6 +41,7 @@ export interface PostiePanelProps {
   onRevealVote?: () => void;
   canAskRoom?: boolean;
   roomQuestion?: string;
+  isPostieThinking?: boolean;
 }
 
 function getContextIconName(iconType: AttachedContextItem['iconType']): PosterChildIconName {
@@ -426,7 +428,8 @@ export function PostiePanel({
   onStartVoting,
   onRevealVote,
   canAskRoom,
-  roomQuestion
+  roomQuestion,
+  isPostieThinking: isPostieThinkingProp
 }: PostiePanelProps) {
   const {
     postieView,
@@ -439,8 +442,11 @@ export function PostiePanel({
     addMessageToContext,
     setMessagesForContext,
     resetAllConversations,
-    retreatTimeline
+    retreatTimeline,
+    isPostieThinking: contextIsPostieThinking
   } = usePostie();
+
+  const isThinkingActive = isPostieThinkingProp ?? contextIsPostieThinking;
 
   // In retreat mode, when there are timeline events, suppress generic chips
   const hasRetreatTimeline = retreatTimeline.length > 0;
@@ -562,13 +568,13 @@ export function PostiePanel({
     const timelineChanged = retreatTimeline.length !== prevTimelineLengthRef.current;
     prevTimelineLengthRef.current = retreatTimeline.length;
 
-    if (timelineChanged || retreatTimeline.length > 0 || messages.length > 0 || isTyping || canAskRoom || scene === 'voting' || decisionStatus === 'open') {
+    if (timelineChanged || retreatTimeline.length > 0 || messages.length > 0 || isTyping || isThinkingActive || canAskRoom || scene === 'voting' || decisionStatus === 'open') {
       const timer = setTimeout(() => {
         scrollToBottom('smooth');
       }, 50);
       return () => clearTimeout(timer);
     }
-  }, [retreatTimeline.length, retreatTimeline, messages.length, isTyping, canAskRoom, scene, decisionStatus]);
+  }, [retreatTimeline.length, retreatTimeline, messages.length, isTyping, isThinkingActive, canAskRoom, scene, decisionStatus]);
 
   // When navigating to another product route and the retreat timeline already has content,
   // show the most recent timeline item in Postie
@@ -1311,8 +1317,19 @@ export function PostiePanel({
                   </div>
                 </div>
               )}
+
+              {event.type === 'postie-thinking' && (
+                <PostieThinkingIndicator label={event.title || 'Thinking...'} />
+              )}
             </div>
           ))}
+
+          {/* Postie Thinking Indicator during retreat decision resolution */}
+          {isThinkingActive && (
+            <div className="pc-retreat-timeline-event pc-retreat-timeline-event--thinking">
+              <PostieThinkingIndicator />
+            </div>
+          )}
 
           {/* While voting is active, show the Reveal Vote button */}
           {(scene === 'voting' || decisionStatus === 'open') && onRevealVote && (
@@ -1476,27 +1493,7 @@ export function PostiePanel({
 
           {/* Typing Indicator */}
           {isTyping && (
-            <div className="pc-ref-postie-message-row">
-              <div className="pc-ref-postie-msg-wrapper">
-                <div className="pc-ref-msg-meta-row">
-                  <div className="pc-ref-postie-meta-left">
-                    <PostieAnimatedIcon
-                      size={20}
-                      speed="fast"
-                      isThinking={true}
-                      interactive={false}
-                    />
-                    <span className="pc-ref-postie-author-name">Postie</span>
-                  </div>
-                  <span className="pc-ref-typing-status-text">{activityStatus}</span>
-                </div>
-                <div className="pc-ref-typing-dots-bubble">
-                  <span className="pc-ref-dot-pulse pc-ref-dot-pulse--1" />
-                  <span className="pc-ref-dot-pulse pc-ref-dot-pulse--2" />
-                  <span className="pc-ref-dot-pulse pc-ref-dot-pulse--3" />
-                </div>
-              </div>
-            </div>
+            <PostieThinkingIndicator label={activityStatus} />
           )}
 
           <div ref={messagesEndRef} className="pc-postie-scroll-anchor" />

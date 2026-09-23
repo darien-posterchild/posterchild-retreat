@@ -6897,7 +6897,9 @@ body::-webkit-scrollbar {
 .pc-retreat-timeline-event--postie-response,
 .pc-retreat-timeline-event--action-completed,
 .pc-retreat-timeline-event--article-review-ready,
-.pc-retreat-timeline-event--mission-completed {
+.pc-retreat-timeline-event--mission-completed,
+.pc-retreat-timeline-event--thinking,
+.pc-retreat-timeline-event--postie-thinking {
   width: 100%;
   padding: 0;
   margin: 0;
@@ -6911,6 +6913,10 @@ body::-webkit-scrollbar {
 .pc-retreat-timeline-event--room-question .pc-ref-postie-msg-wrapper,
 .pc-retreat-timeline-event--postie-response .pc-ref-postie-message-row,
 .pc-retreat-timeline-event--postie-response .pc-ref-postie-msg-wrapper,
+.pc-retreat-timeline-event--thinking .pc-ref-postie-message-row,
+.pc-retreat-timeline-event--thinking .pc-ref-postie-msg-wrapper,
+.pc-retreat-timeline-event--postie-thinking .pc-ref-postie-message-row,
+.pc-retreat-timeline-event--postie-thinking .pc-ref-postie-msg-wrapper,
 .pc-retreat-timeline-event--user-question .pc-ref-user-message-row {
   width: 100%;
   max-width: none;

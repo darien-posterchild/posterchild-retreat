@@ -37,12 +37,14 @@ function PresentInner() {
   const { state, dispatch, sessionId } = useDemoState();
   const navigate = useNavigate();
   const location = useLocation();
-  const { triggerPrompt, openPostie, resetAllConversations, addRetreatEvent, replaceRetreatEvent, removeRetreatEvent, clearRetreatTimeline, retreatTimeline, hasRetreatTimelineEventOfType, getRetreatEventOfType } = usePostie();
+  const { triggerPrompt, openPostie, resetAllConversations, addRetreatEvent, replaceRetreatEvent, removeRetreatEvent, clearRetreatTimeline, retreatTimeline, hasRetreatTimelineEventOfType, getRetreatEventOfType, isPostieThinking, setIsPostieThinking } = usePostie();
 
   const totalJoined = state.joinedParticipants;
   const totalVotes = Object.values(state.votes || {}).reduce((a, b) => a + b, 0);
 
   const lastPathRef = useRef(location.pathname);
+  const postRevealTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const manualAskPostieTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   // Floating reveal dismissed state & Postie prompt triggered tracker
   const [revealDismissed, setRevealDismissed] = useState(false);
@@ -134,17 +136,24 @@ function PresentInner() {
   const winnerDestination = winningOption ? buildDestinationUrl(winningOption.destination, sessionId) : null;
 
   // When a vote is revealed:
-  // 1. Append team-choice event (idempotent).
-  // 2. If winner's actionType is 'openPostie', also append ask-postie-pending event
-  //    with the contextual question — the presenter must explicitly click to send it.
+  // 1. Append team-choice event immediately (idempotent).
+  // 2. Show Postie thinking indicator for ~1.4s.
+  // 3. Replace/remove thinking indicator and add the resulting next-step or postie-response.
   useEffect(() => {
-    if (!isRevealed || !winningOption) return;
+    if (!isRevealed || !winningOption) {
+      setIsPostieThinking(false);
+      if (postRevealTimerRef.current) {
+        clearTimeout(postRevealTimerRef.current);
+        postRevealTimerRef.current = null;
+      }
+      return;
+    }
 
     openPostie();
 
     const currentDecId = isHome && (state.completedMissionIds || []).length > 0 ? 'home-focus-2' : (state.activeDecisionId || 'home-focus');
 
-    // --- team-choice (idempotent by winningOption.id and decisionId) ---
+    // 1. team-choice (idempotent by winningOption.id and decisionId)
     const alreadyLogged = hasRetreatTimelineEventOfType('team-choice', winningOption.id, currentDecId);
     if (!alreadyLogged) {
       const voteNoun = totalVotes === 1 ? 'vote' : 'votes';
@@ -160,47 +169,72 @@ function PresentInner() {
       });
     }
 
-    if (winningOption.actionType === 'openPostie') {
-      // Ask Postie won the room vote:
-      // respond immediately instead of repeating the question
-      // or requiring another Ask Postie click.
+    const isAskPostieWinner = winningOption.actionType === 'openPostie';
+    const alreadyResolved = isAskPostieWinner
+      ? hasRetreatTimelineEventOfType('postie-response', undefined, currentDecId)
+      : hasRetreatTimelineEventOfType('next-step', undefined, currentDecId);
 
-      const alreadyAnswered = hasRetreatTimelineEventOfType(
-        'postie-response',
-        undefined,
-        currentDecId
-      );
-
-      if (!alreadyAnswered) {
-        const question = getCanonicalPromptForScreen();
-        const response = getAskPostieRetreatResponse();
-
-        addRetreatEvent({
-          type: 'postie-response',
-          title: question,
-          body: response.text,
-          decisionId: currentDecId,
-          ctaLabel: response.ctaLabel,
-          ctaTarget: response.ctaTarget
-        });
-      }
-    } else {
-      // --- next-step shared across all non-Postie winning options ---
-      const alreadyHasNextStep = hasRetreatTimelineEventOfType('next-step', undefined, currentDecId);
-      if (!alreadyHasNextStep) {
-        const explanation = winningOption.nextStepExplanation || winningOption.description || `Continue with ${winningOption.label}`;
-        const ctaLabel = winningOption.nextStepCtaLabel || winningOption.label;
-        const targetUrl = buildDestinationUrl(winningOption.destination, sessionId);
-
-        addRetreatEvent({
-          type: 'next-step',
-          title: explanation,
-          ctaLabel,
-          ctaTarget: targetUrl,
-          decisionId: currentDecId
-        });
-      }
+    // If the next step or response already exists in timeline, do nothing
+    if (alreadyResolved) {
+      setIsPostieThinking(false);
+      return;
     }
+
+    // 2. Show thinking indicator for ~1.4 seconds
+    setIsPostieThinking(true);
+
+    if (postRevealTimerRef.current) {
+      clearTimeout(postRevealTimerRef.current);
+    }
+
+    postRevealTimerRef.current = setTimeout(() => {
+      setIsPostieThinking(false);
+      postRevealTimerRef.current = null;
+
+      if (isAskPostieWinner) {
+        const stillNeedsAnswer = !hasRetreatTimelineEventOfType(
+          'postie-response',
+          undefined,
+          currentDecId
+        );
+
+        if (stillNeedsAnswer) {
+          const question = getCanonicalPromptForScreen();
+          const response = getAskPostieRetreatResponse();
+
+          addRetreatEvent({
+            type: 'postie-response',
+            title: question,
+            body: response.text,
+            decisionId: currentDecId,
+            ctaLabel: response.ctaLabel,
+            ctaTarget: response.ctaTarget
+          });
+        }
+      } else {
+        const stillNeedsNextStep = !hasRetreatTimelineEventOfType('next-step', undefined, currentDecId);
+        if (stillNeedsNextStep) {
+          const explanation = winningOption.nextStepExplanation || winningOption.description || `Continue with ${winningOption.label}`;
+          const ctaLabel = winningOption.nextStepCtaLabel || winningOption.label;
+          const targetUrl = buildDestinationUrl(winningOption.destination, sessionId);
+
+          addRetreatEvent({
+            type: 'next-step',
+            title: explanation,
+            ctaLabel,
+            ctaTarget: targetUrl,
+            decisionId: currentDecId
+          });
+        }
+      }
+    }, 1400);
+
+    return () => {
+      if (postRevealTimerRef.current) {
+        clearTimeout(postRevealTimerRef.current);
+        postRevealTimerRef.current = null;
+      }
+    };
   }, [isRevealed, winningOption?.id, state.activeDecisionId]);
 
   const isCurrentScreenMissionCompleted = () => {
@@ -300,17 +334,30 @@ function PresentInner() {
     const alreadyAnswered = hasRetreatTimelineEventOfType('postie-response', undefined, currentDecisionId);
     if (alreadyAnswered) return;
 
-    const question = getCanonicalPromptForScreen();
-    const response = getAskPostieRetreatResponse();
+    setIsPostieThinking(true);
+    if (manualAskPostieTimerRef.current) {
+      clearTimeout(manualAskPostieTimerRef.current);
+    }
 
-    addRetreatEvent({
-      type: 'postie-response',
-      title: question,
-      body: response.text,
-      decisionId: currentDecisionId,
-      ctaLabel: response.ctaLabel,
-      ctaTarget: response.ctaTarget
-    });
+    manualAskPostieTimerRef.current = setTimeout(() => {
+      setIsPostieThinking(false);
+      manualAskPostieTimerRef.current = null;
+
+      const stillNeedsAnswer = !hasRetreatTimelineEventOfType('postie-response', undefined, currentDecisionId);
+      if (stillNeedsAnswer) {
+        const question = getCanonicalPromptForScreen();
+        const response = getAskPostieRetreatResponse();
+
+        addRetreatEvent({
+          type: 'postie-response',
+          title: question,
+          body: response.text,
+          decisionId: currentDecisionId,
+          ctaLabel: response.ctaLabel,
+          ctaTarget: response.ctaTarget
+        });
+      }
+    }, 1400);
   };
 
   const MISSION_LABELS: Record<string, string> = {
@@ -1126,6 +1173,7 @@ function PresentInner() {
             onRevealVote={endVoting}
             canAskRoom={canAskRoom}
             roomQuestion={getCanonicalPromptForScreen()}
+            isPostieThinking={isPostieThinking}
           />
         </div>
       </div>

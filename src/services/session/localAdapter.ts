@@ -7,6 +7,7 @@ import type {
   VoteOption
 } from './types';
 import { getDecision, getDecisionTallies, resolveDecisionWinner } from '../../config/retreatDecisions';
+import { getAvailableHomeOptions } from '../../config/retreatFlow';
 
 const STORAGE_PREFIX = 'pc-retreat-session-v2:';
 const LEGACY_STORAGE_KEY = 'pc-retreat-demo-state-v1';
@@ -34,7 +35,8 @@ export function createInitialState(sessionId: string): SessionState {
     participantVotes: {},
     completedMissionIds: [],
     currentMissionId: null,
-    decisionHistory: []
+    decisionHistory: [],
+    isVoteRevealed: false
   };
 }
 
@@ -46,7 +48,8 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         scene: action.scene,
         winner: action.scene === 'voting' ? null : state.winner,
         winningOptionId: action.scene === 'voting' ? null : state.winningOptionId,
-        decisionStatus: action.scene === 'voting' ? 'open' : action.scene === 'result' ? 'result' : 'idle'
+        decisionStatus: action.scene === 'voting' ? 'open' : action.scene === 'result' ? 'result' : 'idle',
+        isVoteRevealed: action.scene === 'result' ? true : false
       };
     case 'JOIN':
       return {
@@ -58,23 +61,20 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
       if (state.scene !== 'voting' && state.decisionStatus !== 'open') return state;
       const clientId = action.clientId || 'local-client';
       const targetOption = action.option === 'campaign' ? 'campaigns' : action.option;
+      const prevVote = state.participantVotes?.[clientId];
 
-      // Filter by allowedOptionIds if present (e.g. tie-breaker)
-      if (state.allowedOptionIds && state.allowedOptionIds.length > 0 && !state.allowedOptionIds.includes(targetOption)) {
-        return state;
+      const newVotes = { ...state.votes };
+      if (prevVote && prevVote !== targetOption) {
+        newVotes[prevVote] = Math.max(0, (newVotes[prevVote] || 0) - 1);
+      }
+      if (!prevVote || prevVote !== targetOption) {
+        newVotes[targetOption] = (newVotes[targetOption] || 0) + 1;
       }
 
       const newParticipantVotes = {
         ...(state.participantVotes || {}),
         [clientId]: targetOption
       };
-
-      const decision = getDecision(state.activeDecisionId);
-      const tallies = getDecisionTallies({ participantVotes: newParticipantVotes }, decision);
-      const newVotes: Record<string, number> = {};
-      decision.options.forEach((opt) => {
-        newVotes[opt.id] = tallies.options[opt.id]?.count || 0;
-      });
 
       return {
         ...state,
@@ -84,7 +84,9 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
     }
     case 'END_VOTING':
     case 'CLOSE_VOTING': {
-      const decision = getDecision(state.activeDecisionId);
+      const decision = state.activeDecisionId === 'home-focus'
+        ? { ...getDecision('home-focus'), options: getAvailableHomeOptions(state) }
+        : getDecision(state.activeDecisionId);
       const resolution = resolveDecisionWinner(decision, state);
 
       if (resolution.status === 'tie') {
@@ -93,7 +95,8 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
           decisionStatus: 'tie',
           tiedOptionIds: resolution.tiedOptions.map((o) => o.id),
           winner: null,
-          winningOptionId: null
+          winningOptionId: null,
+          isVoteRevealed: true
         };
       }
 
@@ -103,7 +106,8 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
           decisionStatus: 'closed',
           winner: null,
           winningOptionId: null,
-          tiedOptionIds: null
+          tiedOptionIds: null,
+          isVoteRevealed: true
         };
       }
 
@@ -120,18 +124,22 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         winner: resolution.winner?.id ?? null,
         winningOptionId: resolution.winner?.id ?? null,
         tiedOptionIds: null,
-        decisionHistory: [...(state.decisionHistory || []), newHistoryItem]
+        decisionHistory: [...(state.decisionHistory || []), newHistoryItem],
+        isVoteRevealed: true
       };
     }
     case 'REVEAL_RESULT': {
       return {
         ...state,
         scene: 'result',
-        decisionStatus: 'result'
+        decisionStatus: 'result',
+        isVoteRevealed: true
       };
     }
     case 'REVOTE_TIE': {
-      const decision = getDecision(state.activeDecisionId);
+      const decision = state.activeDecisionId === 'home-focus'
+        ? { ...getDecision('home-focus'), options: getAvailableHomeOptions(state) }
+        : getDecision(state.activeDecisionId);
       const resetVotes: Record<string, number> = {};
       const tied = state.tiedOptionIds || decision.options.map((o) => o.id);
       tied.forEach((optId) => {
@@ -146,7 +154,8 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         votes: resetVotes,
         winner: null,
         winningOptionId: null,
-        participantVotes: {}
+        participantVotes: {},
+        isVoteRevealed: false
       };
     }
     case 'REOPEN_VOTING': {
@@ -156,11 +165,14 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         decisionStatus: 'open',
         winner: null,
         winningOptionId: null,
-        tiedOptionIds: null
+        tiedOptionIds: null,
+        isVoteRevealed: false
       };
     }
     case 'SET_DECISION': {
-      const decision = getDecision(action.decisionId);
+      const decision = action.decisionId === 'home-focus'
+        ? { ...getDecision('home-focus'), options: getAvailableHomeOptions(state) }
+        : getDecision(action.decisionId);
       const initialVotes: Record<string, number> = {};
       decision.options.forEach((opt) => {
         initialVotes[opt.id] = 0;
@@ -176,12 +188,15 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         winner: null,
         winningOptionId: null,
         tiedOptionIds: null,
-        participantVotes: {}
+        participantVotes: {},
+        isVoteRevealed: false
       };
     }
     case 'OPEN_VOTING': {
       const decisionId = action.decisionId || state.activeDecisionId || 'home-focus';
-      const decision = getDecision(decisionId);
+      const decision = decisionId === 'home-focus'
+        ? { ...getDecision('home-focus'), options: getAvailableHomeOptions(state) }
+        : getDecision(decisionId);
       const initialVotes: Record<string, number> = {};
       decision.options.forEach((opt) => {
         initialVotes[opt.id] = 0;
@@ -197,7 +212,8 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         winner: null,
         winningOptionId: null,
         tiedOptionIds: null,
-        participantVotes: {}
+        participantVotes: {},
+        isVoteRevealed: false
       };
     }
     case 'START_MISSION': {
@@ -205,7 +221,8 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         ...state,
         currentMissionId: action.missionId,
         scene: 'dashboard',
-        decisionStatus: 'idle'
+        decisionStatus: 'idle',
+        isVoteRevealed: false
       };
     }
     case 'COMPLETE_MISSION': {
@@ -218,9 +235,9 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
       };
     }
     case 'RETURN_HOME': {
-      const rootDecision = getDecision('home-focus');
+      const availableOptions = getAvailableHomeOptions(state);
       const resetVotes: Record<string, number> = {};
-      rootDecision.options.forEach((opt) => {
+      availableOptions.forEach((opt) => {
         resetVotes[opt.id] = 0;
       });
 
@@ -234,14 +251,16 @@ export function sessionReducer(state: SessionState, action: SessionAction): Sess
         tiedOptionIds: null,
         allowedOptionIds: null,
         votes: resetVotes,
-        participantVotes: {}
+        participantVotes: {},
+        isVoteRevealed: false
       };
     }
     case 'REVEAL_MANAGE': {
       return {
         ...state,
         scene: 'dashboard',
-        decisionStatus: 'idle'
+        decisionStatus: 'idle',
+        isVoteRevealed: false
       };
     }
     case 'RESET':

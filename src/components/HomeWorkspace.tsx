@@ -9,7 +9,7 @@ import { SuggestedStoryCard } from './posterchild/SuggestedStoryCard';
 import { InsightBanner } from './posterchild/InsightBanner';
 import { DecisionChoice } from './retreat/DecisionChoice';
 import { getDecision, getDecisionTallies } from '../config/retreatDecisions';
-import { getMission, RETREAT_CONFIG } from '../config/retreatFlow';
+import { RETREAT_CONFIG } from '../config/retreatFlow';
 import { useDemoState } from '../useDemoState';
 import headerLandscape from '../assets/screens/home/header-landscape.png';
 
@@ -24,6 +24,7 @@ interface HomeWorkspaceProps {
   winningOptionId?: string | null;
   tiedOptionIds?: string[] | null;
   advanceToWinner?: () => void;
+  isVoteRevealed?: boolean;
 }
 
 export default function HomeWorkspace(props: HomeWorkspaceProps) {
@@ -40,18 +41,26 @@ export default function HomeWorkspace(props: HomeWorkspaceProps) {
   const winningOptionId = props.winningOptionId ?? outletCtx.winningOptionId ?? state.winningOptionId ?? null;
   const tiedOptionIds = props.tiedOptionIds ?? outletCtx.tiedOptionIds ?? state.tiedOptionIds ?? null;
   const advanceToWinner = props.advanceToWinner ?? outletCtx.advanceToWinner;
+  const isVoteRevealed = props.isVoteRevealed ?? (outletCtx as { isVoteRevealed?: boolean }).isVoteRevealed ?? state.isVoteRevealed ?? false;
 
   const completedMissions = state.completedMissionIds || [];
   const hasCompletedTwoMissions = completedMissions.length >= 2;
 
   const isVoting = scene === 'voting' || decisionStatus === 'open';
-  const isResult = scene === 'result' || decisionStatus === 'result';
-  const isTie = decisionStatus === 'tie';
+  const isResult = (scene === 'result' || decisionStatus === 'result') && isVoteRevealed;
+  const isTie = decisionStatus === 'tie' && isVoteRevealed;
 
   const activeDecision = getDecision(activeDecisionId);
   const tallies = getDecisionTallies({ votes, participantVotes }, activeDecision);
 
   const effectiveWinnerId = winningOptionId || (winner === 'campaign' ? 'campaigns' : winner);
+
+  // Option winners on Home
+  const isCreateStoryWinner = isResult && effectiveWinnerId === 'create-story';
+  const isNewTestimonialsWinner = isResult && effectiveWinnerId === 'new-testimonials';
+  const isAttentionWinner = isResult && (effectiveWinnerId === 'needs-attention' || effectiveWinnerId === 'stories' || effectiveWinnerId === 'campaigns' || effectiveWinnerId === 'quotes');
+  const isSuggestedStoryWinner = isResult && effectiveWinnerId === 'suggested-story';
+  const hasAnyWinner = isResult && Boolean(effectiveWinnerId);
 
   const isStoriesWinner = isResult && effectiveWinnerId === 'stories';
   const isCampaignsWinner = isResult && effectiveWinnerId === 'campaigns';
@@ -89,87 +98,17 @@ export default function HomeWorkspace(props: HomeWorkspaceProps) {
         </div>
       </div>
 
-      {/* Subtle Retreat Progress & Outcome State Banner */}
-      {hasCompletedTwoMissions ? (
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 2,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '14px 20px',
-            borderRadius: '12px',
-            backgroundColor: '#F0FDF4',
-            border: '1px solid #BBF7D0',
-            color: '#166534',
-            marginBottom: '4px'
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <div
-              style={{
-                width: '28px',
-                height: '28px',
-                borderRadius: '50%',
-                backgroundColor: '#15803D',
-                color: '#FFFFFF',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontSize: '14px',
-                fontWeight: 700,
-                flexShrink: 0
-              }}
-            >
-              ✓
-            </div>
-            <div>
-              <strong style={{ fontSize: '14px', display: 'block', color: '#14532D' }}>
-                Today’s retreat priorities completed ({completedMissions.length} actions)
-              </strong>
-              <span style={{ fontSize: '13px', color: '#166534' }}>
-                {completedMissions.map((id) => getMission(id)?.homeEffect || id).join(' • ')}
-              </span>
-            </div>
-          </div>
-          <Button
-            variant="primary"
-            size="sm"
-            iconLeading="arrow-right"
-            onClick={handleRevealClick}
-          >
-            {RETREAT_CONFIG.manageRevealEnabled ? 'Reveal Architecture' : 'Continue to Next Steps'} [Space]
-          </Button>
-        </div>
-      ) : completedMissions.length === 1 ? (
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 2,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-            padding: '10px 16px',
-            borderRadius: '10px',
-            backgroundColor: '#ECFDF3',
-            border: '1px solid #A6F4C5',
-            color: '#027A48',
-            fontSize: '13px',
-            marginBottom: '4px'
-          }}
-        >
-          <PosterChildIcon name="check" size={16} strokeWidth={2.5} />
-          <span>
-            <strong>1 action completed:</strong> {getMission(completedMissions[0])?.homeEffect || completedMissions[0]}
-          </span>
-        </div>
-      ) : null}
-
       {/* 1. Definitive Home Header Row (Foreground, z-index: 2) */}
       <div className="pc-ref-header-row">
         <div className="pc-ref-header-text">
-          <span className="pc-ref-header-date">Tuesday, November 11, 2027</span>
+          <span className="pc-ref-header-date">
+            {new Intl.DateTimeFormat('en-US', {
+              weekday: 'long',
+              month: 'long',
+              day: 'numeric',
+              year: 'numeric',
+            }).format(new Date())}
+          </span>
           <h1 className="pc-ref-page-title">Good morning, Darien!</h1>
           <p className="pc-ref-page-subtitle">
             Here’s what matters most today.
@@ -180,7 +119,7 @@ export default function HomeWorkspace(props: HomeWorkspaceProps) {
             variant="primary"
             size="md"
             iconLeading="plus"
-            className="pc-ref-btn-create-story"
+            className={`pc-ref-btn-create-story ${isCreateStoryWinner ? 'pc-option--winner' : hasAnyWinner && !isCreateStoryWinner ? 'pc-option--muted' : ''}`}
             onClick={() => navigate(`/present/${sessionId}/tell/stories/create`)}
           >
             Create story
@@ -189,14 +128,16 @@ export default function HomeWorkspace(props: HomeWorkspaceProps) {
       </div>
 
       {/* 2. Definitive Metrics Row — 3 Fill Container Cards */}
-      <section className="pc-ref-metrics-row" aria-label="Quick metrics">
+      <section className={`pc-ref-metrics-row ${hasAnyWinner && !isNewTestimonialsWinner ? 'pc-option--muted' : ''}`} aria-label="Quick metrics">
         {/* Metric 1: New Testimonials */}
-        <MetricCard
-          label="NEW TESTIMONIALS"
-          value={24}
-          icon="folder"
-          tone="success"
-        />
+        <div className={isNewTestimonialsWinner ? 'pc-option--winner' : ''} style={isNewTestimonialsWinner ? { borderRadius: '12px' } : undefined}>
+          <MetricCard
+            label="NEW TESTIMONIALS"
+            value={24}
+            icon="folder"
+            tone="success"
+          />
+        </div>
 
         {/* Metric 2: Relevant Founders */}
         <MetricCard
@@ -217,30 +158,44 @@ export default function HomeWorkspace(props: HomeWorkspaceProps) {
       </section>
 
       {/* 3. PosterChild Noticed — no visible heading per final Figma CSS */}
-      <section className="pc-ref-noticed-section" aria-label="PosterChild notice">
+      <section className={`pc-ref-noticed-section ${hasAnyWinner ? 'pc-option--muted' : ''}`} aria-label="PosterChild notice">
         <InsightBanner
           title="You haven't shared a workforce development story in 6 weeks."
           description="You’re pursuing 3 funders focused on workforce development, and you have 4 new testimonials from that program."
           actionLabel="See why this matters"
-          onAction={() => {}}
+          onAction={() => { }}
         />
       </section>
 
       {/* 4. Needs Your Attention — Table */}
-      <AttentionTable
-        scene={scene}
-        decisionStatus={decisionStatus}
-        activeDecisionId={activeDecisionId}
-        votes={votes}
-        participantVotes={participantVotes}
-        winner={winner}
-        winningOptionId={winningOptionId}
-        tiedOptionIds={tiedOptionIds}
-        onSelectWinner={() => advanceToWinner?.()}
-      />
+      <div className={isAttentionWinner && effectiveWinnerId === 'needs-attention' ? 'pc-option--winner' : hasAnyWinner && !isAttentionWinner ? 'pc-option--muted' : ''} style={isAttentionWinner && effectiveWinnerId === 'needs-attention' ? { borderRadius: '12px' } : undefined}>
+        <AttentionTable
+          scene={scene}
+          decisionStatus={decisionStatus}
+          activeDecisionId={activeDecisionId}
+          votes={votes}
+          participantVotes={participantVotes}
+          winner={winner}
+          winningOptionId={winningOptionId}
+          tiedOptionIds={tiedOptionIds}
+          isVoteRevealed={isVoteRevealed}
+          onSelectWinner={() => advanceToWinner?.()}
+        />
+      </div>
 
       {/* 5. Suggested for you — Story Recommendation */}
-      <SuggestedStoryCard />
+      <div className={isSuggestedStoryWinner ? 'pc-option--winner' : hasAnyWinner && !isSuggestedStoryWinner ? 'pc-option--muted' : ''} style={isSuggestedStoryWinner ? { borderRadius: '12px' } : undefined}>
+        <SuggestedStoryCard
+          onCardClick={() => {
+            dispatch({ type: 'START_MISSION', missionId: 'youth-career-story' });
+            navigate(`/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`);
+          }}
+          onViewAll={() => {
+            dispatch({ type: 'START_MISSION', missionId: 'youth-career-story' });
+            navigate(`/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`);
+          }}
+        />
+      </div>
     </div>
   );
 }

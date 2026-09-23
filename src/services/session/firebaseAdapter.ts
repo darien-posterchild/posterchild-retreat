@@ -13,6 +13,7 @@ import {
 import { getFirebaseDatabase, isFirebaseConfigured } from '../firebase/config';
 import { createInitialState } from './localAdapter';
 import { getDecision, resolveDecisionWinner } from '../../config/retreatDecisions';
+import { getAvailableHomeOptions } from '../../config/retreatFlow';
 import type {
   DecisionStatus,
   Scene,
@@ -239,7 +240,8 @@ export class FirebaseSessionAdapter implements SessionAdapter {
             participantVotes,
             completedMissionIds: data.completedMissionIds || [],
             currentMissionId: data.currentMissionId || null,
-            decisionHistory: data.decisionHistory || []
+            decisionHistory: data.decisionHistory || [],
+            isVoteRevealed: Boolean(data.isVoteRevealed)
           };
 
           this.stateCache.set(sessionId, mappedState);
@@ -273,6 +275,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
         const updatePayload: Record<string, unknown> = {
           scene: action.scene,
           decisionStatus: action.scene === 'voting' ? 'open' : action.scene === 'result' ? 'result' : 'idle',
+          isVoteRevealed: action.scene === 'result',
           updatedAt: Date.now()
         };
         if (action.scene === 'voting') {
@@ -322,7 +325,9 @@ export class FirebaseSessionAdapter implements SessionAdapter {
         const snapshot = await get(sessionRef);
         const data = snapshot.val() || {};
         const activeDecisionId = data.activeDecisionId || 'home-focus';
-        const decision = getDecision(activeDecisionId);
+        const decision = activeDecisionId === 'home-focus'
+          ? { ...getDecision('home-focus'), options: getAvailableHomeOptions(data) }
+          : getDecision(activeDecisionId);
         const votes = data.votes || {};
 
         const resolution = resolveDecisionWinner(decision, votes);
@@ -333,6 +338,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
             tiedOptionIds: resolution.tiedOptions.map((o) => o.id),
             winner: null,
             winningOptionId: null,
+            isVoteRevealed: true,
             updatedAt: Date.now()
           });
         } else if (resolution.status === 'zero_votes') {
@@ -341,6 +347,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
             tiedOptionIds: null,
             winner: null,
             winningOptionId: null,
+            isVoteRevealed: true,
             updatedAt: Date.now()
           });
         } else {
@@ -350,6 +357,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
             winner: resolution.winner?.id ?? null,
             winningOptionId: resolution.winner?.id ?? null,
             tiedOptionIds: null,
+            isVoteRevealed: true,
             updatedAt: Date.now()
           });
         }
@@ -360,6 +368,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
         await update(sessionRef, {
           scene: 'result',
           decisionStatus: 'result',
+          isVoteRevealed: true,
           updatedAt: Date.now()
         });
         break;
@@ -384,6 +393,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
           winner: null,
           winningOptionId: null,
           participants: {},
+          isVoteRevealed: false,
           updatedAt: Date.now()
         });
         break;
@@ -396,6 +406,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
           winner: null,
           winningOptionId: null,
           tiedOptionIds: null,
+          isVoteRevealed: false,
           updatedAt: Date.now()
         });
         break;
@@ -417,6 +428,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
           winningOptionId: null,
           tiedOptionIds: null,
           participants: {},
+          isVoteRevealed: false,
           updatedAt: Date.now()
         });
         break;
@@ -441,6 +453,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
           tiedOptionIds: null,
           votes: initialVotes,
           participants: {},
+          isVoteRevealed: false,
           updatedAt: Date.now()
         });
         break;
@@ -451,6 +464,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
           currentMissionId: action.missionId,
           scene: 'dashboard',
           decisionStatus: 'idle',
+          isVoteRevealed: false,
           updatedAt: Date.now()
         });
         break;
@@ -473,9 +487,11 @@ export class FirebaseSessionAdapter implements SessionAdapter {
       }
 
       case 'RETURN_HOME': {
-        const rootDecision = getDecision('home-focus');
+        const snapshot = await get(sessionRef);
+        const data = snapshot.val() || {};
+        const availableOptions = getAvailableHomeOptions(data);
         const resetVotes: Record<string, number> = {};
-        rootDecision.options.forEach((opt) => {
+        availableOptions.forEach((opt) => {
           resetVotes[opt.id] = 0;
         });
 
@@ -489,6 +505,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
           allowedOptionIds: null,
           votes: resetVotes,
           participants: {},
+          isVoteRevealed: false,
           updatedAt: Date.now()
         });
         break;
@@ -498,6 +515,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
         await update(sessionRef, {
           scene: 'dashboard',
           decisionStatus: 'idle',
+          isVoteRevealed: false,
           updatedAt: Date.now()
         });
         break;
@@ -518,6 +536,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
           currentMissionId: null,
           decisionHistory: [],
           participants: {},
+          isVoteRevealed: false,
           simulatedParticipants: 0,
           updatedAt: Date.now()
         });

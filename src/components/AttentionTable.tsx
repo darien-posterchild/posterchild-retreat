@@ -67,6 +67,7 @@ interface AttentionTableProps {
   winner?: string | null;
   winningOptionId?: string | null;
   tiedOptionIds?: string[] | null;
+  isVoteRevealed?: boolean;
   onSelectWinner?: (optionId: string) => void;
 }
 
@@ -79,11 +80,12 @@ export default function AttentionTable({
   winner = null,
   winningOptionId = null,
   tiedOptionIds = null,
+  isVoteRevealed = false,
   onSelectWinner
 }: AttentionTableProps) {
   const isVoting = scene === 'voting' || decisionStatus === 'open';
-  const isResult = scene === 'result' || decisionStatus === 'result';
-  const isTie = decisionStatus === 'tie';
+  const isResult = (scene === 'result' || decisionStatus === 'result') && isVoteRevealed;
+  const isTie = decisionStatus === 'tie' && isVoteRevealed;
 
   const activeDecision = getDecision(activeDecisionId);
   const tallies = getDecisionTallies({ votes, participantVotes }, activeDecision);
@@ -108,7 +110,6 @@ export default function AttentionTable({
           <div className="pc-ref-th pc-ref-th--priority">Priority</div>
           <div className="pc-ref-th pc-ref-th--details">
             <span>What you should know</span>
-            {isVoting && <span className="pc-ref-live-indicator">Live Voting</span>}
           </div>
         </div>
 
@@ -168,12 +169,7 @@ export default function AttentionTable({
                   </div>
 
                   <div className="pc-ref-details-action-slot">
-                    {isVoting ? (
-                      <div className="pc-ref-vote-pill">
-                        <span style={{ color: '#171717', fontWeight: 600 }}>{voteCount}</span>
-                        <span style={{ color: '#737373' }}>({percentage}%)</span>
-                      </div>
-                    ) : isWinner ? (
+                    {isWinner ? (
                       <button
                         type="button"
                         className="pc-ref-row-action-link"
@@ -189,16 +185,6 @@ export default function AttentionTable({
                     )}
                   </div>
                 </div>
-
-                {/* Subtle voting progress bar at bottom of row only when voting is active and votes exist */}
-                {isVoting && voteCount > 0 && (
-                  <div className="pc-ref-row-progress-track">
-                    <div
-                      className="pc-ref-row-progress-fill"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                )}
               </div>
             );
           })}

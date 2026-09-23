@@ -82,6 +82,7 @@ interface ConnectOutletContext {
   winner?: string | null;
   winningOptionId?: string | null;
   tiedOptionIds?: string[] | null;
+  isVoteRevealed?: boolean;
 }
 
 export default function TellConnect() {
@@ -94,8 +95,9 @@ export default function TellConnect() {
   const decisionStatus = outletCtx.decisionStatus ?? state.decisionStatus ?? 'idle';
   const winningOptionId = outletCtx.winningOptionId ?? state.winningOptionId ?? state.winner ?? null;
 
+  const isVoteRevealed = (outletCtx as { isVoteRevealed?: boolean }).isVoteRevealed ?? state.isVoteRevealed ?? false;
   const isVoting = scene === 'voting' || decisionStatus === 'open';
-  const isResult = scene === 'result' || decisionStatus === 'result';
+  const isResult = (scene === 'result' || decisionStatus === 'result') && isVoteRevealed;
   const isCompleted = state.completedMissionIds?.includes('new-testimonials-connect');
 
   const completeMission = () => {
@@ -108,6 +110,7 @@ export default function TellConnect() {
   };
 
   const convergeToStory = () => {
+    dispatch({ type: 'COMPLETE_MISSION', missionId: 'new-testimonials-connect' });
     dispatch({ type: 'START_MISSION', missionId: 'youth-career-story' });
     navigate(`/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`);
   };
@@ -170,130 +173,7 @@ export default function TellConnect() {
               Return to Home [H]
             </Button>
           </div>
-        ) : isVoting ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '12px 18px',
-              borderRadius: '10px',
-              backgroundColor: '#EFF8FF',
-              border: '1px solid #B2DDFF',
-              color: '#175CD3'
-            }}
-          >
-            <PosterChildIcon name="stars-01" size={18} strokeWidth={2} />
-            <strong>Live Voting Active:</strong>
-            <span>Audience is deciding on mobile: “What should we do with this signal?”</span>
-          </div>
         ) : null}
-
-        {/* Action State: Review Theme Winner */}
-        {isResult && winningOptionId === 'review-theme' && (
-          <div
-            style={{
-              backgroundColor: '#F8FAFC',
-              border: '1px solid #CBD5E1',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0F172A' }}>
-              <PosterChildIcon name="file-06" size={18} strokeWidth={2} />
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Theme Review: Transportation Signal</h3>
-              <Badge variant="ready" size="sm">Audience Choice</Badge>
-            </div>
-            <p style={{ margin: 0, color: '#475467', fontSize: '14px', lineHeight: 1.5 }}>
-              Transportation appears across <strong>7 recent Youth Career Pathways responses</strong>. Key community friction points identified:
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', marginTop: '4px' }}>
-              <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                <strong style={{ display: 'block', fontSize: '13px', color: '#101828' }}>Transit to Program</strong>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>Bus schedule conflicts during late labs</span>
-              </div>
-              <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                <strong style={{ display: 'block', fontSize: '13px', color: '#101828' }}>Job Opportunity Access</strong>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>Internship commute times exceed 45 mins</span>
-              </div>
-              <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                <strong style={{ display: 'block', fontSize: '13px', color: '#101828' }}>Stipend Allocation</strong>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>Dedicated travel passes recommended</span>
-              </div>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
-              <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
-                Complete Theme Review
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Action State: Use in Story Winner (Convergence Banner) */}
-        {isResult && winningOptionId === 'use-in-story' && (
-          <div
-            style={{
-              backgroundColor: '#F0FDF9',
-              border: '1px solid #A7F3D0',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#065F46' }}>
-              <PosterChildIcon name="sparkles" size={18} strokeWidth={2} />
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Story Convergence: Youth Career Pathways</h3>
-              <Badge variant="brand" size="sm">Audience Choice</Badge>
-            </div>
-            <p style={{ margin: 0, color: '#047857', fontSize: '14px', lineHeight: 1.5 }}>
-              The team decided to connect these community quotes directly into the active narrative draft.
-            </p>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '6px' }}>
-              <Button variant="primary" size="sm" iconLeading="arrow-right" onClick={convergeToStory}>
-                Advance to Youth Career Pathways [Space]
-              </Button>
-            </div>
-          </div>
-        )}
-
-        {/* Action State: Ask Postie Winner */}
-        {isResult && winningOptionId === 'ask-postie' && (
-          <div
-            style={{
-              backgroundColor: '#F9F5FF',
-              border: '1px solid #E9D7FE',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6941C6' }}>
-              <PosterChildIcon name="stars-01" size={18} strokeWidth={2} />
-              <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Postie Strategic Recommendation</h3>
-              <Badge variant="brand" size="sm">Audience Choice</Badge>
-            </div>
-            <div style={{ background: '#FFFFFF', padding: '14px', borderRadius: '8px', border: '1px solid #D6BBFB' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#6941C6', fontWeight: 600 }}>
-                💬 Presenter Question: “What should we do with this signal?”
-              </p>
-              <p style={{ margin: 0, fontSize: '14px', color: '#344054', lineHeight: 1.5 }}>
-                “I’d review the transportation theme first. It appears across 7 recent Youth Career Pathways responses, and 3 responses are detailed enough to become story sources. If the pattern holds, we can turn it into a stronger story next.”
-              </p>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
-                Follow Postie’s recommendation &amp; Complete
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* 1. PosterChild Insight Banner */}
         <section aria-label="PosterChild community insight">

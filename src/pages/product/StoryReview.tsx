@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useSearchParams, useNavigate, useParams, useOutletContext } from 'react-router-dom';
 import ProductPage from '../../components/posterchild/ProductPage';
 import { Button } from '../../components/posterchild/Button';
@@ -12,6 +12,8 @@ import galleryImg1 from '../../assets/screens/story-review-article/gallery-1.png
 import galleryImg2 from '../../assets/screens/story-review-article/gallery-2.png';
 import galleryImg3 from '../../assets/screens/story-review-article/gallery-3.png';
 import galleryImg4 from '../../assets/screens/story-review-article/gallery-4.png';
+import youthCareerPathwaysImage from '../../assets/screens/home/youth-career-pathways.png';
+
 
 interface StoryData {
   id: string;
@@ -92,6 +94,7 @@ interface StoryReviewOutletContext {
   winner?: string | null;
   winningOptionId?: string | null;
   tiedOptionIds?: string[] | null;
+  isVoteRevealed?: boolean;
 }
 
 export default function StoryReview() {
@@ -109,7 +112,23 @@ export default function StoryReview() {
 
   // Format switcher and color selection state
   const [format, setFormat] = useState<StoryFormat>('carousel');
+
   const [selectedColorId, setSelectedColorId] = useState<string>('dark-teal');
+
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    const el = carouselRef.current;
+
+    if (!el) return;
+
+    const amount = 436;
+
+    el.scrollBy({
+      left: direction === 'right' ? amount : -amount,
+      behavior: 'smooth',
+    });
+  };
 
   const activeColor = BRAND_COLORS.find((c) => c.id === selectedColorId)?.color || '#00382E';
 
@@ -117,8 +136,9 @@ export default function StoryReview() {
   const decisionStatus = outletCtx.decisionStatus ?? state.decisionStatus ?? 'idle';
   const winningOptionId = outletCtx.winningOptionId ?? state.winningOptionId ?? state.winner ?? null;
 
+  const isVoteRevealed = (outletCtx as { isVoteRevealed?: boolean }).isVoteRevealed ?? state.isVoteRevealed ?? false;
   const isVoting = scene === 'voting' || decisionStatus === 'open';
-  const isResult = scene === 'result' || decisionStatus === 'result';
+  const isResult = (scene === 'result' || decisionStatus === 'result') && isVoteRevealed;
   const isCompleted = state.completedMissionIds?.includes('youth-career-story');
 
   const setTab = (newTab: StoryTab) => {
@@ -165,89 +185,6 @@ export default function StoryReview() {
       }
     >
       <div className="story-review-view" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        {/* Subtle Status Notice */}
-        {isCompleted ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 18px',
-              borderRadius: '10px',
-              backgroundColor: '#ECFDF3',
-              border: '1px solid #A6F4C5',
-              color: '#027A48'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <PosterChildIcon name="check" size={18} strokeWidth={2.5} />
-              <strong>Story Mission Completed</strong>
-              <span>— {story.title} activated and published.</span>
-            </div>
-            <Button variant="primary" size="sm" onClick={returnHome}>
-              Return to Home [H]
-            </Button>
-          </div>
-        ) : isVoting ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '12px 18px',
-              borderRadius: '10px',
-              backgroundColor: '#EFF8FF',
-              border: '1px solid #B2DDFF',
-              color: '#175CD3'
-            }}
-          >
-            <PosterChildIcon name="stars-01" size={18} strokeWidth={2} />
-            <strong>Live Voting Active:</strong>
-            <span>Audience is deciding on mobile: “How should we use this story?”</span>
-          </div>
-        ) : null}
-
-        {/* Audience Choice Result Banner (when Ask Postie wins) */}
-        {isResult && winningOptionId === 'ask-postie' && (
-          <div
-            style={{
-              backgroundColor: '#F9F5FF',
-              border: '1px solid #E9D7FE',
-              borderRadius: '12px',
-              padding: '16px 20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '10px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6941C6' }}>
-              <PosterChildIcon name="stars-01" size={18} strokeWidth={2} />
-              <h3 style={{ margin: 0, fontSize: '15px', fontWeight: 600 }}>Postie Recommendation</h3>
-              <Badge variant="brand" size="sm">Audience Choice</Badge>
-            </div>
-            <div style={{ background: '#FFFFFF', padding: '12px 14px', borderRadius: '8px', border: '1px solid #D6BBFB' }}>
-              <p style={{ margin: '0 0 6px 0', fontSize: '12px', color: '#6941C6', fontWeight: 600 }}>
-                💬 Presenter Question: “How should we use this story?”
-              </p>
-              <p style={{ margin: 0, fontSize: '14px', color: '#344054', lineHeight: 1.5 }}>
-                “I’d start with social. The participant quote is strong and the carousel gives you a quick way to test the story with your audience. You can still reuse the same core story for an article afterward.”
-              </p>
-            </div>
-            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px' }}>
-              <Button
-                variant="primary"
-                size="sm"
-                iconLeading="check"
-                onClick={() => {
-                  setTab('social');
-                  completeMission();
-                }}
-              >
-                Use Postie’s recommendation &amp; Publish
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* 1. Primary Content Tabs */}
         <Tabs<StoryTab>
@@ -258,16 +195,10 @@ export default function StoryReview() {
             {
               id: 'social',
               label: 'Social Media',
-              badge: isResult && winningOptionId === 'social' ? (
-                <Badge variant="brand" size="sm">Winner</Badge>
-              ) : undefined,
             },
             {
               id: 'article',
               label: 'Article',
-              badge: isResult && winningOptionId === 'article' ? (
-                <Badge variant="brand" size="sm">Winner</Badge>
-              ) : undefined,
             },
             {
               id: 'content-source',
@@ -284,7 +215,22 @@ export default function StoryReview() {
               className={`pc-story-format-btn ${format === 'carousel' ? 'is-active' : ''}`}
               onClick={() => setFormat('carousel')}
             >
-              <PosterChildIcon name="carousel" size={15} />
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M4.66659 6.3337L1.33325 8.00037L7.7614 11.2144C7.84886 11.2582 7.89259 11.28 7.93845 11.2886C7.97908 11.2963 8.02076 11.2963 8.06138 11.2886C8.10725 11.28 8.15098 11.2582 8.23843 11.2144L14.6666 8.00037L11.3333 6.3337M4.66659 9.66703L1.33325 11.3337L7.7614 14.5478C7.84886 14.5915 7.89259 14.6134 7.93845 14.622C7.97908 14.6296 8.02076 14.6296 8.06138 14.622C8.10725 14.6134 8.15098 14.5915 8.23843 14.5478L14.6666 11.3337L11.3333 9.66703M1.33325 4.66704L7.7614 1.45296C7.84886 1.40923 7.89259 1.38737 7.93845 1.37876C7.97907 1.37114 8.02076 1.37114 8.06138 1.37876C8.10725 1.38737 8.15098 1.40923 8.23843 1.45296L14.6666 4.66704L8.23843 7.88111C8.15098 7.92484 8.10725 7.9467 8.06138 7.95531C8.02076 7.96293 7.97907 7.96293 7.93845 7.95531C7.89259 7.9467 7.84886 7.92484 7.7614 7.88111L1.33325 4.66704Z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               <span>Carousel</span>
             </button>
             <button
@@ -292,7 +238,22 @@ export default function StoryReview() {
               className={`pc-story-format-btn ${format === 'single-poster' ? 'is-active' : ''}`}
               onClick={() => setFormat('single-poster')}
             >
-              <PosterChildIcon name="poster" size={15} />
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8.23843 4.78499C8.15098 4.74126 8.10725 4.7194 8.06138 4.71079C8.02076 4.70317 7.97907 4.70317 7.93845 4.71079C7.89259 4.7194 7.84886 4.74126 7.7614 4.78499L1.33325 7.99907L7.7614 11.2131C7.84886 11.2569 7.89259 11.2787 7.93845 11.2873C7.97907 11.295 8.02076 11.295 8.06138 11.2873C8.10725 11.2787 8.15098 11.2569 8.23843 11.2131L14.6666 7.99907L8.23843 4.78499Z"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
               <span>Single Poster</span>
               <Badge variant="upcoming" size="sm">New</Badge>
             </button>
@@ -306,31 +267,67 @@ export default function StoryReview() {
             <div className="pc-story-control-bar">
               <div className="pc-story-controls-left">
                 {/* OUTPUT */}
-                <div className="pc-story-control-group">
-                  <span className="pc-story-control-label">Output</span>
-                  <button type="button" className="pc-story-control-dropdown">
-                    <PosterChildIcon name="instagram" size={18} color="#E1306C" strokeWidth={1.8} />
-                    <span>Instagram: Carousel</span>
-                    <PosterChildIcon name="chevron-down" size={16} color="#737373" strokeWidth={2} />
+                <div className="pc-story-control-group pc-story-output-group">
+                  <span className="pc-story-control-label pc-story-output-label">
+                    Output
+                  </span>
+
+                  <button
+                    type="button"
+                    className="pc-story-control-dropdown pc-story-output-dropdown"
+                  >
+                    <PosterChildIcon
+                      name="instagram"
+                      size={20}
+                      color="#E1306C"
+                      strokeWidth={1.8}
+                    />
+
+                    <span className="pc-story-output-text">
+                      Instagram: Carousel
+                    </span>
+
+                    <PosterChildIcon
+                      name="chevron-down"
+                      size={20}
+                      color="#A3A3A3"
+                      strokeWidth={1.67}
+                    />
                   </button>
                 </div>
 
                 <div className="pc-story-control-divider" />
 
                 {/* CAROUSEL TEMPLATE */}
-                <div className="pc-story-control-group">
-                  <span className="pc-story-control-label">Carousel Template</span>
-                  <button type="button" className="pc-story-control-dropdown">
-                    <span>Spotlight Quote</span>
-                    <PosterChildIcon name="chevron-down" size={16} color="#737373" strokeWidth={2} />
+                <div className="pc-story-control-group pc-story-output-group">
+                  <span className="pc-story-control-label pc-story-output-label">
+                    Carousel Template
+                  </span>
+
+                  <button
+                    type="button"
+                    className="pc-story-control-dropdown pc-story-output-dropdown"
+                  >
+                    <span className="pc-story-output-text">
+                      Spotlight Quote
+                    </span>
+
+                    <PosterChildIcon
+                      name="chevron-down"
+                      size={20}
+                      color="#A3A3A3"
+                      strokeWidth={1.67}
+                    />
                   </button>
                 </div>
 
                 <div className="pc-story-control-divider" />
 
                 {/* BRAND COLORS */}
-                <div className="pc-story-control-group">
-                  <span className="pc-story-control-label">Brand Colors</span>
+                <div className="pc-story-control-group pc-story-output-group">
+                  <span className="pc-story-control-label pc-story-output-label">
+                    Brand Colors
+                  </span>
                   <div className="pc-story-swatches-row">
                     {BRAND_COLORS.map((swatch) => {
                       const isSelected = selectedColorId === swatch.id;
@@ -352,11 +349,13 @@ export default function StoryReview() {
 
               {/* ACTION BUTTONS RIGHT */}
               <div className="pc-story-controls-right">
-                <Button variant="secondary" size="sm" iconLeading="edit-02">
-                  Edit Slides
-                </Button>
-                <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
-                  Publish to Socials
+                <Button
+                  variant="primary"
+                  size="sm"
+                  iconLeading="download"
+                  onClick={completeMission}
+                >
+                  Download All
                 </Button>
               </div>
             </div>
@@ -411,43 +410,152 @@ export default function StoryReview() {
 
               {/* Right Column: Dynamic Slide Visual Preview */}
               <div className="pc-story-visual-col">
-                <div className="pc-story-artwork-preview" style={{ backgroundColor: activeColor }}>
-                  <div className="pc-story-artwork-brand">
-                    <img
-                      src={communityCatalystLogo}
-                      alt="Community Catalyst Logo"
-                      className="pc-story-artwork-brand-img"
-                    />
+                <div className="pc-story-carousel-shell">
+
+                  <div
+                    ref={carouselRef}
+                    className="pc-story-carousel-strip"
+                  >
+                    {[
+                      {
+                        id: 1,
+                        quote:
+                          "I didn’t know people in this field before. Now I know who to ask, what to look for, and what I can do next.",
+                        attribution: '— Youth Career Pathways participant',
+                        photo: false,
+                      },
+                      {
+                        id: 2,
+                        quote:
+                          'The program helped me turn an interest into a real path forward — with people I can actually reach out to.',
+                        attribution: '— Youth Career Pathways participant',
+                        photo: true,
+                      },
+                      {
+                        id: 3,
+                        quote:
+                          'Confidence grows when young people can see the next step — and know someone is there to help them take it.',
+                        attribution: 'Youth Career Pathways',
+                        photo: false,
+                      },
+                      {
+                        id: 4,
+                        quote:
+                          'A stronger network can change what feels possible.',
+                        attribution: 'Youth Career Pathways',
+                        photo: false,
+                      },
+                    ].map((slide) => (
+                      <div
+                        key={slide.id}
+                        className={`pc-story-artwork-preview pc-story-artwork-preview--carousel ${slide.photo ? 'is-photo' : ''
+                          }`}
+                        style={{
+                          backgroundColor: slide.photo ? undefined : activeColor,
+                        }}
+                      >
+                        {slide.photo && (
+                          <>
+                            <img
+                              src={youthCareerPathwaysImage}
+                              alt=""
+                              className="pc-story-carousel-photo"
+                            />
+
+                            <div
+                              className="pc-story-carousel-photo-overlay"
+                              style={{ backgroundColor: activeColor }}
+                            />
+                          </>
+                        )}
+
+                        <div className="pc-story-artwork-brand">
+                          <img
+                            src={communityCatalystLogo}
+                            alt="Community Catalyst Logo"
+                            className="pc-story-artwork-brand-img"
+                          />
+                        </div>
+
+                        <div className="pc-story-artwork-content">
+                          <div className="pc-story-artwork-quote-icon">“</div>
+
+                          <p className="pc-story-artwork-quote-text">
+                            {slide.quote}
+                          </p>
+
+                          <div className="pc-story-artwork-attribution">
+                            {slide.attribution}
+                          </div>
+                        </div>
+
+                        <div
+                          className="pc-story-artwork-brand"
+                          style={{
+                            justifyContent: 'space-between',
+                            width: '100%',
+                          }}
+                        >
+                          <span
+                            style={{
+                              fontSize: '12px',
+                              color: 'rgba(255,255,255,0.7)',
+                              letterSpacing: '0.05em',
+                            }}
+                          >
+                            COMMUNITY CATALYST
+                          </span>
+
+                          <span
+                            style={{
+                              fontSize: '12px',
+                              color: 'rgba(255,255,255,0.7)',
+                            }}
+                          >
+                            {String(slide.id).padStart(2, '0')} / 04
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
 
-                  <div className="pc-story-artwork-content">
-                    <div className="pc-story-artwork-quote-icon">“</div>
-                    <p className="pc-story-artwork-quote-text">
-                      I didn’t know people in this field before. Now I know who to ask, what to look for, and what I can do next.
-                    </p>
-                    <div className="pc-story-artwork-attribution">
-                      — Youth Career Pathways participant
-                    </div>
-                  </div>
-
-                  <div className="pc-story-artwork-brand" style={{ justifyContent: 'space-between', width: '100%' }}>
-                    <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em' }}>
-                      COMMUNITY CATALYST
-                    </span>
-                    <span style={{ fontSize: '12px', color: 'rgba(255,255,255,0.7)' }}>
-                      01 / 04
-                    </span>
-                  </div>
                 </div>
 
-                {/* Preview Navigation */}
+                {/* Carousel Navigation */}
                 <div className="pc-story-preview-actions">
-                  <Button variant="secondary" size="sm">
-                    Preview all 4 slides
-                  </Button>
-                  <Button variant="secondary" size="sm" iconLeading="download">
-                    Export Assets
-                  </Button>
+                  <button
+                    type="button"
+                    className="pc-story-carousel-nav pc-story-carousel-nav--inline"
+                    onClick={() => scrollCarousel('left')}
+                    aria-label="Previous slide"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path
+                        d="M12.5 15L7.5 10L12.5 5"
+                        stroke="#414651"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+
+                  <button
+                    type="button"
+                    className="pc-story-carousel-nav pc-story-carousel-nav--inline"
+                    onClick={() => scrollCarousel('right')}
+                    aria-label="Next slide"
+                  >
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                      <path
+                        d="M7.5 15L12.5 10L7.5 5"
+                        stroke="#414651"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>

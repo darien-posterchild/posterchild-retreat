@@ -2,16 +2,16 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { RotateCcw } from 'lucide-react';
 import Sidebar from '../components/Sidebar';
-import HomeWorkspace from '../components/HomeWorkspace';
 import PostiePanel from '../components/PostiePanel';
 import Logo from '../components/Logo';
 import QRPlaceholder from '../components/QRPlaceholder';
 import { useDemoState } from '../useDemoState';
-import { PosterChildIcon } from '../components/posterchild/Icon';
+import { PosterChildIcon, PosterChildIconName } from '../components/posterchild/Icon';
 import { SidebarProvider } from '../context/SidebarContext';
-import { PostieProvider } from '../context/PostieContext';
-import { getDecision, buildDestinationUrl } from '../config/retreatDecisions';
-import { getMissionByOption, canRevealManage, RETREAT_MAX_MISSIONS, RETREAT_CONFIG } from '../config/retreatFlow';
+import { PostieProvider, usePostie } from '../context/PostieContext';
+import RetreatVoteReveal from '../components/retreat/RetreatVoteReveal';
+import { getDecision, getDecisionTallies, buildDestinationUrl, type DecisionOption } from '../config/retreatDecisions';
+import { getMissionByOption, getAvailableHomeOptions, canRevealManage, RETREAT_MAX_MISSIONS, RETREAT_CONFIG } from '../config/retreatFlow';
 
 const WINNER_TITLES: Record<string, string> = {
   stories: '3 stories ready for review',
@@ -25,26 +25,51 @@ const WINNER_TITLES: Record<string, string> = {
   refine: 'Refine first',
   'ask-postie': 'Ask Postie',
   'needs-attention': 'See what needs attention',
-  'create-story': 'Create a new story',
-  'new-testimonials': 'Explore new testimonials',
-  'suggested-story': 'View the suggested story',
+  'suggested-story': 'View suggested story',
   'review-opportunity': 'Review opportunity',
-  'review-requirements': 'Review requirements',
-  'strengthen-application': 'Strengthen application',
-  'review-theme': 'Review the theme',
-  'use-in-story': 'Use responses in a story',
-  social: 'Social media',
+  'review-requirements': 'View Action Plan',
+  'use-in-story': 'Use this in a story',
+  social: 'Social Media',
   article: 'Article'
 };
 
-export default function Present() {
+function PresentInner() {
   const { state, dispatch, sessionId } = useDemoState();
   const navigate = useNavigate();
   const location = useLocation();
+  const { triggerPrompt, openPostie, resetAllConversations, addRetreatEvent, replaceRetreatEvent, removeRetreatEvent, clearRetreatTimeline, retreatTimeline, hasRetreatTimelineEventOfType, getRetreatEventOfType } = usePostie();
+
   const totalJoined = state.joinedParticipants;
   const totalVotes = Object.values(state.votes || {}).reduce((a, b) => a + b, 0);
 
   const lastPathRef = useRef(location.pathname);
+
+  // Floating reveal dismissed state & Postie prompt triggered tracker
+  const [revealDismissed, setRevealDismissed] = useState(false);
+  const [postiePromptTriggered, setPostiePromptTriggered] = useState(false);
+
+  // Deterministic 4-second reveal auto-dismiss timer — owned here, not inside RetreatVoteReveal.
+  // Cleared on startVoting, endVoting (restart), and reset.
+  const revealTimerRef = useRef<number | null>(null);
+
+  const startRevealTimer = () => {
+    if (revealTimerRef.current) clearTimeout(revealTimerRef.current);
+    revealTimerRef.current = window.setTimeout(() => {
+      setRevealDismissed(true);
+    }, 4000);
+  };
+
+  const clearRevealTimer = () => {
+    if (revealTimerRef.current) {
+      clearTimeout(revealTimerRef.current);
+      revealTimerRef.current = null;
+    }
+  };
+
+  // Clean up reveal timer on unmount
+  useEffect(() => {
+    return () => clearRevealTimer();
+  }, []);
 
   // Sync active decision ONLY when the presenter genuinely navigates to a new route
   useEffect(() => {
@@ -53,6 +78,9 @@ export default function Present() {
     }
     lastPathRef.current = location.pathname;
 
+    setRevealDismissed(false);
+    setPostiePromptTriggered(false);
+
     const path = location.pathname;
     if (path.includes('/raise/opportunities/kresge')) {
       dispatch({ type: 'SET_DECISION', decisionId: 'kresge-next-action' });
@@ -60,14 +88,15 @@ export default function Present() {
       dispatch({ type: 'SET_DECISION', decisionId: 'connect-next-action' });
     } else if (path.includes('/tell/stories/review')) {
       dispatch({ type: 'SET_DECISION', decisionId: 'story-output' });
-    } else if (path.includes('/tell/stories') && !path.includes('/review') && !path.includes('/create')) {
-      dispatch({ type: 'SET_DECISION', decisionId: 'stories-next' });
-    } else if (path.includes('/tell/quotes') && !path.includes('/action')) {
-      dispatch({ type: 'SET_DECISION', decisionId: 'quotes-next' });
-    } else if (path.includes('/raise') && !path.includes('/launch')) {
-      dispatch({ type: 'SET_DECISION', decisionId: 'campaigns-next' });
+    } else if (
+      path === `/present/${sessionId}` ||
+      path === `/present/${sessionId}/` ||
+      path === '/present' ||
+      path === '/present/'
+    ) {
+      dispatch({ type: 'SET_DECISION', decisionId: 'home-focus' });
     }
-  }, [location.pathname, dispatch]);
+  }, [location.pathname, dispatch, sessionId]);
 
   const isHome = location.pathname === `/present/${sessionId}` || location.pathname === `/present/${sessionId}/` || location.pathname === '/present' || location.pathname === '/present/';
   const isManage = location.pathname.includes('/manage');
@@ -76,12 +105,261 @@ export default function Present() {
   const completedMissions = state.completedMissionIds || [];
   const hasCompletedTwoMissions = canRevealManage(state);
 
-  const activeDecision = getDecision(state.activeDecisionId);
+  const activeDecision = React.useMemo(() => {
+    const base = getDecision(state.activeDecisionId);
+    if (state.activeDecisionId === 'home-focus') {
+      return {
+        ...base,
+        options: getAvailableHomeOptions(state)
+      };
+    }
+    return base;
+  }, [state.activeDecisionId, state.completedMissionIds]);
+
+  const tallies = getDecisionTallies({ votes: state.votes, participantVotes: state.participantVotes }, activeDecision);
+
   const winningOption = state.winningOptionId
     ? activeDecision.options.find((o) => o.id === state.winningOptionId)
     : (state.winner ? activeDecision.options.find((o) => o.id === state.winner || (o.id === 'campaigns' && state.winner === 'campaign')) : null);
 
+  const isRevealed = Boolean(state.isVoteRevealed);
+  const winnerVoteCount = winningOption ? tallies.options[winningOption.id]?.count || 0 : 0;
+  const winnerPercentage = totalVotes > 0 ? Math.round((winnerVoteCount / totalVotes) * 100) : 0;
+
+  const tiedOptions = state.tiedOptionIds
+    ? activeDecision.options.filter((o) => state.tiedOptionIds!.includes(o.id))
+    : [];
+  const tiedVoteCount = tiedOptions.length > 0 ? tallies.options[tiedOptions[0].id]?.count || 0 : 0;
+
   const winnerDestination = winningOption ? buildDestinationUrl(winningOption.destination, sessionId) : null;
+
+  // When a vote is revealed:
+  // 1. Append team-choice event (idempotent).
+  // 2. If winner's actionType is 'openPostie', also append ask-postie-pending event
+  //    with the contextual question — the presenter must explicitly click to send it.
+  useEffect(() => {
+    if (!isRevealed || !winningOption) return;
+
+    openPostie();
+
+    const currentDecId = isHome && (state.completedMissionIds || []).length > 0 ? 'home-focus-2' : (state.activeDecisionId || 'home-focus');
+
+    // --- team-choice (idempotent by winningOption.id and decisionId) ---
+    const alreadyLogged = hasRetreatTimelineEventOfType('team-choice', winningOption.id, currentDecId);
+    if (!alreadyLogged) {
+      const voteNoun = totalVotes === 1 ? 'vote' : 'votes';
+      const meta = totalVotes > 0
+        ? `${winnerVoteCount} of ${totalVotes} ${voteNoun} · ${winnerPercentage}%`
+        : undefined;
+
+      addRetreatEvent({
+        type: 'team-choice',
+        title: winningOption.label,
+        meta,
+        decisionId: currentDecId
+      });
+    }
+
+    if (winningOption.actionType === 'openPostie') {
+      // Ask Postie won the room vote:
+      // respond immediately instead of repeating the question
+      // or requiring another Ask Postie click.
+
+      const alreadyAnswered = hasRetreatTimelineEventOfType(
+        'postie-response',
+        undefined,
+        currentDecId
+      );
+
+      if (!alreadyAnswered) {
+        const question = getCanonicalPromptForScreen();
+        const response = getAskPostieRetreatResponse();
+
+        addRetreatEvent({
+          type: 'postie-response',
+          title: question,
+          body: response.text,
+          decisionId: currentDecId,
+          ctaLabel: response.ctaLabel,
+          ctaTarget: response.ctaTarget
+        });
+      }
+    } else {
+      // --- next-step shared across all non-Postie winning options ---
+      const alreadyHasNextStep = hasRetreatTimelineEventOfType('next-step', undefined, currentDecId);
+      if (!alreadyHasNextStep) {
+        const explanation = winningOption.nextStepExplanation || winningOption.description || `Continue with ${winningOption.label}`;
+        const ctaLabel = winningOption.nextStepCtaLabel || winningOption.label;
+        const targetUrl = buildDestinationUrl(winningOption.destination, sessionId);
+
+        addRetreatEvent({
+          type: 'next-step',
+          title: explanation,
+          ctaLabel,
+          ctaTarget: targetUrl,
+          decisionId: currentDecId
+        });
+      }
+    }
+  }, [isRevealed, winningOption?.id, state.activeDecisionId]);
+
+  const isCurrentScreenMissionCompleted = () => {
+    const completed = state.completedMissionIds || [];
+    if (location.pathname.includes('/raise/opportunities/kresge')) {
+      return completed.includes('kresge-funding') || completed.includes('kresge-postie');
+    }
+    if (location.pathname.includes('/tell/connect')) {
+      return completed.includes('new-testimonials-connect');
+    }
+    if (location.pathname.includes('/tell/stories/review')) {
+      return completed.includes('youth-career-story');
+    }
+    if (isHome) {
+      return completed.length >= 2;
+    }
+    return false;
+  };
+
+  const getCanonicalPromptForScreen = () => {
+    if (isHome) {
+      const hasCompleted = (state.completedMissionIds || []).length > 0;
+      return hasCompleted ? 'What should we do now?' : 'What should we do first today?';
+    }
+    if (location.pathname.includes('/tell/connect')) {
+      return 'What are we hearing from our community?';
+    }
+    if (location.pathname.includes('/tell/stories/review')) {
+      return 'How should we use this story?';
+    }
+    if (location.pathname.includes('/raise/opportunities/kresge')) {
+      return 'What should we do next with this opportunity?';
+    }
+    const hasCompleted = (state.completedMissionIds || []).length > 0;
+    return hasCompleted ? 'What should we do now?' : 'What should we do first today?';
+  };
+
+  const getAskPostieRetreatResponse = (): { text: string; ctaLabel?: string; ctaTarget?: string; usedContext: string[] } => {
+    // Returns context-aware Postie answer for the current retreat decision, using decision question as input
+    if (isHome) {
+      const completed = state.completedMissionIds || [];
+      const isKresgeCompleted = completed.includes('kresge-funding') || completed.includes('kresge-postie');
+
+      if (isKresgeCompleted) {
+        return {
+          text: "Since we've already reviewed the Kresge opportunity, I recommend exploring our Youth Career Pathways suggested story next. It has high community resonance and is ready for campaign activation.",
+          ctaLabel: 'Review story',
+          ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`,
+          usedContext: ['Home', 'Youth Career Pathways', 'Story Review']
+        };
+      }
+
+      return {
+        text: "I'd start with the Kresge Foundation opportunity. It closes in 12 days, has a 92% match, and the application is ready for review. Your main readiness gap is the workforce program budget.",
+        ctaLabel: 'Review opportunity',
+        ctaTarget: `/present/${sessionId}/raise/opportunities/kresge`,
+        usedContext: ['Home', 'Kresge Foundation', 'Needs Attention']
+      };
+    }
+    if (location.pathname.includes('/tell/connect')) {
+      return {
+        text: "Transportation appears across several recent Youth Career Pathways responses. I'd use this signal to strengthen the narrative and gather one more layer of detail before publishing.",
+        ctaLabel: 'Use in story',
+        ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`,
+        usedContext: ['Connect', 'Youth Career Pathways', 'Testimonials']
+      };
+    }
+    if (location.pathname.includes('/raise/opportunities/kresge')) {
+      return {
+        text: "I’d open the Action Plan next. Kresge is a strong fit, and the plan shows the remaining work, key talking points, and what should happen before the deadline.",
+        ctaLabel: 'View Action Plan',
+        ctaTarget: `/present/${sessionId}/raise/opportunities/kresge?tab=action-plan`,
+        usedContext: ['Kresge Foundation', 'Action Plan', '92% Match']
+      };
+    }
+    if (location.pathname.includes('/tell/stories/review')) {
+      return {
+        text: "Youth Career Pathways is ready for publishing. The social carousel is the fastest high-resonance channel for this story.",
+        ctaLabel: 'Open Social Media',
+        ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`,
+        usedContext: ['Youth Career Pathways', 'Social Media']
+      };
+    }
+    return {
+      text: "I'd start with the Kresge Foundation opportunity — it has the strongest urgency and match for your current priorities.",
+      ctaLabel: 'Review opportunity',
+      ctaTarget: `/present/${sessionId}/raise/opportunities/kresge`,
+      usedContext: ['Home', 'Kresge Foundation']
+    };
+  };
+
+  const handleAskPostieAction = () => {
+    openPostie();
+    setPostiePromptTriggered(true);
+
+    const currentDecisionId = isHome && (state.completedMissionIds || []).length > 0 ? 'home-focus-2' : (state.activeDecisionId || 'home-focus');
+    const alreadyAnswered = hasRetreatTimelineEventOfType('postie-response', undefined, currentDecisionId);
+    if (alreadyAnswered) return;
+
+    const question = getCanonicalPromptForScreen();
+    const response = getAskPostieRetreatResponse();
+
+    addRetreatEvent({
+      type: 'postie-response',
+      title: question,
+      body: response.text,
+      decisionId: currentDecisionId,
+      ctaLabel: response.ctaLabel,
+      ctaTarget: response.ctaTarget
+    });
+  };
+
+  const MISSION_LABELS: Record<string, string> = {
+    'kresge-funding': 'Kresge Foundation opportunity reviewed.',
+    'kresge-postie': 'Kresge Foundation opportunity reviewed.',
+    'new-testimonials-connect': 'Transportation signal connected to Youth Career Pathways.',
+    'youth-career-story': 'Youth Career Pathways story reviewed/published.'
+  };
+
+  const completeMission = (specificMissionId?: string) => {
+    let activeMissionId = specificMissionId || state.currentMissionId;
+    if (!activeMissionId) {
+      if (location.pathname.includes('/raise/opportunities/kresge')) {
+        activeMissionId = 'kresge-funding';
+      } else if (location.pathname.includes('/tell/connect')) {
+        activeMissionId = 'new-testimonials-connect';
+      } else if (location.pathname.includes('/tell/stories/review')) {
+        activeMissionId = 'youth-career-story';
+      } else if (winningOption) {
+        activeMissionId = getMissionByOption(winningOption.id)?.id || 'kresge-funding';
+      }
+    }
+    if (activeMissionId) {
+      dispatch({ type: 'COMPLETE_MISSION', missionId: activeMissionId });
+
+      // Log to retreat timeline — idempotent
+      const alreadyLogged = hasRetreatTimelineEventOfType('action-completed', activeMissionId) ||
+        hasRetreatTimelineEventOfType('mission-completed', activeMissionId);
+      if (!alreadyLogged) {
+        const isFinalMission = (state.completedMissionIds || []).length + 1 >= 2;
+        addRetreatEvent({
+          type: isFinalMission ? 'mission-completed' : 'action-completed',
+          title: MISSION_LABELS[activeMissionId] || `${activeMissionId} completed.`,
+          decisionId: state.activeDecisionId || undefined
+        });
+
+        if (activeMissionId === 'kresge-funding' || activeMissionId === 'kresge-postie' || activeMissionId === 'youth-career-story') {
+          addRetreatEvent({
+            type: 'next-step',
+            title: activeMissionId === 'youth-career-story'
+              ? 'Youth Career Pathways story reviewed. Ready to return to Home?'
+              : 'Kresge action plan reviewed. Ready to return to Home?',
+            ctaLabel: 'Return to Home',
+            ctaTarget: `/present/${sessionId}`
+          });
+        }
+      }
+    }
+  };
 
   const advanceToWinner = () => {
     if (winnerDestination) {
@@ -96,6 +374,139 @@ export default function Present() {
     }
   };
 
+  const executeDecisionAction = (option: DecisionOption) => {
+    // If the mission on this screen is already completed, Continue smoothly returns to Home
+    if (isMissionActive && isCurrentScreenMissionCompleted()) {
+      returnToHome();
+      return;
+    }
+
+    const actionType = option.actionType;
+
+    if (actionType === 'openPostie') {
+      const response = getAskPostieRetreatResponse();
+      if (response.ctaTarget) {
+        handleTimelineCta({
+          id: 'postie-response-cta',
+          type: 'postie-response',
+          title: '',
+          body: response.text,
+          ctaLabel: response.ctaLabel,
+          ctaTarget: response.ctaTarget
+        });
+      }
+      return;
+    }
+
+    if (actionType === 'completeMission') {
+      completeMission();
+      return;
+    }
+
+    if (actionType === 'switchTab') {
+      const destUrl = buildDestinationUrl(option.destination, sessionId);
+      navigate(destUrl);
+      if (location.pathname.includes('/tell/stories/review')) {
+        completeMission('youth-career-story');
+      } else {
+        completeMission();
+      }
+      return;
+    }
+
+    if (actionType === 'navigate') {
+      const destUrl = buildDestinationUrl(option.destination, sessionId);
+      if (isHome) {
+        if (option.id === 'suggested-story') {
+          dispatch({ type: 'START_MISSION', missionId: 'youth-career-story' });
+          dispatch({ type: 'SET_DECISION', decisionId: 'story-output' });
+        } else {
+          const mission = getMissionByOption(option.id);
+          if (mission) {
+            dispatch({ type: 'START_MISSION', missionId: mission.id });
+          }
+        }
+      } else if (option.id === 'use-in-story') {
+        dispatch({ type: 'COMPLETE_MISSION', missionId: 'new-testimonials-connect' });
+        dispatch({ type: 'START_MISSION', missionId: 'youth-career-story' });
+      } else if (option.id === 'review-requirements') {
+        completeMission('kresge-funding');
+      }
+      navigate(destUrl);
+      return;
+    }
+
+    if (winnerDestination) {
+      advanceToWinner();
+    } else {
+      completeMission();
+    }
+  };
+
+  const handleTimelineCta = (event: RetreatTimelineEvent) => {
+    if (event.type === 'next-step') {
+      if (event.ctaLabel === 'Return to Home' || event.ctaTarget === `/present/${sessionId}`) {
+        returnToHome();
+        return;
+      }
+      if (winningOption) {
+        executeDecisionAction(winningOption);
+        return;
+      }
+      if (event.ctaTarget) {
+        navigate(event.ctaTarget);
+        return;
+      }
+    }
+    if (event.type === 'postie-response') {
+      if (event.ctaTarget) {
+        if (isHome) {
+          if (event.ctaTarget.includes('/tell/stories/review')) {
+            dispatch({ type: 'START_MISSION', missionId: 'youth-career-story' });
+            dispatch({ type: 'SET_DECISION', decisionId: 'story-output' });
+          } else if (event.ctaTarget.includes('/raise/opportunities/kresge')) {
+            const mission = getMissionByOption('needs-attention') || getMissionByOption('ask-postie');
+            if (mission) {
+              dispatch({ type: 'START_MISSION', missionId: mission.id });
+            }
+          }
+        } else if (location.pathname.includes('/raise/opportunities/kresge')) {
+          if (event.ctaTarget.includes('tab=action-plan')) {
+            completeMission('kresge-funding');
+          }
+        } else if (location.pathname.includes('/tell/stories/review')) {
+          completeMission('youth-career-story');
+        }
+        navigate(event.ctaTarget);
+      }
+      return;
+    }
+  };
+
+  const getContinueButtonLabel = (option: DecisionOption) => {
+    if (isMissionActive && isCurrentScreenMissionCompleted()) {
+      return 'Continue to Return to Home';
+    }
+
+    if (option.actionType === 'openPostie') {
+      const response = getAskPostieRetreatResponse();
+      if (response.ctaLabel) {
+        return `Continue to ${response.ctaLabel}`;
+      }
+      return `Continue to ${option.label}`;
+    }
+
+    return `Continue to ${option.label}`;
+  };
+
+  const getContinueButtonIcon = (option: DecisionOption): PosterChildIconName => {
+    if (isMissionActive && isCurrentScreenMissionCompleted()) {
+      return 'arrow-left';
+    }
+    if (option.actionType === 'completeMission') return 'check';
+    return 'arrow-right';
+  };
+
   const returnToHome = () => {
     let missionIdToComplete = state.currentMissionId;
     if (!missionIdToComplete) {
@@ -105,20 +516,15 @@ export default function Present() {
         missionIdToComplete = 'new-testimonials-connect';
       } else if (location.pathname.includes('/tell/stories/review')) {
         missionIdToComplete = 'youth-career-story';
-      } else if (location.pathname.includes('/tell/stories/create')) {
-        missionIdToComplete = 'create-story-flow';
       }
     }
     if (missionIdToComplete) {
       dispatch({ type: 'COMPLETE_MISSION', missionId: missionIdToComplete });
     }
+    setRevealDismissed(false);
+    setPostiePromptTriggered(false);
     dispatch({ type: 'RETURN_HOME' });
     navigate(`/present/${sessionId}`);
-  };
-
-  const completeMission = () => {
-    const activeMissionId = state.currentMissionId || (winningOption ? getMissionByOption(winningOption.id)?.id : undefined) || 'kresge-funding';
-    dispatch({ type: 'COMPLETE_MISSION', missionId: activeMissionId });
   };
 
   const revealManage = () => {
@@ -136,8 +542,53 @@ export default function Present() {
   const displayUrl = `${host}/join/${sessionId}`;
 
   const goDashboard = () => dispatch({ type: 'SET_SCENE', scene: 'dashboard' });
-  const startVoting = () => dispatch({ type: 'SET_SCENE', scene: 'voting' });
-  const endVoting = () => dispatch({ type: 'END_VOTING' });
+
+  const startVoting = () => {
+    setRevealDismissed(false);
+    setPostiePromptTriggered(false);
+    clearRevealTimer();
+
+    let decisionIdToStart = state.activeDecisionId;
+    if (isHome) {
+      decisionIdToStart = 'home-focus';
+    } else if (location.pathname.includes('/raise/opportunities/kresge')) {
+      decisionIdToStart = 'kresge-next-action';
+    } else if (location.pathname.includes('/tell/stories/review')) {
+      decisionIdToStart = 'story-output';
+    } else if (location.pathname.includes('/tell/connect')) {
+      decisionIdToStart = 'connect-next-action';
+    }
+
+    if (decisionIdToStart) {
+      dispatch({ type: 'SET_DECISION', decisionId: decisionIdToStart });
+    }
+
+    dispatch({ type: 'START_VOTING', decisionId: decisionIdToStart || undefined });
+    dispatch({ type: 'SET_SCENE', scene: 'voting' });
+
+    const question = getCanonicalPromptForScreen();
+    const currentDecId = isHome && (state.completedMissionIds || []).length > 0 ? 'home-focus-2' : (decisionIdToStart || state.activeDecisionId || 'home-focus');
+
+    const alreadyHasRoomQuestion = hasRetreatTimelineEventOfType('room-question', undefined, currentDecId);
+    if (!alreadyHasRoomQuestion) {
+      addRetreatEvent({
+        type: 'room-question',
+        title: question,
+        decisionId: currentDecId
+      });
+    }
+
+    openPostie();
+  };
+
+  const endVoting = () => {
+    setRevealDismissed(false);
+    setPostiePromptTriggered(false);
+    dispatch({ type: 'END_VOTING' });
+    startRevealTimer();
+    openPostie();
+  };
+
   const reset = () => dispatch({ type: 'RESET' });
 
   // Safe reset state with 3-second confirmation window to prevent accidental live resets
@@ -148,6 +599,11 @@ export default function Present() {
     if (resetConfirming) {
       if (resetTimerRef.current) clearTimeout(resetTimerRef.current);
       setResetConfirming(false);
+      setRevealDismissed(false);
+      setPostiePromptTriggered(false);
+      clearRevealTimer();
+      resetAllConversations();
+      clearRetreatTimeline();
       reset();
       navigate(`/present/${sessionId}`);
     } else {
@@ -184,7 +640,6 @@ export default function Present() {
         } else if (isManage) {
           goToNextSteps();
         } else if (isNextSteps) {
-          // Stay on next steps, do not accidentally restart
           return;
         } else if (state.scene === 'dashboard' || state.decisionStatus === 'idle') {
           startVoting();
@@ -193,9 +648,12 @@ export default function Present() {
           else endVoting();
         } else if (state.decisionStatus === 'closed' && !state.winningOptionId) {
           dispatch({ type: 'REOPEN_VOTING' });
-        } else if (state.scene === 'result' || state.decisionStatus === 'result') {
-          if (winnerDestination) advanceToWinner();
-          else startVoting();
+        } else if ((state.scene === 'result' || state.decisionStatus === 'result') && isRevealed) {
+          if (winningOption) {
+            executeDecisionAction(winningOption);
+          } else {
+            startVoting();
+          }
         }
       } else if (e.key.toLowerCase() === 'r') {
         e.preventDefault();
@@ -222,7 +680,7 @@ export default function Present() {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [state.scene, state.decisionStatus, winnerDestination, resetConfirming, isHome, isManage, isNextSteps, isMissionActive, hasCompletedTwoMissions]);
+  }, [state.scene, state.decisionStatus, winnerDestination, resetConfirming, isHome, isManage, isNextSteps, isMissionActive, hasCompletedTwoMissions, isRevealed, winningOption, postiePromptTriggered]);
 
   // Discreet presenter dock with low-emphasis auto-dim and room session tag
   const renderPresenterDock = (isInside = false) => (
@@ -297,7 +755,7 @@ export default function Present() {
               <>
                 {(state.scene === 'dashboard' || state.decisionStatus === 'idle') && (
                   <button className="dock-button dock-button--primary" onClick={startVoting} type="button">
-                    <span>Ask the room</span>
+                    <span>Ask room</span>
                     <PosterChildIcon name="arrow-right" size={13} />
                     <kbd className="dock-kbd">Space</kbd>
                   </button>
@@ -305,7 +763,7 @@ export default function Present() {
 
                 {(state.scene === 'voting' || state.decisionStatus === 'open') && state.decisionStatus !== 'tie' && (
                   <button className="dock-button dock-button--primary" onClick={endVoting} type="button">
-                    <span>Reveal team choice</span>
+                    <span>Reveal vote</span>
                     <PosterChildIcon name="arrow-right" size={13} />
                     <kbd className="dock-kbd">Space</kbd>
                   </button>
@@ -327,12 +785,16 @@ export default function Present() {
                   </button>
                 )}
 
-                {(state.scene === 'result' || state.decisionStatus === 'result') && (
+                {(state.scene === 'result' || state.decisionStatus === 'result') && isRevealed && (
                   <>
-                    {winnerDestination && (
-                      <button className="dock-button dock-button--primary" onClick={advanceToWinner} type="button">
-                        <span>Advance to {winningOption?.label || 'Winner'}</span>
-                        <PosterChildIcon name="arrow-right" size={13} />
+                    {winningOption && (
+                      <button
+                        className="dock-button dock-button--ghost"
+                        onClick={() => executeDecisionAction(winningOption)}
+                        type="button"
+                      >
+                        <span>{getContinueButtonLabel(winningOption)}</span>
+                        <PosterChildIcon name={getContinueButtonIcon(winningOption)} size={13} />
                         <kbd className="dock-kbd">Space</kbd>
                       </button>
                     )}
@@ -351,33 +813,23 @@ export default function Present() {
           <>
             {(state.scene === 'dashboard' || state.decisionStatus === 'idle') && (
               <>
-                {completedMissions.includes('kresge-funding') ? (
-                  <button className="dock-button dock-button--primary" onClick={returnToHome} type="button">
-                    <PosterChildIcon name="arrow-left" size={13} />
-                    <span>Return to Home</span>
-                    <kbd className="dock-kbd">H</kbd>
-                  </button>
-                ) : (
-                  <>
-                    <button className="dock-button dock-button--primary" onClick={startVoting} type="button">
-                      <span>Ask the room</span>
-                      <PosterChildIcon name="arrow-right" size={13} />
-                      <kbd className="dock-kbd">Space</kbd>
-                    </button>
-                    <button className="dock-button dock-button--ghost" onClick={returnToHome} type="button">
-                      <PosterChildIcon name="arrow-left" size={13} />
-                      <span>Return to Home</span>
-                      <kbd className="dock-kbd">H</kbd>
-                    </button>
-                  </>
-                )}
+                <button className="dock-button dock-button--primary" onClick={startVoting} type="button">
+                  <span>Ask room</span>
+                  <PosterChildIcon name="arrow-right" size={13} />
+                  <kbd className="dock-kbd">Space</kbd>
+                </button>
+                <button className="dock-button dock-button--ghost" onClick={returnToHome} type="button">
+                  <PosterChildIcon name="arrow-left" size={13} />
+                  <span>Return to Home</span>
+                  <kbd className="dock-kbd">H</kbd>
+                </button>
               </>
             )}
 
             {(state.scene === 'voting' || state.decisionStatus === 'open') && state.decisionStatus !== 'tie' && (
               <>
                 <button className="dock-button dock-button--primary" onClick={endVoting} type="button">
-                  <span>Reveal team choice</span>
+                  <span>Reveal vote</span>
                   <PosterChildIcon name="arrow-right" size={13} />
                   <kbd className="dock-kbd">Space</kbd>
                 </button>
@@ -404,13 +856,19 @@ export default function Present() {
               </>
             )}
 
-            {(state.scene === 'result' || state.decisionStatus === 'result') && (
+            {(state.scene === 'result' || state.decisionStatus === 'result') && isRevealed && (
               <>
-                <button className="dock-button dock-button--primary" onClick={completeMission} type="button">
-                  <span>Complete Mission</span>
-                  <PosterChildIcon name="check" size={13} />
-                  <kbd className="dock-kbd">Space</kbd>
-                </button>
+                {winningOption && (
+                  <button
+                    className="dock-button dock-button--ghost"
+                    onClick={() => executeDecisionAction(winningOption)}
+                    type="button"
+                  >
+                    <span>{getContinueButtonLabel(winningOption)}</span>
+                    <PosterChildIcon name={getContinueButtonIcon(winningOption)} size={13} />
+                    <kbd className="dock-kbd">Space</kbd>
+                  </button>
+                )}
                 <button className="dock-button dock-button--ghost" onClick={startVoting} type="button">
                   <span>Vote again</span>
                 </button>
@@ -541,51 +999,90 @@ export default function Present() {
   }
 
   // 2. Reference-driven Desktop Application Shell (1440px, posterchild-home-reference.txt)
+  const canAskRoom = (() => {
+    if (isManage || isNextSteps || state.scene === 'join') return false;
+    if (isCurrentScreenMissionCompleted()) return false;
+    if (state.scene === 'voting' || state.decisionStatus === 'open') return false;
+    if (isRevealed || state.scene === 'result' || state.decisionStatus === 'result') return false;
+    return (state.scene === 'dashboard' || state.decisionStatus === 'idle');
+  })();
+
   const winnerTitle = winningOption?.label || (state.winner ? WINNER_TITLES[state.winner] || state.winner : undefined);
 
   return (
+    <div className="pc-ref-app-viewport">
+      <div className="pc-ref-app-frame">
+        {/* Sidebar Region: 280px (expanded) / 64px (collapsed) */}
+        <Sidebar activeTab="home" />
+
+        {/* App Content — Home: fluid width */}
+        <div className="pc-ref-app-content">
+          {/* Main Content Column */}
+          <main className="pc-ref-main-content">
+            <Outlet
+              context={{
+                scene: state.scene,
+                decisionStatus: state.decisionStatus,
+                activeDecisionId: state.activeDecisionId,
+                votes: state.votes,
+                participantVotes: state.participantVotes,
+                totalVotes,
+                winner: state.winner,
+                winningOptionId: state.winningOptionId,
+                tiedOptionIds: state.tiedOptionIds,
+                winningOption,
+                winnerDestination,
+                advanceToWinner,
+                isVoteRevealed: isRevealed
+              }}
+            />
+          </main>
+
+          {/* Persistent Right Postie Panel: 360px docked, 400x460 floating, or 40x40 launcher */}
+          <PostiePanel
+            scene={state.scene}
+            winnerTitle={winnerTitle}
+            decisionStatus={state.decisionStatus}
+            activeDecisionId={state.activeDecisionId}
+            isVoteRevealed={isRevealed}
+            winningOptionId={state.winningOptionId}
+            onAskPostieClick={handleAskPostieAction}
+            onTimelineCta={handleTimelineCta}
+            onStartVoting={startVoting}
+            onRevealVote={endVoting}
+            canAskRoom={canAskRoom}
+            roomQuestion={getCanonicalPromptForScreen()}
+          />
+        </div>
+      </div>
+
+      {/* Floating Retreat Vote Reveal Overlay */}
+      {isRevealed && !revealDismissed && !isManage && !isNextSteps && state.scene !== 'join' && (
+        <RetreatVoteReveal
+          winningOption={winningOption}
+          winnerTitle={winnerTitle}
+          totalVotes={totalVotes}
+          winnerVotes={state.decisionStatus === 'tie' ? tiedVoteCount : winnerVoteCount}
+          percentage={winnerPercentage}
+          isTie={state.decisionStatus === 'tie'}
+          tiedOptions={tiedOptions}
+          isZeroVotes={state.decisionStatus === 'closed' && !winningOption}
+          autoDismissMs={0}
+          onDismiss={() => setRevealDismissed(true)}
+        />
+      )}
+
+      {/* Discreet Presenter Controls Dock */}
+      {renderPresenterDock(true)}
+    </div>
+  );
+}
+
+export default function Present() {
+  return (
     <SidebarProvider>
       <PostieProvider>
-        <div className="pc-ref-app-viewport">
-          <div className="pc-ref-app-frame">
-            {/* Sidebar Region: 280px (expanded) / 64px (collapsed) */}
-            <Sidebar activeTab="home" />
-
-            {/* App Content — Home: fluid width */}
-            <div className="pc-ref-app-content">
-              {/* Main Content Column */}
-              <main className="pc-ref-main-content">
-                <Outlet
-                  context={{
-                    scene: state.scene,
-                    decisionStatus: state.decisionStatus,
-                    activeDecisionId: state.activeDecisionId,
-                    votes: state.votes,
-                    participantVotes: state.participantVotes,
-                    totalVotes,
-                    winner: state.winner,
-                    winningOptionId: state.winningOptionId,
-                    tiedOptionIds: state.tiedOptionIds,
-                    winningOption,
-                    winnerDestination,
-                    advanceToWinner
-                  }}
-                />
-              </main>
-
-              {/* Persistent Right Postie Panel: 360px docked, 400x460 floating, or 40x40 launcher */}
-              <PostiePanel
-                scene={state.scene}
-                winnerTitle={winnerTitle}
-                decisionStatus={state.decisionStatus}
-                activeDecisionId={state.activeDecisionId}
-              />
-            </div>
-          </div>
-
-          {/* Discreet Presenter Controls Dock */}
-          {renderPresenterDock(true)}
-        </div>
+        <PresentInner />
       </PostieProvider>
     </SidebarProvider>
   );

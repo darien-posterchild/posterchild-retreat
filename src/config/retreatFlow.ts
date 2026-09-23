@@ -89,8 +89,8 @@ export const RETREAT_MISSIONS: Record<string, RetreatMission> = {
     label: 'Community Testimonials & Connect',
     description: 'Explore newly surfaced quotes from program participants and link them to our donor touchpoints.',
     entryRoute: '/tell/connect',
-    sourceDecisionId: 'home-focus',
-    sourceOptionId: 'new-testimonials',
+    sourceDecisionId: 'connect-next-action',
+    sourceOptionId: 'use-in-story',
     completionRoute: '/tell/connect',
     returnToHome: true,
     homeEffect: '4 New Testimonials Connected to Stories',
@@ -99,21 +99,6 @@ export const RETREAT_MISSIONS: Record<string, RetreatMission> = {
     convergenceMissionId: 'youth-career-story',
     enabled: true,
     status: 'available'
-  },
-  'create-story-flow': {
-    id: 'create-story-flow',
-    label: 'Create a New Story',
-    description: 'Initiate a fresh story creation workflow connecting raw community voice into a structured narrative draft.',
-    entryRoute: '/tell/stories/create',
-    sourceDecisionId: 'home-focus',
-    sourceOptionId: 'create-story',
-    completionRoute: '/tell/stories/create',
-    returnToHome: true,
-    homeEffect: 'New Story Draft Created & Queued',
-    targetPillar: 'Tell',
-    convergenceMissionId: 'youth-career-story',
-    enabled: true,
-    status: 'placeholder'
   }
 };
 
@@ -150,36 +135,31 @@ export function getAvailableHomeOptions(sessionState?: Partial<SessionState>): D
   const rootDecision = RETREAT_DECISIONS['home-focus'];
   if (!rootDecision) return [];
 
-  // Filter out any options whose missions are explicitly disabled (enabled === false)
-  const enabledOptions = rootDecision.options.filter((opt) => {
-    const mission = getMissionByOption(opt.id);
-    return mission ? mission.enabled !== false : true;
-  });
-
   const completed = sessionState?.completedMissionIds || [];
   if (completed.length === 0) {
-    return enabledOptions;
+    return rootDecision.options;
   }
 
-  // Find option IDs that correspond to completed missions or their converged siblings
+  // Find option IDs that correspond to completed direct paths
+  // Ask Postie must remain available unless Ask Postie itself has explicitly been consumed
   const completedOptionIds = new Set<string>();
   completed.forEach((missionId) => {
-    const mission = getMission(missionId);
-    if (mission) {
-      completedOptionIds.add(mission.sourceOptionId);
-      // Also exclude converging sibling missions (e.g. if Kresge is done, exclude both ask-postie & needs-attention)
-      if (mission.convergenceMissionId === 'kresge-funding' || mission.id === 'kresge-funding') {
-        completedOptionIds.add('ask-postie');
-        completedOptionIds.add('needs-attention');
-      } else if (mission.convergenceMissionId === 'youth-career-story' || mission.id === 'youth-career-story') {
-        completedOptionIds.add('suggested-story');
-        completedOptionIds.add('new-testimonials');
+    if (missionId === 'kresge-funding') {
+      completedOptionIds.add('needs-attention');
+    } else if (missionId === 'kresge-postie') {
+      completedOptionIds.add('ask-postie');
+    } else if (missionId === 'youth-career-story' || missionId === 'new-testimonials-connect') {
+      completedOptionIds.add('suggested-story');
+    } else {
+      const mission = getMission(missionId);
+      if (mission?.sourceOptionId) {
+        completedOptionIds.add(mission.sourceOptionId);
       }
     }
   });
 
-  const available = enabledOptions.filter((opt) => !completedOptionIds.has(opt.id));
-  return available.length > 0 ? available : enabledOptions;
+  const available = rootDecision.options.filter((opt) => !completedOptionIds.has(opt.id));
+  return available.length > 0 ? available : rootDecision.options;
 }
 
 /**

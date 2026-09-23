@@ -32,6 +32,9 @@ export interface SessionState {
   completedMissionIds?: string[];
   currentMissionId?: string | null;
   decisionHistory?: DecisionHistoryItem[];
+
+  // Presenter-side vote reveal extension
+  isVoteRevealed?: boolean;
 }
 
 /**

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams, useOutletContext } from 'react-router-dom';
+import { useNavigate, useParams, useOutletContext, useSearchParams } from 'react-router-dom';
 import ProductPage from '../../components/posterchild/ProductPage';
 import { Button } from '../../components/posterchild/Button';
 import { Badge } from '../../components/posterchild/Badge';
@@ -42,19 +42,23 @@ const ALIGNMENT_DATA = [
 export default function KresgeOpportunityDetail() {
   const { sessionId = 'PC26' } = useParams<{ sessionId?: string }>();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const outletCtx = useOutletContext<KresgeOutletContext>() || {};
   const { state, dispatch } = useDemoState();
-  const { openPostie } = usePostie();
+  const { openPostie, triggerPrompt } = usePostie();
 
-  const [activeTab, setActiveTab] = useState('Profile');
+  const tabParam = searchParams.get('tab');
+  const [selectedTab, setSelectedTab] = useState('Profile');
+  const activeTab = tabParam === 'action-plan' ? 'Action Plan' : (tabParam === 'profile' ? 'Profile' : selectedTab);
 
   const scene = outletCtx.scene ?? state.scene ?? 'dashboard';
   const decisionStatus = outletCtx.decisionStatus ?? state.decisionStatus ?? 'idle';
   const winningOptionId = outletCtx.winningOptionId ?? state.winningOptionId ?? state.winner ?? null;
 
+  const isVoteRevealed = (outletCtx as { isVoteRevealed?: boolean }).isVoteRevealed ?? state.isVoteRevealed ?? false;
   const isVoting = scene === 'voting' || decisionStatus === 'open';
-  const isResult = scene === 'result' || decisionStatus === 'result';
-  const isCompleted = state.completedMissionIds?.includes('kresge-funding');
+  const isResult = (scene === 'result' || decisionStatus === 'result') && isVoteRevealed;
+  const isCompleted = state.completedMissionIds?.includes('kresge-funding') || state.completedMissionIds?.includes('kresge-postie');
 
   const completeMission = () => {
     dispatch({ type: 'COMPLETE_MISSION', missionId: 'kresge-funding' });
@@ -65,19 +69,27 @@ export default function KresgeOpportunityDetail() {
     navigate(`/present/${sessionId}`);
   };
 
-  // Preserve retreat action behavior
-  const handleReviewRequirements = () => {
-    dispatch({ type: 'SET_WINNER', winner: 'review-requirements' });
-    dispatch({ type: 'SET_SCENE', scene: 'result' });
+  const handleTabChange = (tab: string) => {
+    setSelectedTab(tab);
+    if (tab === 'Action Plan') {
+      navigate(`/present/${sessionId}/raise/opportunities/kresge?tab=action-plan`);
+    } else if (tab === 'Profile') {
+      navigate(`/present/${sessionId}/raise/opportunities/kresge`);
+    } else {
+      setSelectedTab(tab);
+    }
   };
 
-  const handleStrengthenApplication = () => {
-    dispatch({ type: 'SET_WINNER', winner: 'strengthen-application' });
+  // View Plan activates the Action Plan tab
+  const handleViewPlan = () => {
+    dispatch({ type: 'SET_WINNER', winner: 'review-requirements' });
     dispatch({ type: 'SET_SCENE', scene: 'result' });
+    navigate(`/present/${sessionId}/raise/opportunities/kresge?tab=action-plan`);
   };
 
   const handleAskPostie = () => {
     openPostie();
+    triggerPrompt('What should we do next with this opportunity?');
     dispatch({ type: 'SET_WINNER', winner: 'ask-postie' });
   };
 
@@ -115,47 +127,6 @@ export default function KresgeOpportunityDetail() {
       }
     >
       <div className="pc-kresge-page-container">
-        {/* Subtle Status Notice */}
-        {isCompleted ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '14px 18px',
-              borderRadius: '10px',
-              backgroundColor: '#ECFDF3',
-              border: '1px solid #A6F4C5',
-              color: '#027A48'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-              <PosterChildIcon name="check" size={18} strokeWidth={2.5} />
-              <strong>Kresge Mission Completed</strong>
-              <span>— Application alignment confirmed & budget readiness recommendations captured.</span>
-            </div>
-            <Button variant="primary" size="sm" onClick={returnHome}>
-              Return to Home [H]
-            </Button>
-          </div>
-        ) : isVoting ? (
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '10px',
-              padding: '12px 18px',
-              borderRadius: '10px',
-              backgroundColor: '#EFF8FF',
-              border: '1px solid #B2DDFF',
-              color: '#175CD3'
-            }}
-          >
-            <PosterChildIcon name="stars-01" size={18} strokeWidth={2} />
-            <strong>Live Voting Active:</strong>
-            <span>Audience is deciding on mobile: “What should we do next with Kresge?”</span>
-          </div>
-        ) : null}
 
         {/* 1. Funder Summary Card */}
         <section className="pc-kresge-summary-card" aria-label="Funder Summary">
@@ -226,16 +197,9 @@ export default function KresgeOpportunityDetail() {
               variant="primary"
               size="md"
               iconTrailing="arrow-up-right"
-              onClick={handleReviewRequirements}
+              onClick={handleViewPlan}
             >
-              Review requirements
-            </Button>
-            <Button
-              variant="secondary"
-              size="md"
-              onClick={handleStrengthenApplication}
-            >
-              Strengthen application
+              View Plan
             </Button>
             <Button
               variant="secondary"
@@ -248,263 +212,345 @@ export default function KresgeOpportunityDetail() {
           </div>
         </section>
 
-        {/* Action Outcome Highlights (Inline Dynamic State) */}
-        {isResult && winningOptionId === 'review-requirements' && (
-          <div
-            style={{
-              backgroundColor: '#F8FAFC',
-              border: '1px solid #CBD5E1',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#0F172A' }}>
-                <PosterChildIcon name="file-06" size={18} strokeWidth={2} />
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Requirements Review Summary</h3>
-                <Badge variant="ready" size="sm">Audience Choice</Badge>
-              </div>
-              {!isCompleted && (
-                <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
-                  Complete Mission
-                </Button>
-              )}
-            </div>
-            <p style={{ margin: 0, color: '#475467', fontSize: '14px', lineHeight: 1.5 }}>
-              The team reviewed grant requirements. All narrative criteria and youth workforce evidence are fully verified.
-            </p>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '10px', marginTop: '6px' }}>
-              <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                <strong style={{ display: 'block', fontSize: '13px', color: '#027A48' }}>✓ Workforce Alignment</strong>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>92% rubric fit confirmed</span>
-              </div>
-              <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                <strong style={{ display: 'block', fontSize: '13px', color: '#027A48' }}>✓ Verified Testimonials</strong>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>3 community quotes linked</span>
-              </div>
-              <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid #E2E8F0' }}>
-                <strong style={{ display: 'block', fontSize: '13px', color: '#027A48' }}>✓ Impact Evidence</strong>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>Placement statistics attached</span>
-              </div>
-              <div style={{ background: '#FFFFFF', padding: '12px', borderRadius: '8px', border: '1px solid #FDB022' }}>
-                <strong style={{ display: 'block', fontSize: '13px', color: '#B54708' }}>⚠️ Budget Update</strong>
-                <span style={{ fontSize: '13px', color: '#64748B' }}>Needs refresh before submit</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {isResult && winningOptionId === 'strengthen-application' && (
-          <div
-            style={{
-              backgroundColor: '#FFFAEB',
-              border: '1px solid #FEDF89',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#B54708' }}>
-                <PosterChildIcon name="sparkles" size={18} strokeWidth={2} />
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Strengthen Application: Priority Action</h3>
-                <Badge variant="upcoming" size="sm">Audience Choice</Badge>
-              </div>
-              {!isCompleted && (
-                <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
-                  Complete Mission
-                </Button>
-              )}
-            </div>
-            <p style={{ margin: 0, color: '#7A2E0E', fontSize: '14px', lineHeight: 1.5 }}>
-              <strong>Key Readiness Gap:</strong> Program Budget — Needs update.
-            </p>
-            <div style={{ background: '#FFFFFF', padding: '14px', borderRadius: '8px', border: '1px solid #FEE4E2' }}>
-              <p style={{ margin: 0, fontSize: '14px', color: '#344054' }}>
-                💡 <strong>Recommendation:</strong> “Update the workforce program budget to reflect recent mentor stipend expansions. This will increase readiness score from <strong>92% → 98%</strong>.”
-              </p>
-            </div>
-          </div>
-        )}
-
-        {isResult && winningOptionId === 'ask-postie' && (
-          <div
-            style={{
-              backgroundColor: '#F9F5FF',
-              border: '1px solid #E9D7FE',
-              borderRadius: '12px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '12px'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#6941C6' }}>
-                <PosterChildIcon name="stars-01" size={18} strokeWidth={2} />
-                <h3 style={{ margin: 0, fontSize: '16px', fontWeight: 600 }}>Postie Strategic Analysis</h3>
-                <Badge variant="brand" size="sm">Audience Choice</Badge>
-              </div>
-              {!isCompleted && (
-                <Button variant="primary" size="sm" iconLeading="check" onClick={completeMission}>
-                  Complete Mission
-                </Button>
-              )}
-            </div>
-            <div style={{ background: '#FFFFFF', padding: '14px', borderRadius: '8px', border: '1px solid #D6BBFB' }}>
-              <p style={{ margin: '0 0 8px 0', fontSize: '13px', color: '#6941C6', fontWeight: 600 }}>
-                💬 Presenter Question: “Which funding opportunity should I focus on first?”
-              </p>
-              <p style={{ margin: 0, fontSize: '14px', color: '#344054', lineHeight: 1.5 }}>
-                “I’d start with Kresge. Your Youth Career Pathways work aligns well with Kresge’s focus on economic mobility, equity, and opportunity for people with low incomes. You already have strong participant stories and impact evidence. The main readiness gap is the workforce program budget, last updated in 2025.”
-              </p>
-            </div>
-          </div>
-        )}
-
         {/* 2. Horizontal Tabs */}
         <Tabs
           ariaLabel="Opportunity tabs"
           activeId={activeTab}
-          onChange={(tab) => setActiveTab(tab)}
+          onChange={handleTabChange}
           items={TABS.map((tab) => ({
             id: tab,
             label: tab,
           }))}
         />
 
-        {/* 3. Funding Alignment Card */}
-        <section className="pc-kresge-alignment-card" aria-label="Funding Alignment">
-          <div className="pc-kresge-alignment-header">
-            <h2 className="pc-kresge-alignment-title">Funding Alignment</h2>
-          </div>
-          <div className="pc-kresge-table" role="table">
-            <div className="pc-kresge-table-header" role="row">
-              <span className="pc-kresge-th pc-kresge-th--category" role="columnheader">Category</span>
-              <span className="pc-kresge-th pc-kresge-th--alignment" role="columnheader">Alignment</span>
-              <span className="pc-kresge-th pc-kresge-th--weight" role="columnheader">Weight</span>
-            </div>
-            {ALIGNMENT_DATA.map((row) => (
-              <div key={row.category} className="pc-kresge-table-row" role="row">
-                <span className="pc-kresge-td--category" role="cell">{row.category}</span>
-                <div className="pc-kresge-td--alignment" role="cell">
-                  <div className="pc-kresge-progress-track">
-                    <div
-                      className="pc-kresge-progress-fill"
-                      style={{ width: `${row.score}%` }}
-                    />
+        {/* Action Plan Tab Content */}
+        {activeTab === 'Action Plan' && (
+          <>
+            {/* 1. Key Takeaways */}
+            <section className="pc-kresge-overview-card" aria-label="Key Takeaways">
+              <h2 className="pc-kresge-overview-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PosterChildIcon name="stars-01" size={16} className="pc-kresge-section-header-icon" />
+                <span>Key Takeaways</span>
+              </h2>
+              <ul className="pc-kresge-bullet-list" style={{ paddingLeft: '24px' }}>
+                <li className="pc-kresge-bullet-item">
+                  Strong alignment with workforce development, economic mobility, and youth opportunity.
+                </li>
+                <li className="pc-kresge-bullet-item">
+                  Existing stories, testimonials, and impact evidence already support the opportunity.
+                </li>
+                <li className="pc-kresge-bullet-item">
+                  The main remaining gap is ensuring the program budget and application materials are current.
+                </li>
+              </ul>
+            </section>
+
+            {/* 2. Strategic Insights */}
+            <section className="pc-kresge-overview-card" aria-label="Strategic Insights">
+              <h2 className="pc-kresge-overview-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PosterChildIcon name="target-05" size={16} className="pc-kresge-section-header-icon" />
+                <span>Strategic Insights</span>
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#344054' }}>
+                    Strong fit for the program
                   </div>
-                  <span className="pc-kresge-progress-num">{row.score}</span>
+                  <p className="pc-kresge-section-body" style={{ paddingLeft: 0, marginTop: '2px' }}>
+                    “The Youth Career Pathways initiative aligns closely with the opportunity’s workforce and economic mobility focus.”
+                  </p>
                 </div>
-                <span className="pc-kresge-td--weight" role="cell">{row.weight}</span>
+                <div>
+                  <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#344054' }}>
+                    Existing evidence reduces the work
+                  </div>
+                  <p className="pc-kresge-section-body" style={{ paddingLeft: 0, marginTop: '2px' }}>
+                    “Recent testimonials, placement metrics, and the current Youth Career Pathways story can support the application.”
+                  </p>
+                </div>
+                <div>
+                  <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#344054' }}>
+                    Timing matters
+                  </div>
+                  <p className="pc-kresge-section-body" style={{ paddingLeft: 0, marginTop: '2px' }}>
+                    “The opportunity closes soon, so the strongest next move is to validate the remaining materials and prepare the application.”
+                  </p>
+                </div>
               </div>
-            ))}
-          </div>
-        </section>
+            </section>
 
-        {/* 4. Funder Overview Card */}
-        <section className="pc-kresge-overview-card" aria-label="Funder Overview">
-          <h2 className="pc-kresge-overview-title">Funder Overview</h2>
+            {/* 3. Recommended Approach */}
+            <section className="pc-kresge-overview-card" aria-label="Recommended Approach">
+              <h2 className="pc-kresge-overview-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PosterChildIcon name="check-circle" size={16} className="pc-kresge-section-header-icon" />
+                <span>Recommended Approach</span>
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div>
+                  <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#344054', marginBottom: '6px' }}>
+                    What to do
+                  </div>
+                  <ul className="pc-kresge-bullet-list" style={{ paddingLeft: '24px' }}>
+                    <li className="pc-kresge-bullet-item">Confirm the latest Youth Career Pathways program budget.</li>
+                    <li className="pc-kresge-bullet-item">Attach the strongest participant testimonials.</li>
+                    <li className="pc-kresge-bullet-item">Include current placement and impact metrics.</li>
+                    <li className="pc-kresge-bullet-item">Use the Youth Career Pathways story as narrative evidence.</li>
+                    <li className="pc-kresge-bullet-item">Review final application materials before submission.</li>
+                  </ul>
+                </div>
 
-          {/* Section 1: Their Mission */}
-          <div className="pc-kresge-section-group">
-            <div className="pc-kresge-section-header">
-              <PosterChildIcon name="target-05" size={16} className="pc-kresge-section-header-icon" />
-              <span>Their Mission</span>
-            </div>
-            <p className="pc-kresge-section-body">
-              The Kresge Foundation works to expand equity and opportunity in America’s cities, creating pathways for people with low incomes to improve their life circumstances and participate more fully in the economic mainstream.
-            </p>
-          </div>
+                <div>
+                  <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#344054', marginBottom: '6px' }}>
+                    Key talking points
+                  </div>
+                  <ul className="pc-kresge-bullet-list" style={{ paddingLeft: '24px' }}>
+                    <li className="pc-kresge-bullet-item">Young people gain direct pathways into employment.</li>
+                    <li className="pc-kresge-bullet-item">Participant stories demonstrate belonging and opportunity.</li>
+                    <li className="pc-kresge-bullet-item">Current placement outcomes provide measurable evidence.</li>
+                    <li className="pc-kresge-bullet-item">The program connects workforce development with economic mobility.</li>
+                  </ul>
+                </div>
 
-          {/* Section 2: Where They Give */}
-          <div className="pc-kresge-section-group">
-            <div className="pc-kresge-section-header">
-              <PosterChildIcon name="globe-01" size={16} className="pc-kresge-section-header-icon" />
-              <span>Where They Give</span>
-            </div>
-            <p className="pc-kresge-section-body">
-              Nationally across the United States, with deep place-based work in Detroit, Memphis, New Orleans, and Fresno.
-            </p>
-            <p className="pc-kresge-section-body" style={{ marginTop: '4px', color: '#737373' }}>
-              Focus: cities, communities, and systems that expand equity and opportunity.
-            </p>
-          </div>
+                <div>
+                  <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#344054' }}>
+                    When to act
+                  </div>
+                  <p className="pc-kresge-section-body" style={{ paddingLeft: 0, marginTop: '2px' }}>
+                    “Now — the opportunity is approaching its deadline.”
+                  </p>
+                </div>
 
-          {/* Section 3: Who They Support */}
-          <div className="pc-kresge-section-group">
-            <div className="pc-kresge-section-header">
-              <PosterChildIcon name="users-02" size={16} className="pc-kresge-section-header-icon" />
-              <span>Who They Support</span>
-            </div>
-            <ul className="pc-kresge-bullet-list">
-              <li className="pc-kresge-bullet-item">Nonprofit and community-based organizations</li>
-              <li className="pc-kresge-bullet-item">Organizations advancing economic and social mobility</li>
-              <li className="pc-kresge-bullet-item">Cross-sector partnerships and place-based coalitions</li>
-              <li className="pc-kresge-bullet-item">Organizations working to reduce structural barriers for people with low incomes</li>
-            </ul>
-          </div>
-
-          {/* Section 4: Funding Priorities */}
-          <div className="pc-kresge-section-group">
-            <div className="pc-kresge-section-header">
-              <PosterChildIcon name="file-06" size={16} className="pc-kresge-section-header-icon" />
-              <span>Funding Priorities</span>
-            </div>
-            <div className="pc-kresge-pill-tags">
-              <span className="pc-kresge-pill">American Cities</span>
-              <span className="pc-kresge-pill">Arts & Culture</span>
-              <span className="pc-kresge-pill">Detroit</span>
-              <span className="pc-kresge-pill">Education</span>
-              <span className="pc-kresge-pill">Environment</span>
-              <span className="pc-kresge-pill">Health</span>
-              <span className="pc-kresge-pill">Human Services</span>
-              <span className="pc-kresge-pill">Social Investment</span>
-            </div>
-          </div>
-
-          {/* Section 5: Core Values */}
-          <div className="pc-kresge-section-group">
-            <div className="pc-kresge-section-header">
-              <PosterChildIcon name="check-circle" size={16} className="pc-kresge-section-header-icon" />
-              <span>Core Values</span>
-            </div>
-            <div className="pc-kresge-pill-tags">
-              <span className="pc-kresge-pill">Equity</span>
-              <span className="pc-kresge-pill">Opportunity</span>
-              <span className="pc-kresge-pill">Community</span>
-              <span className="pc-kresge-pill">Collaboration</span>
-              <span className="pc-kresge-pill">Systems Change</span>
-              <span className="pc-kresge-pill">Racial Justice</span>
-            </div>
-          </div>
-
-          {/* Section 6: About the Funder */}
-          <div className="pc-kresge-section-group">
-            <div className="pc-kresge-section-header">
-              <PosterChildIcon name="building-02" size={16} className="pc-kresge-section-header-icon" />
-              <span>About the Funder</span>
-            </div>
-            <div style={{ display: 'flex', gap: '32px', margin: '4px 0 6px 24px' }}>
-              <div>
-                <div className="pc-kresge-founders-label" style={{ margin: 0 }}>FOUNDED</div>
-                <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#101828', marginTop: '2px' }}>1924</div>
+                <div>
+                  <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#344054', marginBottom: '8px' }}>
+                    Prerequisites
+                  </div>
+                  <div className="pc-kresge-pill-tags" style={{ paddingLeft: 0 }}>
+                    <span className="pc-kresge-pill">Current program budget</span>
+                    <span className="pc-kresge-pill">Latest impact metrics</span>
+                    <span className="pc-kresge-pill">Participant testimonials</span>
+                    <span className="pc-kresge-pill">Youth Career Pathways story</span>
+                    <span className="pc-kresge-pill">Final program information</span>
+                  </div>
+                </div>
               </div>
-              <div>
-                <div className="pc-kresge-founders-label" style={{ margin: 0 }}>FOUNDER</div>
-                <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#101828', marginTop: '2px' }}>Sebastian Spering Kresge</div>
+            </section>
+
+            {/* 4. Challenges to Consider */}
+            <section className="pc-kresge-overview-card" aria-label="Challenges to Consider">
+              <h2 className="pc-kresge-overview-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PosterChildIcon name="alert-triangle" size={16} className="pc-kresge-section-header-icon" />
+                <span>Challenges to Consider</span>
+              </h2>
+              <ul className="pc-kresge-bullet-list" style={{ paddingLeft: '24px' }}>
+                <li className="pc-kresge-bullet-item">Program budget needs a final freshness check.</li>
+                <li className="pc-kresge-bullet-item">Application evidence should use the most recent outcomes.</li>
+                <li className="pc-kresge-bullet-item">Narrative and quantitative evidence should tell the same story.</li>
+              </ul>
+            </section>
+
+            {/* 5. Application Process & Deadline */}
+            <section className="pc-kresge-overview-card" aria-label="Application Process and Deadline">
+              <h2 className="pc-kresge-overview-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PosterChildIcon name="arrow-right" size={16} className="pc-kresge-section-header-icon" />
+                <span>Application Process & Deadline</span>
+              </h2>
+              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px', marginTop: '2px' }}>
+                <span style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', color: '#525252' }}>
+                  Validate supporting materials
+                </span>
+                <span style={{ color: '#98A2B3', fontSize: '14px' }}>→</span>
+                <span style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', color: '#525252' }}>
+                  Prepare application narrative
+                </span>
+                <span style={{ color: '#98A2B3', fontSize: '14px' }}>→</span>
+                <span style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', color: '#525252' }}>
+                  Final review
+                </span>
+                <span style={{ color: '#98A2B3', fontSize: '14px' }}>→</span>
+                <span style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#101828' }}>
+                  Submit before deadline
+                </span>
               </div>
-            </div>
-            <p className="pc-kresge-section-body" style={{ marginTop: '8px' }}>
-              Founded in Detroit in 1924, The Kresge Foundation is a private, national foundation that uses grants, social investments, and other tools to expand equity and opportunity in America’s cities.
-            </p>
-          </div>
-        </section>
+            </section>
+
+            {/* 6. Ready to Act? */}
+            <section className="pc-kresge-overview-card" aria-label="Ready to act">
+              <h2 className="pc-kresge-overview-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <PosterChildIcon name="stars-01" size={16} className="pc-kresge-section-header-icon" />
+                <span>Ready to Act?</span>
+              </h2>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginTop: '2px' }}>
+                <div>
+                  <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#101828' }}>
+                    Create a Funder One-Pager
+                  </div>
+                  <p className="pc-kresge-section-body" style={{ paddingLeft: 0, marginTop: '2px' }}>
+                    Generate a shareable brief using the stories, impact data, and program information already in PosterChild.
+                  </p>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginTop: '4px' }}>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    iconTrailing="arrow-right"
+                    onClick={() => handleTabChange('One-Pager')}
+                  >
+                    Create One-Pager
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    iconLeading="copy"
+                    onClick={() => { }}
+                  >
+                    Copy Talking Points
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={() => { }}
+                  >
+                    Prepare Application
+                  </Button>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
+
+        {/* Profile Tab Content */}
+        {activeTab === 'Profile' && (
+          <>
+            {/* 3. Funding Alignment Card */}
+            <section className="pc-kresge-alignment-card" aria-label="Funding Alignment">
+              <div className="pc-kresge-alignment-header">
+                <h2 className="pc-kresge-alignment-title">Funding Alignment</h2>
+              </div>
+              <div className="pc-kresge-table" role="table">
+                <div className="pc-kresge-table-header" role="row">
+                  <span className="pc-kresge-th pc-kresge-th--category" role="columnheader">Category</span>
+                  <span className="pc-kresge-th pc-kresge-th--alignment" role="columnheader">Alignment</span>
+                  <span className="pc-kresge-th pc-kresge-th--weight" role="columnheader">Weight</span>
+                </div>
+                {ALIGNMENT_DATA.map((row) => (
+                  <div key={row.category} className="pc-kresge-table-row" role="row">
+                    <span className="pc-kresge-td--category" role="cell">{row.category}</span>
+                    <div className="pc-kresge-td--alignment" role="cell">
+                      <div className="pc-kresge-progress-track">
+                        <div
+                          className="pc-kresge-progress-fill"
+                          style={{ width: `${row.score}%` }}
+                        />
+                      </div>
+                      <span className="pc-kresge-progress-num">{row.score}</span>
+                    </div>
+                    <span className="pc-kresge-td--weight" role="cell">{row.weight}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 4. Funder Overview Card */}
+            <section className="pc-kresge-overview-card" aria-label="Funder Overview">
+              <h2 className="pc-kresge-overview-title">Funder Overview</h2>
+
+              {/* Section 1: Their Mission */}
+              <div className="pc-kresge-section-group">
+                <div className="pc-kresge-section-header">
+                  <PosterChildIcon name="target-05" size={16} className="pc-kresge-section-header-icon" />
+                  <span>Their Mission</span>
+                </div>
+                <p className="pc-kresge-section-body">
+                  The Kresge Foundation works to expand equity and opportunity in America’s cities, creating pathways for people with low incomes to improve their life circumstances and participate more fully in the economic mainstream.
+                </p>
+              </div>
+
+              {/* Section 2: Where They Give */}
+              <div className="pc-kresge-section-group">
+                <div className="pc-kresge-section-header">
+                  <PosterChildIcon name="globe-01" size={16} className="pc-kresge-section-header-icon" />
+                  <span>Where They Give</span>
+                </div>
+                <p className="pc-kresge-section-body">
+                  Nationally across the United States, with deep place-based work in Detroit, Memphis, New Orleans, and Fresno.
+                </p>
+                <p className="pc-kresge-section-body" style={{ marginTop: '4px', color: '#737373' }}>
+                  Focus: cities, communities, and systems that expand equity and opportunity.
+                </p>
+              </div>
+
+              {/* Section 3: Who They Support */}
+              <div className="pc-kresge-section-group">
+                <div className="pc-kresge-section-header">
+                  <PosterChildIcon name="users-02" size={16} className="pc-kresge-section-header-icon" />
+                  <span>Who They Support</span>
+                </div>
+                <ul className="pc-kresge-bullet-list">
+                  <li className="pc-kresge-bullet-item">Nonprofit and community-based organizations</li>
+                  <li className="pc-kresge-bullet-item">Organizations advancing economic and social mobility</li>
+                  <li className="pc-kresge-bullet-item">Cross-sector partnerships and place-based coalitions</li>
+                  <li className="pc-kresge-bullet-item">Organizations working to reduce structural barriers for people with low incomes</li>
+                </ul>
+              </div>
+
+              {/* Section 4: Funding Priorities */}
+              <div className="pc-kresge-section-group">
+                <div className="pc-kresge-section-header">
+                  <PosterChildIcon name="file-06" size={16} className="pc-kresge-section-header-icon" />
+                  <span>Funding Priorities</span>
+                </div>
+                <div className="pc-kresge-pill-tags">
+                  <span className="pc-kresge-pill">American Cities</span>
+                  <span className="pc-kresge-pill">Arts & Culture</span>
+                  <span className="pc-kresge-pill">Detroit</span>
+                  <span className="pc-kresge-pill">Education</span>
+                  <span className="pc-kresge-pill">Environment</span>
+                  <span className="pc-kresge-pill">Health</span>
+                  <span className="pc-kresge-pill">Human Services</span>
+                  <span className="pc-kresge-pill">Social Investment</span>
+                </div>
+              </div>
+
+              {/* Section 5: Core Values */}
+              <div className="pc-kresge-section-group">
+                <div className="pc-kresge-section-header">
+                  <PosterChildIcon name="check-circle" size={16} className="pc-kresge-section-header-icon" />
+                  <span>Core Values</span>
+                </div>
+                <div className="pc-kresge-pill-tags">
+                  <span className="pc-kresge-pill">Equity</span>
+                  <span className="pc-kresge-pill">Opportunity</span>
+                  <span className="pc-kresge-pill">Community</span>
+                  <span className="pc-kresge-pill">Collaboration</span>
+                  <span className="pc-kresge-pill">Systems Change</span>
+                  <span className="pc-kresge-pill">Racial Justice</span>
+                </div>
+              </div>
+
+              {/* Section 6: About the Funder */}
+              <div className="pc-kresge-section-group">
+                <div className="pc-kresge-section-header">
+                  <PosterChildIcon name="building-02" size={16} className="pc-kresge-section-header-icon" />
+                  <span>About the Funder</span>
+                </div>
+                <div style={{ display: 'flex', gap: '32px', margin: '4px 0 6px 24px' }}>
+                  <div>
+                    <div className="pc-kresge-founders-label" style={{ margin: 0 }}>FOUNDED</div>
+                    <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#101828', marginTop: '2px' }}>1924</div>
+                  </div>
+                  <div>
+                    <div className="pc-kresge-founders-label" style={{ margin: 0 }}>FOUNDER</div>
+                    <div style={{ fontFamily: "var(--pc-ref-font-body, 'DM Sans', sans-serif)", fontSize: '14px', fontWeight: 600, color: '#101828', marginTop: '2px' }}>Sebastian Spering Kresge</div>
+                  </div>
+                </div>
+                <p className="pc-kresge-section-body" style={{ marginTop: '8px' }}>
+                  Founded in Detroit in 1924, The Kresge Foundation is a private, national foundation that uses grants, social investments, and other tools to expand equity and opportunity in America’s cities.
+                </p>
+              </div>
+            </section>
+          </>
+        )}
       </div>
     </ProductPage>
   );

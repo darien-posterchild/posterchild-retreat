@@ -1,9 +1,14 @@
+export type DecisionActionType = 'navigate' | 'openPostie' | 'switchTab' | 'completeMission';
+
 export interface DecisionOption {
   id: string;
   label: string;
   description?: string;
   destination: string; // Relative product destination e.g. '/tell/stories'
+  actionType: DecisionActionType;
   iconName?: string;
+  nextStepExplanation?: string;
+  nextStepCtaLabel?: string;
 }
 
 export interface DecisionNode {
@@ -22,43 +27,36 @@ export const RETREAT_DECISIONS: Record<string, DecisionNode> = {
   // 1. Root Decision (Home)
   'home-focus': {
     id: 'home-focus',
-    question: 'Where should we go first?',
+    question: 'What should we do first today?',
     description: 'Help the team decide where to focus our energy in today’s session.',
     options: [
-      {
-        id: 'ask-postie',
-        label: 'Ask Postie',
-        description: 'Let Postie analyze priorities and recommend the strongest next move.',
-        destination: '/raise/opportunities/kresge',
-        iconName: 'stars-01'
-      },
       {
         id: 'needs-attention',
         label: 'See what needs attention',
         description: 'Review urgent deadlines like the Kresge Foundation opportunity.',
         destination: '/raise/opportunities/kresge',
-        iconName: 'alert-triangle'
-      },
-      {
-        id: 'create-story',
-        label: 'Create a new story',
-        description: 'Draft a new narrative from recent program impact testimonials.',
-        destination: '/tell/stories/create',
-        iconName: 'plus'
-      },
-      {
-        id: 'new-testimonials',
-        label: 'Explore new testimonials',
-        description: 'Connect community voice to active campaigns and partner touchpoints.',
-        destination: '/tell/connect',
-        iconName: 'coins-hand'
+        actionType: 'navigate',
+        iconName: 'alert-triangle',
+        nextStepExplanation: 'Kresge Foundation needs your attention. It closes in 12 days and the application is ready for review.',
+        nextStepCtaLabel: 'Review opportunity'
       },
       {
         id: 'suggested-story',
-        label: 'View the suggested story',
+        label: 'View suggested story',
         description: 'Review the Youth Career Pathways draft prepared by PosterChild.',
         destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
-        iconName: 'folder'
+        actionType: 'navigate',
+        iconName: 'book-open-01',
+        nextStepExplanation: 'Youth Career Pathways is ready for review. PosterChild has prepared a draft using recent community testimonials.',
+        nextStepCtaLabel: 'Review story'
+      },
+      {
+        id: 'ask-postie',
+        label: 'Ask Postie',
+        description: 'Let Postie analyze priorities and recommend the strongest next move.',
+        destination: '/raise/opportunities/kresge',
+        actionType: 'openPostie',
+        iconName: 'stars-01'
       }
     ],
     nextDecisionId: 'kresge-next-action'
@@ -67,28 +65,25 @@ export const RETREAT_DECISIONS: Record<string, DecisionNode> = {
   // 2. Kresge Single-Screen Mission Decision
   'kresge-next-action': {
     id: 'kresge-next-action',
-    question: 'What should we do next with Kresge?',
+    question: 'What should we do next with this opportunity?',
     description: 'Decide the next strategic step to strengthen the Kresge Foundation opportunity.',
     options: [
       {
         id: 'review-requirements',
-        label: 'Review requirements',
-        description: 'Inspect alignment benchmarks, confirmed stories, and checklist.',
-        destination: '/raise/opportunities/kresge',
-        iconName: 'file-06'
-      },
-      {
-        id: 'strengthen-application',
-        label: 'Strengthen application',
-        description: 'Target key readiness gaps such as the updated program budget.',
-        destination: '/raise/opportunities/kresge',
-        iconName: 'sparkles'
+        label: 'View Action Plan',
+        description: 'Open the Action Plan to review strategic insights, recommended steps, and key talking points.',
+        destination: '/raise/opportunities/kresge?tab=action-plan',
+        actionType: 'navigate',
+        iconName: 'file-06',
+        nextStepExplanation: 'The Action Plan shows the remaining work and the clearest path toward submission.',
+        nextStepCtaLabel: 'View Action Plan'
       },
       {
         id: 'ask-postie',
         label: 'Ask Postie',
         description: 'Ask Postie for the fastest path to strengthen this opportunity.',
         destination: '/raise/opportunities/kresge',
+        actionType: 'openPostie',
         iconName: 'stars-01'
       }
     ]
@@ -102,23 +97,30 @@ export const RETREAT_DECISIONS: Record<string, DecisionNode> = {
     options: [
       {
         id: 'social',
-        label: 'Social media',
+        label: 'Social Media',
         description: 'Turn the participant quote into an Instagram spotlight carousel.',
         destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
-        iconName: 'message-square-quote'
+        actionType: 'switchTab',
+        iconName: 'message-square-quote',
+        nextStepExplanation: 'Review the Social Media version prepared for this story.',
+        nextStepCtaLabel: 'Open Social Media'
       },
       {
         id: 'article',
         label: 'Article',
         description: 'Publish full formatted article to the website and newsletter.',
         destination: '/tell/stories/review?story=youth-career-pathways&tab=article',
-        iconName: 'file-06'
+        actionType: 'switchTab',
+        iconName: 'file-06',
+        nextStepExplanation: 'Review the long-form Article version.',
+        nextStepCtaLabel: 'Open Article'
       },
       {
         id: 'ask-postie',
         label: 'Ask Postie',
         description: 'Let Postie evaluate the fastest high-resonance channel.',
         destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
+        actionType: 'openPostie',
         iconName: 'stars-01'
       }
     ]
@@ -131,223 +133,48 @@ export const RETREAT_DECISIONS: Record<string, DecisionNode> = {
     description: 'Decide how to act on the recurring transportation pattern found across community voice.',
     options: [
       {
-        id: 'review-theme',
-        label: 'Review the theme',
-        description: 'Analyze recurring signals across the 7 Youth Career Pathways responses.',
-        destination: '/tell/connect',
-        iconName: 'file-06'
-      },
-      {
         id: 'use-in-story',
-        label: 'Use responses in a story',
+        label: 'Use this in a story',
         description: 'Connect these testimonials directly into the Youth Career Pathways narrative.',
         destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
-        iconName: 'sparkles'
+        actionType: 'navigate',
+        iconName: 'sparkles',
+        nextStepExplanation: 'Connect these testimonials directly into the Youth Career Pathways narrative.',
+        nextStepCtaLabel: 'Use in story'
       },
       {
         id: 'ask-postie',
         label: 'Ask Postie',
         description: 'Let Postie summarize the clearest response patterns and recommend next moves.',
         destination: '/tell/connect',
+        actionType: 'openPostie',
         iconName: 'stars-01'
-      }
-    ]
-  },
-
-  // Legacy Kresge Decision Node
-  'kresge-next': {
-    id: 'kresge-next',
-    question: 'What should we do with Kresge?',
-    description: 'Decide the next strategic step to maximize our funding opportunity ($150k).',
-    options: [
-      {
-        id: 'review-opportunity',
-        label: 'Review opportunity',
-        description: 'Inspect full grant criteria and alignment benchmarks.',
-        destination: '/raise/refine',
-        iconName: 'file-06'
-      },
-      {
-        id: 'strengthen-application',
-        label: 'Strengthen application with Postie',
-        description: 'Have Postie incorporate recent youth workforce testimonials.',
-        destination: '/raise/refine',
-        iconName: 'sparkles'
-      },
-      {
-        id: 'ask-postie',
-        label: 'Ask Postie for recommendation',
-        description: 'Evaluate strategic fit against existing funded initiatives.',
-        destination: '/raise/ask-postie',
-        iconName: 'stars-01'
-      }
-    ],
-    nextDecisionId: 'final-next-step'
-  },
-
-  // Legacy Story Decision Node
-  'story-next': {
-    id: 'story-next',
-    question: 'How should we use this story?',
-    description: 'Choose the product channel to activate the Youth Career Pathways narrative.',
-    options: [
-      {
-        id: 'social',
-        label: 'Social media',
-        description: 'Turn into social graphics.',
-        destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
-        iconName: 'message-square-quote'
-      },
-      {
-        id: 'article',
-        label: 'Article',
-        description: 'Publish as spotlight article.',
-        destination: '/tell/stories/review?story=youth-career-pathways&tab=article',
-        iconName: 'file-06'
-      },
-      {
-        id: 'ask-postie',
-        label: 'Ask Postie',
-        description: 'Identify highest-resonance donor segments for this story.',
-        destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
-        iconName: 'stars-01'
-      }
-    ],
-    nextDecisionId: 'final-next-step'
-  },
-
-  // 2. Branch A: Stories Next Decision
-  'stories-next': {
-    id: 'stories-next',
-    question: 'Which story should we move forward?',
-    description: 'Select the community story to polish, review, and finalize.',
-    options: [
-      {
-        id: 'mayas-journey',
-        label: 'Maya’s Journey',
-        description: 'First-generation scholar finding belonging through mentorship.',
-        destination: '/tell/stories/review?story=mayas-journey',
-        iconName: 'sparkles'
-      },
-      {
-        id: 'youth-voices',
-        label: 'Youth Voices Initiative',
-        description: 'High school students building peer-led mental health circles.',
-        destination: '/tell/stories/review?story=youth-voices',
-        iconName: 'message-square-quote'
-      },
-      {
-        id: 'community-gardens',
-        label: 'Community Gardens Impact',
-        description: 'Transforming vacant urban lots into communal food sanctuaries.',
-        destination: '/tell/stories/review?story=community-gardens',
-        iconName: 'rocket'
-      }
-    ],
-    nextDecisionId: 'final-next-step'
-  },
-
-  // 3. Branch B: Campaigns Next Decision
-  'campaigns-next': {
-    id: 'campaigns-next',
-    question: 'What should we do with the campaign?',
-    description: 'Decide the immediate strategic move for the Fall Impact Campaign.',
-    options: [
-      {
-        id: 'launch',
-        label: 'Launch campaign',
-        description: 'Everything is ready. Publish and start reaching supporters.',
-        destination: '/raise/launch',
-        iconName: 'coins-hand'
-      },
-      {
-        id: 'refine',
-        label: 'Refine first',
-        description: 'Review the message, audience, and campaign details before launch.',
-        destination: '/raise/refine',
-        iconName: 'file-06'
-      },
-      {
-        id: 'ask-postie',
-        label: 'Ask Postie',
-        description: 'Let Postie review the campaign and recommend the strongest next move.',
-        destination: '/raise/ask-postie',
-        iconName: 'stars-01'
-      }
-    ],
-    nextDecisionId: 'final-next-step'
-  },
-
-  // 4. Branch C: Quotes Next Decision
-  'quotes-next': {
-    id: 'quotes-next',
-    question: 'Where could this quote create the most value?',
-    description: 'Choose the product channel to activate this community testimony.',
-    options: [
-      {
-        id: 'story',
-        label: 'Feature in a story',
-        description: 'Embed as the hero quote in our next spotlight narrative.',
-        destination: '/tell/quotes/story',
-        iconName: 'sparkles'
-      },
-      {
-        id: 'campaign',
-        label: 'Anchor campaign appeal',
-        description: 'Use on the donation page header to drive empathy and conversions.',
-        destination: '/tell/quotes/campaign',
-        iconName: 'rocket'
-      },
-      {
-        id: 'social',
-        label: 'Turn into social graphics',
-        description: 'Generate formatted quote cards for Instagram and LinkedIn.',
-        destination: '/tell/quotes/social',
-        iconName: 'message-square-quote'
-      }
-    ],
-    nextDecisionId: 'final-next-step'
-  },
-
-  // 5. Convergence Decision: Final Next Steps
-  'final-next-step': {
-    id: 'final-next-step',
-    question: 'What should PosterChild do next?',
-    description: 'Synthesize today’s decisions into our shared team roadmap.',
-    options: [
-      {
-        id: 'publish-all',
-        label: 'Publish approved assets',
-        description: 'Deploy the finalized story and campaign assets to live channels.',
-        destination: '/next-steps?action=publish',
-        iconName: 'rocket'
-      },
-      {
-        id: 'export-campaign',
-        label: 'Export executive summary',
-        description: 'Generate a presentation-ready PDF report of retreat outcomes.',
-        destination: '/next-steps?action=export',
-        iconName: 'sparkles'
-      },
-      {
-        id: 'explore-postie',
-        label: 'Deep dive with Postie',
-        description: 'Open a collaborative AI strategy session with the entire team.',
-        destination: '/next-steps?action=postie',
-        iconName: 'message-square-quote'
       }
     ]
   }
 };
 
 /**
+ * Returns dynamic Home decision question based on whether any missions were completed.
+ */
+export function getHomeQuestion(sessionState?: { completedMissionIds?: string[] } | null): string {
+  const completed = sessionState?.completedMissionIds || [];
+  return completed.length > 0 ? 'What should we do now?' : 'What should we do first today?';
+}
+
+/**
  * Retrieve a decision by ID, defaulting to 'home-focus'.
  */
-export function getDecision(decisionId?: string | null): DecisionNode {
-  if (decisionId && RETREAT_DECISIONS[decisionId]) {
-    return RETREAT_DECISIONS[decisionId];
+export function getDecision(decisionId?: string | null, sessionState?: { completedMissionIds?: string[] } | null): DecisionNode {
+  const decId = decisionId || 'home-focus';
+  const node = RETREAT_DECISIONS[decId] || RETREAT_DECISIONS['home-focus'];
+  if (decId === 'home-focus') {
+    return {
+      ...node,
+      question: getHomeQuestion(sessionState)
+    };
   }
-  return RETREAT_DECISIONS['home-focus'];
+  return node;
 }
 
 export interface OptionTally {

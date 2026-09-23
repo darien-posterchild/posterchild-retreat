@@ -119,7 +119,6 @@ export default function TellStories() {
           <span>Status</span>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: '8px' }}>
             <span>Word Count</span>
-            {isVoting && <span className="pc-ref-live-indicator">Live Voting</span>}
           </div>
         </div>
 
@@ -207,12 +206,7 @@ export default function TellStories() {
                     textAlign: 'right',
                   }}
                 >
-                  {isVoting ? (
-                    <div className="pc-ref-vote-pill">
-                      <span style={{ color: '#171717', fontWeight: 600 }}>{voteCount}</span>
-                      <span style={{ color: '#737373' }}>({percentage}%)</span>
-                    </div>
-                  ) : isWinner ? (
+                  {isWinner ? (
                     <button
                       type="button"
                       className="pc-ref-row-action-link"

@@ -215,7 +215,6 @@ export default function RaiseOverview() {
               <span style={{ fontSize: '13px', fontWeight: 600, color: '#737373', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 Recommended Next Move
               </span>
-              {isVoting && <span className="pc-ref-live-indicator">Live Voting</span>}
             </div>
 
             <div className="pc-product-grid-3">

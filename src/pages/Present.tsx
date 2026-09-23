@@ -29,7 +29,7 @@ const WINNER_TITLES: Record<string, string> = {
   'review-opportunity': 'Review opportunity',
   'review-requirements': 'View Action Plan',
   'use-in-story': 'Use this in a story',
-  social: 'Social Media',
+  social: 'Refresh Social Post',
   article: 'Article'
 };
 
@@ -278,10 +278,10 @@ function PresentInner() {
     }
     if (location.pathname.includes('/tell/stories/review')) {
       return {
-        text: "Youth Career Pathways is ready for publishing. The social carousel is the fastest high-resonance channel for this story.",
-        ctaLabel: 'Open Social Media',
-        ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`,
-        usedContext: ['Youth Career Pathways', 'Social Media']
+        text: "I’d refresh the social version before publishing — starting with a stronger opening and a more distinctive visual direction.",
+        ctaLabel: 'Refresh Social Post',
+        ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social&refresh=1`,
+        usedContext: ['Youth Career Pathways', 'Refresh Social Post']
       };
     }
     return {
@@ -361,6 +361,29 @@ function PresentInner() {
     }
   };
 
+  useEffect(() => {
+    const completed = state.completedMissionIds || [];
+    if (completed.includes('youth-career-story')) {
+      const alreadyLogged = hasRetreatTimelineEventOfType('action-completed', 'youth-career-story') ||
+        hasRetreatTimelineEventOfType('mission-completed', 'youth-career-story');
+      if (!alreadyLogged) {
+        const isFinalMission = completed.length >= 2;
+        addRetreatEvent({
+          type: isFinalMission ? 'mission-completed' : 'action-completed',
+          title: MISSION_LABELS['youth-career-story'] || 'Youth Career Pathways story reviewed/published.',
+          decisionId: state.activeDecisionId || undefined
+        });
+
+        addRetreatEvent({
+          type: 'next-step',
+          title: 'Youth Career Pathways story reviewed. Ready to return to Home?',
+          ctaLabel: 'Return to Home',
+          ctaTarget: `/present/${sessionId}`
+        });
+      }
+    }
+  }, [state.completedMissionIds, sessionId]);
+
   const advanceToWinner = () => {
     if (winnerDestination) {
       const mission = getMissionByOption(winningOption?.id);
@@ -406,9 +429,7 @@ function PresentInner() {
     if (actionType === 'switchTab') {
       const destUrl = buildDestinationUrl(option.destination, sessionId);
       navigate(destUrl);
-      if (location.pathname.includes('/tell/stories/review')) {
-        completeMission('youth-career-story');
-      } else {
+      if (!location.pathname.includes('/tell/stories/review')) {
         completeMission();
       }
       return;
@@ -474,8 +495,6 @@ function PresentInner() {
           if (event.ctaTarget.includes('tab=action-plan')) {
             completeMission('kresge-funding');
           }
-        } else if (location.pathname.includes('/tell/stories/review')) {
-          completeMission('youth-career-story');
         }
         navigate(event.ctaTarget);
       }
@@ -1033,7 +1052,8 @@ function PresentInner() {
                 winningOption,
                 winnerDestination,
                 advanceToWinner,
-                isVoteRevealed: isRevealed
+                isVoteRevealed: isRevealed,
+                completeMission
               }}
             />
           </main>

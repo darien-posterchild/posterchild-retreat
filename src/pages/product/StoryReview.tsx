@@ -95,6 +95,7 @@ interface StoryReviewOutletContext {
   winningOptionId?: string | null;
   tiedOptionIds?: string[] | null;
   isVoteRevealed?: boolean;
+  completeMission?: (missionId?: string) => void;
 }
 
 export default function StoryReview() {
@@ -114,7 +115,11 @@ export default function StoryReview() {
   const [format, setFormat] = useState<StoryFormat>('carousel');
 
   const [selectedColorId, setSelectedColorId] = useState<string>('dark-teal');
-
+  const [socialRefreshed, setSocialRefreshed] = useState(false);
+  const [isRefreshingSocial, setIsRefreshingSocial] = useState(false);
+  const [typedRefreshQuote, setTypedRefreshQuote] = useState('');
+  const [typedRefreshQuote2, setTypedRefreshQuote2] = useState('');
+  const [typedRefreshQuote3, setTypedRefreshQuote3] = useState('');
   const carouselRef = useRef<HTMLDivElement>(null);
 
   const scrollCarousel = (direction: 'left' | 'right') => {
@@ -132,6 +137,83 @@ export default function StoryReview() {
 
   const activeColor = BRAND_COLORS.find((c) => c.id === selectedColorId)?.color || '#00382E';
 
+  React.useEffect(() => {
+    const shouldRefresh = searchParams.get('refresh') === '1';
+
+    if (!shouldRefresh || socialRefreshed || isRefreshingSocial) return;
+
+    setIsRefreshingSocial(true);
+
+    // During transition (~900ms): change selected brand color from dark teal to orange
+    const colorTimer = window.setTimeout(() => {
+      setSelectedColorId('orange');
+    }, 1400);
+
+    // After ~2000ms: finish in refreshed state with updated copy
+    const finishTimer = window.setTimeout(() => {
+      setSocialRefreshed(true);
+      setIsRefreshingSocial(false);
+
+      // Clean up ?refresh=1 from URL so it doesn't auto-refresh on subsequent visits
+      const nextParams = new URLSearchParams(window.location.search);
+      if (nextParams.has('refresh')) {
+        nextParams.delete('refresh');
+        setSearchParams(nextParams, { replace: true });
+      }
+    }, 3200);
+
+    return () => {
+      window.clearTimeout(colorTimer);
+      window.clearTimeout(finishTimer);
+    };
+  }, [searchParams, socialRefreshed, setSearchParams]);
+  React.useEffect(() => {
+    if (!socialRefreshed) return;
+
+    const quotes = [
+      'A clearer first step can turn uncertainty into momentum — and help young people see where they can go next.',
+      'With stronger support and clearer connections, young people can move from curiosity to real opportunity.',
+      'Career confidence grows when the next step feels visible, practical, and supported.',
+    ];
+
+    setTypedRefreshQuote('');
+    setTypedRefreshQuote2('');
+    setTypedRefreshQuote3('');
+
+    const timers: number[] = [];
+
+    const typeText = (
+      text: string,
+      setter: React.Dispatch<React.SetStateAction<string>>,
+      delay: number
+    ) => {
+      const startTimer = window.setTimeout(() => {
+        let index = 0;
+
+        const typingTimer = window.setInterval(() => {
+          index += 1;
+          setter(text.slice(0, index));
+
+          if (index >= text.length) {
+            window.clearInterval(typingTimer);
+          }
+        }, 22);
+
+        timers.push(typingTimer);
+      }, delay);
+
+      timers.push(startTimer);
+    };
+
+    typeText(quotes[0], setTypedRefreshQuote, 0);
+    typeText(quotes[1], setTypedRefreshQuote2, 180);
+    typeText(quotes[2], setTypedRefreshQuote3, 360);
+
+    return () => {
+      timers.forEach((timer) => window.clearTimeout(timer));
+    };
+  }, [socialRefreshed]);
+
   const scene = outletCtx.scene ?? state.scene ?? 'dashboard';
   const decisionStatus = outletCtx.decisionStatus ?? state.decisionStatus ?? 'idle';
   const winningOptionId = outletCtx.winningOptionId ?? state.winningOptionId ?? state.winner ?? null;
@@ -148,7 +230,11 @@ export default function StoryReview() {
   };
 
   const completeMission = () => {
-    dispatch({ type: 'COMPLETE_MISSION', missionId: 'youth-career-story' });
+    if (outletCtx.completeMission) {
+      outletCtx.completeMission('youth-career-story');
+    } else {
+      dispatch({ type: 'COMPLETE_MISSION', missionId: 'youth-career-story' });
+    }
   };
 
   const returnHome = () => {
@@ -419,22 +505,25 @@ export default function StoryReview() {
                     {[
                       {
                         id: 1,
-                        quote:
-                          "I didn’t know people in this field before. Now I know who to ask, what to look for, and what I can do next.",
+                        quote: socialRefreshed
+                          ? typedRefreshQuote
+                          : "I didn’t know people in this field before. Now I know who to ask, what to look for, and what I can do next.",
                         attribution: '— Youth Career Pathways participant',
                         photo: false,
                       },
                       {
                         id: 2,
-                        quote:
-                          'The program helped me turn an interest into a real path forward — with people I can actually reach out to.',
+                        quote: socialRefreshed
+                          ? typedRefreshQuote2
+                          : 'The program helped me turn an interest into a real path forward — with people I can actually reach out to.',
                         attribution: '— Youth Career Pathways participant',
                         photo: true,
                       },
                       {
                         id: 3,
-                        quote:
-                          'Confidence grows when young people can see the next step — and know someone is there to help them take it.',
+                        quote: socialRefreshed
+                          ? typedRefreshQuote3
+                          : 'Confidence grows when young people can see the next step — and know someone is there to help them take it.',
                         attribution: 'Youth Career Pathways',
                         photo: false,
                       },
@@ -449,6 +538,8 @@ export default function StoryReview() {
                       <div
                         key={slide.id}
                         className={`pc-story-artwork-preview pc-story-artwork-preview--carousel ${slide.photo ? 'is-photo' : ''
+                          } ${slide.id <= 3 && isRefreshingSocial ? 'is-refreshing' : ''
+                          } ${slide.id <= 3 && socialRefreshed ? 'is-refreshed' : ''
                           }`}
                         style={{
                           backgroundColor: slide.photo ? undefined : activeColor,
@@ -734,6 +825,6 @@ export default function StoryReview() {
           </div>
         )}
       </div>
-    </ProductPage>
+    </ProductPage >
   );
 }

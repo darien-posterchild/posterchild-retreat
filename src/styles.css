@@ -7388,3 +7388,43 @@ body::-webkit-scrollbar {
   margin-left: -20px;
   margin-top: -30px;
 }
+
+.pc-story-artwork-preview--carousel {
+  transition:
+    background-color 0.55s ease,
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+/* Postie is updating the first slide */
+.pc-story-artwork-preview--carousel.is-refreshing {
+  transform: scale(0.985);
+  opacity: 0.72;
+}
+
+
+.pc-story-artwork-preview--carousel.is-refreshed {
+  animation: pc-story-refresh-finish 0.45s ease;
+}
+
+@keyframes pc-story-refresh-pulse {
+  from {
+    opacity: 0.55;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pc-story-refresh-finish {
+  0% {
+    opacity: 0.65;
+    transform: scale(0.985);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}

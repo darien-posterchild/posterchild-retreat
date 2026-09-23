@@ -97,13 +97,14 @@ export const RETREAT_DECISIONS: Record<string, DecisionNode> = {
     options: [
       {
         id: 'social',
-        label: 'Social Media',
-        description: 'Turn the participant quote into an Instagram spotlight carousel.',
-        destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
-        actionType: 'switchTab',
-        iconName: 'message-square-quote',
-        nextStepExplanation: 'Review the Social Media version prepared for this story.',
-        nextStepCtaLabel: 'Open Social Media'
+        label: 'Refresh Social Post',
+        description: 'Refresh the social version with a stronger opening and visual direction.',
+        destination: '/tell/stories/review?story=youth-career-pathways&tab=social&refresh=1',
+        actionType: 'navigate',
+        iconName: 'share-01',
+        nextStepExplanation:
+          'Postie can strengthen the social version before publishing — starting with a sharper opening and a refreshed visual direction.',
+        nextStepCtaLabel: 'Refresh Social Post'
       },
       {
         id: 'article',
@@ -119,7 +120,7 @@ export const RETREAT_DECISIONS: Record<string, DecisionNode> = {
         id: 'ask-postie',
         label: 'Ask Postie',
         description: 'Let Postie evaluate the fastest high-resonance channel.',
-        destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
+        destination: '/tell/stories/review?story=youth-career-pathways&tab=social&refresh=1',
         actionType: 'openPostie',
         iconName: 'stars-01'
       }

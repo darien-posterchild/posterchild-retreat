@@ -355,7 +355,23 @@ function renderTeamChoiceIcon(title: string) {
     );
   }
   if (norm.includes('social')) {
-    return <PosterChildIcon name="share-01" size={20} strokeWidth={1.67} />;
+    return (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M7.15833 11.2596L12.85 14.5763M12.8417 5.4263L7.15833 8.74297M17.5 4.16797C17.5 5.54868 16.3807 6.66797 15 6.66797C13.6193 6.66797 12.5 5.54868 12.5 4.16797C12.5 2.78726 13.6193 1.66797 15 1.66797C16.3807 1.66797 17.5 2.78726 17.5 4.16797ZM7.5 10.0013C7.5 11.382 6.38071 12.5013 5 12.5013C3.61929 12.5013 2.5 11.382 2.5 10.0013C2.5 8.62059 3.61929 7.5013 5 7.5013C6.38071 7.5013 7.5 8.62059 7.5 10.0013ZM17.5 15.8346C17.5 17.2153 16.3807 18.3346 15 18.3346C13.6193 18.3346 12.5 17.2153 12.5 15.8346C12.5 14.4539 13.6193 13.3346 15 13.3346C16.3807 13.3346 17.5 14.4539 17.5 15.8346Z"
+          stroke="#171717"
+          strokeWidth="1.67"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
   }
   if (norm.includes('attention') || norm.includes('kresge') || norm.includes('opportunity')) {
     return <PosterChildIcon name="alert-triangle" size={20} strokeWidth={1.67} />;

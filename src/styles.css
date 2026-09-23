@@ -4406,68 +4406,56 @@ button {
 
 /* 1. Header with Postie identity and session pill */
 .phone-postie-header {
-  height: 56px;
-  min-height: 56px;
-  padding: 0 16px;
+  min-height: 72px;
+  padding: 16px 20px;
+
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #FFFFFF;
-  border-bottom: 1px solid #F0F0F0;
+
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+
   flex-shrink: 0;
-  z-index: 10;
   box-sizing: border-box;
 }
 
 .phone-postie-header-left {
   display: flex;
   align-items: center;
-  gap: 8px;
-}
-
-.phone-postie-divider {
-  color: #D4D4D4;
-  font-size: 14px;
-  font-weight: 400;
-  user-select: none;
-}
-
-.phone-postie-identity {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.phone-postie-title {
-  font-family: var(--pc-ref-font-body), 'DM Sans', -apple-system, sans-serif;
-  font-size: 17px;
-  font-weight: 700;
-  color: #171717;
-  letter-spacing: -0.015em;
-  line-height: 1;
+  min-width: 0;
 }
 
 .phone-postie-session-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
-  background: #F9FAFB;
-  border: 1px solid #E5E7EB;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 650;
-  color: #525252;
-  letter-spacing: 0.02em;
+
+  padding: 4px 8px;
+
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: #404040;
+
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  white-space: nowrap;
 }
 
 .phone-postie-live-dot {
   width: 6px;
   height: 6px;
+  flex: 0 0 6px;
+
   border-radius: 50%;
-  background: #22C55E;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
-  flex-shrink: 0;
+  background: #12b76a;
+
+  box-shadow: none;
 }
 
 /* 2. Scrollable conversation & voting stack */
@@ -4634,39 +4622,55 @@ button {
   width: 100%;
 }
 
+/* 4. Selectable Response Blocks */
+
+.phone-postie-options-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
 .phone-postie-option-card {
   appearance: none;
   width: 100%;
-  min-height: 62px;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1.5px solid #EAECF0;
-  background: #FFFFFF;
+  min-height: 64px;
+  max-height: 64px;
+
   display: flex;
   align-items: center;
   gap: 12px;
+
+  padding: 12px;
+
+  border-radius: 16px;
+  border: 1px solid #e5e5e5;
+  background: #ffffff;
+
+  box-sizing: border-box;
   text-align: left;
   cursor: pointer;
-  box-sizing: border-box;
-  box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+  position: relative;
+
+  font-family: 'DM Sans', sans-serif;
+  color: #404040;
+
   transition:
     background-color 0.15s ease,
     border-color 0.15s ease,
     box-shadow 0.15s ease,
     transform 0.1s ease,
     opacity 0.2s ease;
-  user-select: none;
+
   -webkit-tap-highlight-color: transparent;
 }
 
 .phone-postie-option-card:hover:not(:disabled) {
-  border-color: #D0D5DD;
-  background: #F9FAFB;
+  background: #fafafa;
 }
 
 .phone-postie-option-card:active:not(:disabled) {
-  transform: scale(0.985);
-  background: #F4F5F7;
+  transform: scale(0.99);
 }
 
 .phone-postie-option-card:disabled {
@@ -4675,197 +4679,262 @@ button {
 
 .phone-postie-option-card.is-disabled {
   opacity: 0.55;
-  background: #FAFAFA;
-  border-color: #E5E7EB;
 }
 
+/* Selected */
 .phone-postie-option-card.is-selected {
-  border-color: var(--pc-ref-brand-solid, #F4B400);
-  background: #FFFDF5;
-  box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.2);
+  background: #fffaf0;
+  border-color: #e5e5e5;
+
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px #ffcc33;
 }
 
+/* Winner keeps same visual language */
 .phone-postie-option-card.is-winner {
-  border-color: var(--pc-ref-brand-solid, #F4B400);
-  background: #FFFDF5;
-  box-shadow: 0 0 0 3px rgba(244, 180, 0, 0.32);
+  background: #fffaf0;
+  border-color: #e5e5e5;
+
+  box-shadow:
+    0 0 0 2px #ffffff,
+    0 0 0 4px #ffcc33;
 }
 
+/* Icon container */
 .phone-postie-option-icon {
-  width: 38px;
-  height: 38px;
-  min-width: 38px;
-  border-radius: 10px;
-  background: #F5F5F5;
-  color: #535862;
-  border: 1px solid #E5E7EB;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+
+  border-radius: 12px;
+  background: #f5f5f5;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.15s ease;
+
+  color: #525252;
+  border: none;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .phone-postie-option-card.is-selected .phone-postie-option-icon,
 .phone-postie-option-card.is-winner .phone-postie-option-icon {
-  background: var(--pc-accent, #F4B400);
+  background: #ffcc33;
   color: #171717;
-  border-color: transparent;
 }
 
+/* Text */
 .phone-postie-option-text {
   flex: 1;
   min-width: 0;
+
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  align-items: flex-start;
+
+  gap: 0;
 }
 
 .phone-postie-option-title-row {
+  width: 100%;
   display: flex;
   align-items: center;
-  justify-content: space-between;
   gap: 8px;
 }
 
 .phone-postie-option-label {
-  font-family: var(--pc-ref-font-body), 'DM Sans', sans-serif;
-  font-size: 14.5px;
-  font-weight: 650;
-  color: #171717;
-  line-height: 1.3;
-  letter-spacing: -0.01em;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: #404040;
 }
 
 .phone-postie-option-desc {
+  width: 100%;
+  font-family: 'DM Sans', sans-serif;
   font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
   color: #737373;
-  line-height: 1.35;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.phone-postie-winner-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-  padding: 2px 7px;
-  background: #FFF9E8;
-  border: 1px solid #FFE8A3;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #8F6500;
-  flex-shrink: 0;
-}
-
+/* Your pick badge */
 .phone-postie-selected-tag {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding: 2px 7px;
-  background: #ECFDF3;
-  border: 1px solid #A6F4C5;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 700;
-  color: #027A48;
-  flex-shrink: 0;
+  gap: 2px;
+
+  padding: 2px 8px 2px 6px;
+
+  border-radius: 9999px;
+  background: #fffaf0;
+  border: 1px solid #ffe8a3;
+
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: #b7791f;
+
+  z-index: 2;
 }
 
-.phone-postie-option-check {
-  width: 20px;
-  height: 20px;
-  min-width: 20px;
-  border-radius: 50%;
-  border: 1.5px solid #D0D5DD;
-  background: #FFFFFF;
-  display: flex;
+/* Winner tag */
+.phone-postie-winner-tag {
+  position: absolute;
+  top: 4px;
+  right: 8px;
+
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  color: #FFFFFF;
-  transition: all 0.15s ease;
+  gap: 2px;
+
+  padding: 2px 8px 2px 6px;
+
+  border-radius: 9999px;
+  background: #fffaf0;
+  border: 1px solid #ffe8a3;
+
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: #b7791f;
+
+  z-index: 2;
 }
 
-.phone-postie-option-check.is-checked {
-  background: #171717;
-  border-color: #171717;
+/* Hide old radio/check circle */
+.phone-postie-option-check {
+  display: none;
 }
 
-.phone-postie-option-check.is-winner {
-  background: var(--pc-ref-brand-solid, #F4B400);
-  border-color: var(--pc-ref-brand-solid, #F4B400);
-  color: #171717;
+/* Narrow phones */
+@media (max-width: 360px) {
+  .phone-postie-option-card {
+    min-height: 64px;
+    max-height: none;
+  }
+
+  .phone-postie-option-desc {
+    white-space: normal;
+  }
 }
 
 /* 5. Voted Confirmed State Card (State 3) */
 .phone-postie-voted-card {
-  background: #FFFFFF;
-  border: 1px solid #BBF7D0;
-  border-radius: 12px;
-  padding: 12px 14px;
+  width: 100%;
+  box-sizing: border-box;
+
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  box-shadow: 0 1px 3px rgba(22, 101, 52, 0.06);
-  background: linear-gradient(180deg, #FFFFFF 0%, #F6FEF9 100%);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 16px;
+
+  padding: 12px;
+
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+
+  box-shadow: none;
 }
 
 .phone-postie-voted-header {
+  flex: 1;
+  min-width: 0;
+
   display: flex;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
 }
 
 .phone-postie-voted-icon-wrap {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: #ECFDF3;
-  border: 1px solid #A6F4C5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
+  display: none;
 }
 
 .phone-postie-voted-copy {
+  width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  align-items: flex-start;
+  gap: 4px;
 }
 
 .phone-postie-voted-title {
-  font-size: 13.5px;
-  font-weight: 700;
-  color: #15803D;
-  line-height: 1.3;
+  width: 100%;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+
+  color: #404040;
 }
 
 .phone-postie-voted-subtitle {
-  font-size: 11.5px;
-  color: #525252;
-  line-height: 1.3;
+  width: 100%;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+
+  color: #737373;
 }
 
 .phone-postie-change-vote-btn {
   appearance: none;
-  background: transparent;
-  border: 1px solid #D0D5DD;
-  border-radius: 6px;
-  padding: 5px 9px;
-  font-size: 11.5px;
-  font-weight: 600;
-  color: #404040;
+
+  width: auto;
+  align-self: flex-start;
+  flex: 0 0 auto;
+
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 4px;
+
+  padding: 6px 10px;
+
+  background: #ffffff;
+  border: 1px solid #d4d4d4;
+  border-radius: 12px;
+
+  box-shadow:
+    0 -2px 0 rgba(0, 0, 0, 0.04) inset,
+    0 1px 2px rgba(0, 0, 0, 0.05);
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #404040;
+
   cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.12s ease;
+  white-space: nowrap;
+
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .phone-postie-change-vote-btn:hover {
-  background: #F5F5F5;
-  border-color: #A3A3A3;
+  background: #f5f5f5;
+  border-color: #a3a3a3;
 }
 
 /* 6. Status & Holding Regions */
@@ -7691,5 +7760,228 @@ body::-webkit-scrollbar {
     opacity: 0;
     transform: scale(1.005);
     background-position: -120% 0;
+  }
+}
+
+/* =========================================
+   JOIN — WAITING / CONNECTED SCREEN
+   ========================================= */
+
+.phone-postie-waiting-screen {
+  width: 100%;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 20px;
+}
+
+.phone-postie-waiting-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.phone-postie-waiting-name {
+  font-family: var(--pc-ref-font-display), 'Fraunces', serif;
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 600;
+  color: #171717;
+}
+
+.phone-postie-connected-card {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 16px;
+}
+
+.phone-postie-connected-icon {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 12px;
+  background: #f5f5f5;
+  color: #525252;
+}
+
+.phone-postie-connected-copy {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.phone-postie-connected-copy h1 {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.phone-postie-connected-copy p {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+  color: #737373;
+}
+
+.phone-postie-waiting-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.phone-postie-presence-tag {
+  width: fit-content;
+  max-width: 100%;
+  box-sizing: border-box;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  padding: 4px 8px;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: #404040;
+  text-align: center;
+}
+
+.phone-postie-pulse-dot {
+  width: 6px;
+  height: 6px;
+  flex: 0 0 6px;
+  border-radius: 50%;
+  background: #12b76a;
+}
+
+.phone-postie-screen-hint {
+  margin: 0;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 500;
+  color: #525252;
+  text-align: center;
+}
+
+/* Narrow phones */
+@media (max-width: 360px) {
+  .phone-postie-content {
+    padding: 14px;
+  }
+
+  .phone-postie-waiting-screen {
+    gap: 16px;
+  }
+
+  .phone-postie-connected-card {
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .phone-postie-waiting-name {
+    font-size: 22px;
+    line-height: 30px;
+  }
+
+  .phone-postie-presence-tag {
+    font-size: 11px;
+    line-height: 16px;
+  }
+}
+
+/* =========================================
+   JOIN — POSTIE QUESTION MESSAGE
+   ========================================= */
+
+.phone-postie-question-message {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.phone-postie-question-meta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.phone-postie-question-author {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  color: #404040;
+}
+
+.phone-postie-question-time {
+  font-size: 12px;
+  line-height: 18px;
+  font-weight: 400;
+  color: #737373;
+}
+
+.phone-postie-question-bubble {
+  width: 100%;
+  box-sizing: border-box;
+
+  padding: 8px 12px;
+
+  background: #f5f5f5;
+  border: 1px solid #e5e5e5;
+  border-radius: 0 12px 12px 12px;
+
+  color: #262626;
+}
+
+.phone-postie-question-bubble p {
+  margin: 0;
+
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 400;
+  color: #262626;
+}
+
+/* Slightly tighter on very narrow phones */
+@media (max-width: 360px) {
+  .phone-postie-question-bubble p {
+    font-size: 15px;
+    line-height: 22px;
   }
 }

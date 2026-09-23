@@ -197,19 +197,13 @@ export default function Join() {
       {/* 1. Header with PosterChild / Postie branding & session badge */}
       <header className="phone-postie-header">
         <div className="phone-postie-header-left">
-          <Logo compact size="sm" />
-          <span className="phone-postie-divider">/</span>
-          <div className="phone-postie-identity">
-            <PostieAnimatedIcon size={22} speed="ambient" interactive={false} />
-            <span className="phone-postie-title">Postie</span>
-            <div className="pc-ref-postie-compact-beta">
-              <span className="pc-ref-compact-dot" />
-              <span className="pc-ref-compact-beta-text">BETA</span>
-            </div>
-          </div>
+          <Logo size="sm" />
         </div>
 
-        <div className="phone-postie-session-badge" title={`Session ${sessionId}`}>
+        <div
+          className="phone-postie-session-badge"
+          title={`Session ${sessionId}`}
+        >
           <span className="phone-postie-live-dot" />
           <span>Session {sessionId}</span>
         </div>
@@ -222,32 +216,43 @@ export default function Join() {
             Calm mobile shell, waiting for presenter question
            ============================================================ */}
         {isWaitingState && (
-          <div className="phone-postie-flow-block">
-            <div className="phone-postie-message">
-              <div className="phone-postie-msg-meta">
-                <div className="phone-postie-meta-left">
-                  <PostieAnimatedIcon size={20} speed="ambient" interactive={false} />
-                  <span className="phone-postie-author-name">Postie</span>
-                  <span className="phone-postie-role-badge">Assistant</span>
-                </div>
-                <span className="phone-postie-meta-time">Just now</span>
+          <div className="phone-postie-waiting-screen">
+            <div className="phone-postie-waiting-identity">
+              <PostieAnimatedIcon size={30} speed="ambient" interactive={false} />
+              <span className="phone-postie-waiting-name">Postie</span>
+
+              <div className="pc-ref-postie-compact-beta">
+                <span className="pc-ref-compact-dot" />
+                <span className="pc-ref-compact-beta-text">BETA</span>
+              </div>
+            </div>
+
+            <div className="phone-postie-connected-card">
+              <div className="phone-postie-connected-icon">
+                <PosterChildIcon
+                  name="check-circle"
+                  size={20}
+                  strokeWidth={1.8}
+                />
               </div>
 
-              <div className="phone-postie-bubble is-waiting">
-                <h1 className="phone-postie-bubble-title">You’re connected.</h1>
-                <p className="phone-postie-bubble-desc">
-                  Waiting for the next question from the presenter. When a decision begins, your choices will appear right here.
+              <div className="phone-postie-connected-copy">
+                <h1>You’re connected.</h1>
+                <p>
+                  Waiting for the next question from the presenter.
+                  When a decision begins, your choice will appear right here.
                 </p>
               </div>
             </div>
 
-            <div className="phone-postie-status-wrap">
+            <div className="phone-postie-waiting-status">
               <div className="phone-postie-presence-tag">
                 <span className="phone-postie-pulse-dot" />
                 <span>Connected to retreat session {sessionId}</span>
               </div>
+
               <p className="phone-postie-screen-hint">
-                Look at the big screen to follow along with the room <span aria-hidden="true">👀</span>
+                Look at the big screen to follow along
               </p>
             </div>
           </div>
@@ -291,26 +296,21 @@ export default function Join() {
         {(isVotingActive || isVotedLocked) && (
           <div className="phone-postie-flow-block">
             {/* Postie Question / Prompt Bubble */}
-            <div className="phone-postie-message">
-              <div className="phone-postie-msg-meta">
-                <div className="phone-postie-meta-left">
+            <div className="phone-postie-question-message">
+              <div className="phone-postie-question-meta">
+                <div className="phone-postie-question-author">
                   <PostieAnimatedIcon size={20} speed="ambient" interactive={false} />
-                  <span className="phone-postie-author-name">Postie</span>
-                  <span className="phone-postie-role-badge">Decision</span>
+                  <span>Postie</span>
                 </div>
-                <span className="phone-postie-meta-time">
-                  {isTie ? 'Tie-breaker' : 'Live question'}
+
+                <span className="phone-postie-question-time">
+                  Just now
                 </span>
               </div>
 
-              <div className="phone-postie-bubble is-question">
-                <h1 className="phone-postie-bubble-title">
+              <div className="phone-postie-question-bubble">
+                <p>
                   {isTie ? 'Tie-breaker vote' : activeDecision.question}
-                </h1>
-                <p className="phone-postie-bubble-desc">
-                  {isTie
-                    ? 'Votes were evenly split across top options. Choose one to break the tie.'
-                    : (activeDecision.description || 'Tap an option below to submit your vote for the team.')}
                 </p>
               </div>
             </div>

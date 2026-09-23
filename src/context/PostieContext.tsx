@@ -12,7 +12,8 @@ export type RetreatTimelineEventType =
   | 'user-question'
   | 'postie-response'
   | 'action-completed'
-  | 'mission-completed';
+  | 'mission-completed'
+  | 'article-review-ready';
 
 export interface RetreatTimelineEvent {
   id: string;

@@ -1074,7 +1074,35 @@ export function PostiePanel({
                   </div>
                 </div>
               )}
+              {event.type === 'article-review-ready' && (
+                <button
+                  type="button"
+                  className="pc-retreat-ask-room-row"
+                  onClick={() => handleTimelineCta(event)}
+                >
+                  <svg
+                    width="19"
+                    height="19"
+                    viewBox="0 0 19 19"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    style={{ flex: '0 0 19px' }}
+                  >
+                    <path
+                      d="M6.74329 6.66927C6.93921 6.11233 7.32592 5.64269 7.83492 5.34355C8.34393 5.0444 8.94237 4.93505 9.52427 5.03486C10.1062 5.13468 10.634 5.43721 11.0142 5.88888C11.3944 6.34055 11.6025 6.91221 11.6016 7.5026C11.6016 9.16927 9.10163 10.0026 9.10163 10.0026M9.16829 13.3359H9.17663M17.5016 9.16927C17.5016 13.7716 13.7707 17.5026 9.16829 17.5026C4.56592 17.5026 0.834961 13.7716 0.834961 9.16927C0.834961 4.5669 4.56592 0.835938 9.16829 0.835938C13.7707 0.835938 17.5016 4.5669 17.5016 9.16927Z"
+                      stroke="#A3A3A3"
+                      strokeWidth="1.67"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
 
+                  <span className="pc-retreat-ask-room-question">
+                    {event.title}
+                  </span>
+                </button>
+              )}
               {(event.type === 'ask-postie-ready' || event.type === 'ask-postie-pending') && (
                 <div className="pc-retreat-next-step">
                   <div className="pc-retreat-next-step-content">

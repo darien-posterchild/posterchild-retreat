@@ -6827,6 +6827,7 @@ body::-webkit-scrollbar {
 .pc-retreat-timeline-event--user-question,
 .pc-retreat-timeline-event--postie-response,
 .pc-retreat-timeline-event--action-completed,
+.pc-retreat-timeline-event--article-review-ready,
 .pc-retreat-timeline-event--mission-completed {
   width: 100%;
   padding: 0;
@@ -7396,11 +7397,6 @@ body::-webkit-scrollbar {
     transform 0.35s ease;
 }
 
-/* Postie is updating the first slide */
-.pc-story-artwork-preview--carousel.is-refreshing {
-  transform: scale(0.985);
-  opacity: 0.72;
-}
 
 
 .pc-story-artwork-preview--carousel.is-refreshed {
@@ -7426,5 +7422,274 @@ body::-webkit-scrollbar {
   100% {
     opacity: 1;
     transform: scale(1);
+  }
+}
+
+.pc-retreat-timeline-event--article-review-ready {
+  width: 100%;
+}
+
+.pc-retreat-timeline-event--article-review-ready .pc-retreat-ask-room-row {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* =========================================
+   ARTICLE — AI CONTENT REVIEW
+   ========================================= */
+
+.pc-article-canvas {
+  position: relative;
+}
+
+/* Small AI reviewing indicator inside the content area */
+.pc-article-card.is-reviewing .pc-article-canvas::before {
+  content: '✦ Reviewing content';
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 30;
+
+  padding: 6px 10px;
+  border-radius: 999px;
+
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(143, 101, 0, 0.18);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  color: #8f6500;
+
+  animation: pc-ai-review-badge 2.2s ease forwards;
+}
+
+/* Reviewable content blocks */
+.pc-article-card.is-reviewing .pc-article-gallery,
+.pc-article-card.is-reviewing .pc-article-content-title,
+.pc-article-card.is-reviewing .pc-article-content-body>.pc-article-p,
+.pc-article-card.is-reviewing .pc-article-pullquote {
+  position: relative;
+  border-radius: 8px;
+}
+
+/* AI highlight layer */
+.pc-article-card.is-reviewing .pc-article-gallery::after,
+.pc-article-card.is-reviewing .pc-article-content-title::after,
+.pc-article-card.is-reviewing .pc-article-content-body>.pc-article-p::after,
+.pc-article-card.is-reviewing .pc-article-pullquote::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  z-index: 5;
+  pointer-events: none;
+
+  border-radius: 8px;
+  border: 1px solid rgba(143, 101, 0, 0.35);
+
+  background: linear-gradient(110deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 244, 204, 0.16) 35%,
+      rgba(255, 225, 128, 0.30) 50%,
+      rgba(255, 244, 204, 0.16) 65%,
+      rgba(255, 255, 255, 0) 100%);
+
+  background-size: 220% 100%;
+  opacity: 0;
+
+  animation:
+    pc-ai-review-pass 0.7s ease var(--review-delay) forwards,
+    pc-ai-review-pass 0.7s ease calc(var(--review-delay) + 2.2s) forwards,
+    pc-ai-review-pass 0.7s ease calc(var(--review-delay) + 4.4s) forwards;
+}
+
+@keyframes pc-ai-review-pass {
+  0% {
+    opacity: 0;
+    transform: scale(0.995);
+    background-position: 120% 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.005);
+    background-position: -120% 0;
+  }
+}
+
+/* Sequential review order */
+.pc-article-card.is-reviewing .pc-article-gallery::after {
+  --review-delay: 0s;
+}
+
+.pc-article-card.is-reviewing .pc-article-content-title::after {
+  --review-delay: 0.3s;
+}
+
+.pc-article-card.is-reviewing .pc-article-content-body>.pc-article-p:nth-child(2)::after {
+  --review-delay: 0.6s;
+}
+
+.pc-article-card.is-reviewing .pc-article-content-body>.pc-article-p:nth-child(3)::after {
+  --review-delay: 0.9s;
+}
+
+.pc-article-card.is-reviewing .pc-article-pullquote::after {
+  --review-delay: 1.2s;
+}
+
+.pc-article-card.is-reviewing .pc-article-content-body>.pc-article-p:nth-child(5)::after {
+  --review-delay: 1.5s;
+}
+
+/* Slightly lift the block currently being reviewed */
+.pc-article-card.is-reviewing .pc-article-gallery,
+.pc-article-card.is-reviewing .pc-article-content-title,
+.pc-article-card.is-reviewing .pc-article-content-body>.pc-article-p,
+.pc-article-card.is-reviewing .pc-article-pullquote {
+  animation: pc-ai-content-focus 0.7s ease;
+}
+
+@keyframes pc-ai-review-block {
+  0% {
+    opacity: 0;
+    transform: scale(0.995);
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.005);
+  }
+}
+
+@keyframes pc-ai-review-shimmer {
+  from {
+    background-position: 120% 0;
+  }
+
+  to {
+    background-position: -120% 0;
+  }
+}
+
+@keyframes pc-ai-content-focus {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-1px);
+  }
+}
+
+@keyframes pc-ai-review-badge {
+  0% {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  10%,
+  85% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-2px);
+  }
+}
+
+/* =========================================
+   SOCIAL — AI CONTENT REVIEW
+   ========================================= */
+
+.pc-story-artwork-preview--carousel.is-refreshing {
+  position: relative;
+}
+
+/* AI highlight layer */
+.pc-story-artwork-preview--carousel.is-refreshing::after {
+  content: '';
+  position: absolute;
+  inset: -1px;
+  z-index: 20;
+  pointer-events: none;
+
+  border-radius: inherit;
+  border: 1px solid rgba(255, 225, 128, 0.65);
+
+  background: linear-gradient(110deg,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 244, 204, 0.10) 35%,
+      rgba(255, 225, 128, 0.26) 50%,
+      rgba(255, 244, 204, 0.10) 65%,
+      rgba(255, 255, 255, 0) 100%);
+
+  background-size: 220% 100%;
+  opacity: 0;
+
+  animation:
+    pc-social-ai-review 0.7s ease var(--social-review-delay) forwards,
+    pc-social-ai-review 0.7s ease calc(var(--social-review-delay) + 2.2s) forwards,
+    pc-social-ai-review 0.7s ease calc(var(--social-review-delay) + 4.4s) forwards;
+}
+
+/* Slide order */
+.pc-story-carousel-strip .pc-story-artwork-preview--carousel:nth-child(1) {
+  --social-review-delay: 0s;
+}
+
+.pc-story-carousel-strip .pc-story-artwork-preview--carousel:nth-child(2) {
+  --social-review-delay: 0.3s;
+}
+
+.pc-story-carousel-strip .pc-story-artwork-preview--carousel:nth-child(3) {
+  --social-review-delay: 0.6s;
+}
+
+/* Slide 4 is not part of the refresh review */
+.pc-story-carousel-strip .pc-story-artwork-preview--carousel:nth-child(4)::after {
+  display: none;
+}
+
+@keyframes pc-social-ai-review {
+  0% {
+    opacity: 0;
+    transform: scale(0.995);
+    background-position: 120% 0;
+  }
+
+  20% {
+    opacity: 1;
+  }
+
+  75% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(1.005);
+    background-position: -120% 0;
   }
 }

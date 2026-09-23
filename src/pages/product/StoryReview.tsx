@@ -13,6 +13,7 @@ import galleryImg2 from '../../assets/screens/story-review-article/gallery-2.png
 import galleryImg3 from '../../assets/screens/story-review-article/gallery-3.png';
 import galleryImg4 from '../../assets/screens/story-review-article/gallery-4.png';
 import youthCareerPathwaysImage from '../../assets/screens/home/youth-career-pathways.png';
+import { usePostie } from '../../context/PostieContext';
 
 
 interface StoryData {
@@ -104,6 +105,7 @@ export default function StoryReview() {
   const { sessionId = 'PC26' } = useParams<{ sessionId?: string }>();
   const outletCtx = useOutletContext<StoryReviewOutletContext>() || {};
   const { state, dispatch } = useDemoState();
+  const { addRetreatEvent, hasRetreatTimelineEventOfType } = usePostie();
 
   const storyKey = searchParams.get('story') || 'youth-career-pathways';
   const story = STORY_REGISTRY[storyKey] || STORY_REGISTRY['youth-career-pathways'];
@@ -121,6 +123,8 @@ export default function StoryReview() {
   const [typedRefreshQuote2, setTypedRefreshQuote2] = useState('');
   const [typedRefreshQuote3, setTypedRefreshQuote3] = useState('');
   const carouselRef = useRef<HTMLDivElement>(null);
+  const [isReviewingArticle, setIsReviewingArticle] = useState(false);
+  const [articleReviewed, setArticleReviewed] = useState(false);
 
   const scrollCarousel = (direction: 'left' | 'right') => {
     const el = carouselRef.current;
@@ -153,6 +157,14 @@ export default function StoryReview() {
     const finishTimer = window.setTimeout(() => {
       setSocialRefreshed(true);
       setIsRefreshingSocial(false);
+      addRetreatEvent({
+        type: 'next-step',
+        title:
+          'The refreshed social post is ready. Publish it when you’re ready to share it.',
+        decisionId: 'story-output',
+        ctaLabel: 'Publish to Socials',
+        ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`,
+      });
 
       // Clean up ?refresh=1 from URL so it doesn't auto-refresh on subsequent visits
       const nextParams = new URLSearchParams(window.location.search);
@@ -160,7 +172,7 @@ export default function StoryReview() {
         nextParams.delete('refresh');
         setSearchParams(nextParams, { replace: true });
       }
-    }, 3200);
+    }, 7200);
 
     return () => {
       window.clearTimeout(colorTimer);
@@ -213,6 +225,76 @@ export default function StoryReview() {
       timers.forEach((timer) => window.clearTimeout(timer));
     };
   }, [socialRefreshed]);
+  React.useEffect(() => {
+    if (activeTab !== 'article') return;
+
+    const alreadyAdded = hasRetreatTimelineEventOfType(
+      'article-review-ready',
+      undefined,
+      'story-output'
+    );
+
+    if (alreadyAdded) return;
+
+    addRetreatEvent({
+      type: 'article-review-ready',
+      title: 'Review Article',
+      decisionId: 'story-output',
+      ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=article&review=1`,
+    });
+  }, [
+    activeTab,
+    addRetreatEvent,
+    hasRetreatTimelineEventOfType,
+    sessionId,
+  ]);
+
+  const reviewArticleParam = searchParams.get('review');
+
+  React.useEffect(() => {
+    const shouldReviewArticle =
+      activeTab === 'article' && reviewArticleParam === '1';
+
+    if (!shouldReviewArticle || articleReviewed) return;
+
+    setIsReviewingArticle(true);
+
+    const reviewTimer = window.setTimeout(() => {
+      setIsReviewingArticle(false);
+      setArticleReviewed(true);
+
+      const alreadyAdded = hasRetreatTimelineEventOfType(
+        'next-step',
+        undefined,
+        'article-review'
+      );
+
+      if (!alreadyAdded) {
+        addRetreatEvent({
+          type: 'next-step',
+          title:
+            'Your article looks ready to share. The story, structure, and supporting visuals are all in good shape.',
+          decisionId: 'article-review',
+          ctaLabel: 'Share Article',
+          ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=article&share=1`,
+        });
+      }
+
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('review');
+      setSearchParams(nextParams, { replace: true });
+    }, 7200);
+
+    return () => window.clearTimeout(reviewTimer);
+  }, [
+    activeTab,
+    reviewArticleParam,
+    articleReviewed,
+    addRetreatEvent,
+    hasRetreatTimelineEventOfType,
+    sessionId,
+    setSearchParams,
+  ]);
 
   const scene = outletCtx.scene ?? state.scene ?? 'dashboard';
   const decisionStatus = outletCtx.decisionStatus ?? state.decisionStatus ?? 'idle';
@@ -654,7 +736,10 @@ export default function StoryReview() {
         )}
 
         {activeTab === 'article' && (
-          <div className="pc-article-card">
+          <div
+            className={`pc-article-card ${isReviewingArticle ? 'is-reviewing' : ''
+              } ${articleReviewed ? 'is-reviewed' : ''}`}
+          >
             {/* Header */}
             <div className="pc-article-header">
               <div className="pc-article-header-left">
@@ -665,8 +750,12 @@ export default function StoryReview() {
                 <Button variant="secondary" size="sm">
                   Edit HTML
                 </Button>
-                <Button variant="primary" size="sm" onClick={completeMission}>
-                  Share Article
+                <Button
+                  variant="primary"
+                  size="sm"
+                  onClick={() => setIsReviewingArticle(true)}
+                >
+                  Review Article
                 </Button>
               </div>
             </div>

@@ -113,14 +113,15 @@ export const RETREAT_DECISIONS: Record<string, DecisionNode> = {
         destination: '/tell/stories/review?story=youth-career-pathways&tab=article',
         actionType: 'switchTab',
         iconName: 'file-06',
-        nextStepExplanation: 'Review the long-form Article version.',
+        nextStepExplanation:
+          'Your long-form article draft is ready. Open it to review the full story, structure, and supporting visuals.',
         nextStepCtaLabel: 'Open Article'
       },
       {
         id: 'ask-postie',
         label: 'Ask Postie',
         description: 'Let Postie evaluate the fastest high-resonance channel.',
-        destination: '/tell/stories/review?story=youth-career-pathways&tab=social&refresh=1',
+        destination: '/tell/stories/review?story=youth-career-pathways&tab=social',
         actionType: 'openPostie',
         iconName: 'stars-01'
       }

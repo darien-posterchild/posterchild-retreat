@@ -317,7 +317,7 @@ function PresentInner() {
     'kresge-funding': 'Kresge Foundation opportunity reviewed.',
     'kresge-postie': 'Kresge Foundation opportunity reviewed.',
     'new-testimonials-connect': 'Transportation signal connected to Youth Career Pathways.',
-    'youth-career-story': 'Youth Career Pathways story reviewed/published.'
+    'youth-career-story': 'Youth Career Pathways article shared successfully.'
   };
 
   const completeMission = (specificMissionId?: string) => {
@@ -343,16 +343,24 @@ function PresentInner() {
         const isFinalMission = (state.completedMissionIds || []).length + 1 >= 2;
         addRetreatEvent({
           type: isFinalMission ? 'mission-completed' : 'action-completed',
-          title: MISSION_LABELS[activeMissionId] || `${activeMissionId} completed.`,
+          title:
+            activeMissionId === 'youth-career-story'
+              ? location.search.includes('tab=social')
+                ? 'Youth Career Pathways social post published successfully.'
+                : 'Youth Career Pathways article shared successfully.'
+              : MISSION_LABELS[activeMissionId] || `${activeMissionId} completed.`,
           decisionId: state.activeDecisionId || undefined
         });
 
         if (activeMissionId === 'kresge-funding' || activeMissionId === 'kresge-postie' || activeMissionId === 'youth-career-story') {
           addRetreatEvent({
             type: 'next-step',
-            title: activeMissionId === 'youth-career-story'
-              ? 'Youth Career Pathways story reviewed. Ready to return to Home?'
-              : 'Kresge action plan reviewed. Ready to return to Home?',
+            title:
+              activeMissionId === 'youth-career-story'
+                ? location.search.includes('tab=social')
+                  ? 'Your social post is live. Ready to return to Home?'
+                  : 'That wraps up the Youth Career Pathways story. Ready to return to Home?'
+                : 'Kresge action plan reviewed. Ready to return to Home?',
             ctaLabel: 'Return to Home',
             ctaTarget: `/present/${sessionId}`
           });
@@ -361,28 +369,7 @@ function PresentInner() {
     }
   };
 
-  useEffect(() => {
-    const completed = state.completedMissionIds || [];
-    if (completed.includes('youth-career-story')) {
-      const alreadyLogged = hasRetreatTimelineEventOfType('action-completed', 'youth-career-story') ||
-        hasRetreatTimelineEventOfType('mission-completed', 'youth-career-story');
-      if (!alreadyLogged) {
-        const isFinalMission = completed.length >= 2;
-        addRetreatEvent({
-          type: isFinalMission ? 'mission-completed' : 'action-completed',
-          title: MISSION_LABELS['youth-career-story'] || 'Youth Career Pathways story reviewed/published.',
-          decisionId: state.activeDecisionId || undefined
-        });
 
-        addRetreatEvent({
-          type: 'next-step',
-          title: 'Youth Career Pathways story reviewed. Ready to return to Home?',
-          ctaLabel: 'Return to Home',
-          ctaTarget: `/present/${sessionId}`
-        });
-      }
-    }
-  }, [state.completedMissionIds, sessionId]);
 
   const advanceToWinner = () => {
     if (winnerDestination) {
@@ -465,39 +452,86 @@ function PresentInner() {
   };
 
   const handleTimelineCta = (event: RetreatTimelineEvent) => {
+    if (event.type === 'article-review-ready') {
+      if (event.ctaTarget) {
+        navigate(event.ctaTarget);
+      }
+      return;
+    }
+
+    if (
+      event.type === 'next-step' &&
+      event.ctaLabel === 'Share Article'
+    ) {
+      completeMission('youth-career-story');
+      return;
+    }
+    if (
+      event.type === 'next-step' &&
+      event.ctaLabel === 'Publish to Socials'
+    ) {
+      completeMission('youth-career-story');
+      return;
+    }
+
     if (event.type === 'next-step') {
-      if (event.ctaLabel === 'Return to Home' || event.ctaTarget === `/present/${sessionId}`) {
+      if (
+        event.ctaLabel === 'Return to Home' ||
+        event.ctaTarget === `/present/${sessionId}`
+      ) {
         returnToHome();
         return;
       }
+
       if (winningOption) {
         executeDecisionAction(winningOption);
         return;
       }
+
       if (event.ctaTarget) {
         navigate(event.ctaTarget);
         return;
       }
     }
+
     if (event.type === 'postie-response') {
       if (event.ctaTarget) {
         if (isHome) {
           if (event.ctaTarget.includes('/tell/stories/review')) {
-            dispatch({ type: 'START_MISSION', missionId: 'youth-career-story' });
-            dispatch({ type: 'SET_DECISION', decisionId: 'story-output' });
-          } else if (event.ctaTarget.includes('/raise/opportunities/kresge')) {
-            const mission = getMissionByOption('needs-attention') || getMissionByOption('ask-postie');
+            dispatch({
+              type: 'START_MISSION',
+              missionId: 'youth-career-story',
+            });
+
+            dispatch({
+              type: 'SET_DECISION',
+              decisionId: 'story-output',
+            });
+          } else if (
+            event.ctaTarget.includes('/raise/opportunities/kresge')
+          ) {
+            const mission =
+              getMissionByOption('needs-attention') ||
+              getMissionByOption('ask-postie');
+
             if (mission) {
-              dispatch({ type: 'START_MISSION', missionId: mission.id });
+              dispatch({
+                type: 'START_MISSION',
+                missionId: mission.id,
+              });
             }
           }
-        } else if (location.pathname.includes('/raise/opportunities/kresge')) {
+        } else if (
+          location.pathname.includes('/raise/opportunities/kresge')
+        ) {
           if (event.ctaTarget.includes('tab=action-plan')) {
             completeMission('kresge-funding');
           }
         }
+
         navigate(event.ctaTarget);
       }
+
       return;
     }
   };

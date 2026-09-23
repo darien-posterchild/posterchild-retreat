@@ -7985,3 +7985,13 @@ body::-webkit-scrollbar {
     line-height: 22px;
   }
 }
+
+.phone-postie-history-block {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.phone-postie-history-block+.phone-postie-history-block {
+  margin-top: 16px;
+}

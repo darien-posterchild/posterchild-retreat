@@ -144,10 +144,8 @@ export function getAvailableHomeOptions(sessionState?: Partial<SessionState>): D
   // Ask Postie must remain available unless Ask Postie itself has explicitly been consumed
   const completedOptionIds = new Set<string>();
   completed.forEach((missionId) => {
-    if (missionId === 'kresge-funding') {
+    if (missionId === 'kresge-funding' || missionId === 'kresge-postie') {
       completedOptionIds.add('needs-attention');
-    } else if (missionId === 'kresge-postie') {
-      completedOptionIds.add('ask-postie');
     } else if (missionId === 'youth-career-story' || missionId === 'new-testimonials-connect') {
       completedOptionIds.add('suggested-story');
     } else {

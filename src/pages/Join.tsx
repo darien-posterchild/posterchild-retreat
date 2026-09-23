@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { PostieAnimatedIcon } from '../components/posterchild/PostieAnimatedIcon';
 import { PosterChildIcon, PosterChildIconName } from '../components/posterchild/Icon';
@@ -17,6 +17,110 @@ const OPTION_ICON_MAP: Record<string, PosterChildIconName> = {
   'use-in-story': 'sparkles',
   social: 'message-square-quote',
   article: 'file-06'
+};
+
+const renderJoinChoiceIcon = (
+  optionId: string | null | undefined,
+  iconName: PosterChildIconName
+) => {
+  if (optionId === 'social') {
+    return (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M1.6665 10.0013C1.6665 14.6037 5.39746 18.3346 9.99984 18.3346C11.3805 18.3346 12.4998 17.2153 12.4998 15.8346V15.418C12.4998 15.031 12.4998 14.8374 12.5212 14.675C12.6689 13.5532 13.5517 12.6704 14.6735 12.5227C14.836 12.5013 15.0295 12.5013 15.4165 12.5013H15.8332C17.2139 12.5013 18.3332 11.382 18.3332 10.0013C18.3332 5.39893 14.6022 1.66797 9.99984 1.66797C5.39746 1.66797 1.6665 5.39893 1.6665 10.0013Z"
+          stroke="#525252"
+          strokeWidth="1.67"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M5.83317 10.8346C6.29341 10.8346 6.6665 10.4615 6.6665 10.0013C6.6665 9.54106 6.29341 9.16797 5.83317 9.16797C5.37293 9.16797 4.99984 9.54106 4.99984 10.0013C4.99984 10.4615 5.37293 10.8346 5.83317 10.8346Z"
+          stroke="#525252"
+          strokeWidth="1.67"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M13.3332 7.5013C13.7934 7.5013 14.1665 7.12821 14.1665 6.66797C14.1665 6.20773 13.7934 5.83464 13.3332 5.83464C12.8729 5.83464 12.4998 6.20773 12.4998 6.66797C12.4998 7.12821 12.8729 7.5013 13.3332 7.5013Z"
+          stroke="#525252"
+          strokeWidth="1.67"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M8.33317 6.66797C8.79341 6.66797 9.1665 6.29487 9.1665 5.83464C9.1665 5.3744 8.79341 5.0013 8.33317 5.0013C7.87293 5.0013 7.49984 5.3744 7.49984 5.83464C7.49984 6.29487 7.87293 6.66797 8.33317 6.66797Z"
+          stroke="#525252"
+          strokeWidth="1.67"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (optionId === 'ask-postie') {
+    return (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M5.4165 10.8346L6.07022 12.1421C6.29146 12.5845 6.40208 12.8058 6.54986 12.9975C6.681 13.1676 6.83351 13.3201 7.00363 13.4513C7.19535 13.5991 7.41659 13.7097 7.85907 13.9309L9.1665 14.5846L7.85907 15.2384C7.41659 15.4596 7.19535 15.5702 7.00363 15.718C6.83351 15.8491 6.681 16.0016 6.54986 16.1718C6.40208 16.3635 6.29146 16.5847 6.07022 17.0272L5.4165 18.3346L4.76279 17.0272C4.54155 16.5847 4.43093 16.3635 4.28314 16.1718C4.15201 16.0016 3.9995 15.8491 3.82938 15.718C3.63766 15.5702 3.41642 15.4596 2.97393 15.2384L1.6665 14.5846L2.97393 13.9309C3.41642 13.7097 3.63766 13.5991 3.82938 13.4513C3.9995 13.3201 4.15201 13.1676 4.28314 12.9975C4.43093 12.8058 4.54155 12.5845 4.76279 12.1421L5.4165 10.8346Z"
+          stroke="#525252"
+          strokeWidth="1.67"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M12.4998 1.66797L13.482 4.22165C13.717 4.83268 13.8345 5.13819 14.0173 5.39517C14.1792 5.62293 14.3782 5.82192 14.606 5.98387C14.863 6.1666 15.1685 6.28411 15.7795 6.51912L18.3332 7.5013L15.7795 8.48349C15.1685 8.7185 14.863 8.836 14.606 9.01873C14.3782 9.18068 14.1792 9.37967 14.0173 9.60743C13.8345 9.86442 13.717 10.1699 13.482 10.781L12.4998 13.3346L11.5177 10.781C11.2826 10.1699 11.1651 9.86442 10.9824 9.60743C10.8205 9.37967 10.6215 9.18068 10.3937 9.01873C10.1367 8.836 9.83121 8.7185 9.22019 8.48349L6.6665 7.5013L9.22019 6.51912C9.83121 6.28411 10.1367 6.1666 10.3937 5.98387C10.6215 5.82192 10.8205 5.62293 10.9824 5.39517C11.1651 5.13819 11.2826 4.83268 11.5177 4.22165L12.4998 1.66797Z"
+          stroke="#525252"
+          strokeWidth="1.67"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  if (optionId === 'article') {
+    return (
+      <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
+      >
+        <path
+          d="M11.6668 1.89258V5.3347C11.6668 5.80141 11.6668 6.03476 11.7577 6.21302C11.8376 6.36982 11.965 6.49731 12.1218 6.5772C12.3001 6.66803 12.5335 6.66803 13.0002 6.66803H16.4423M13.3335 10.8346H6.66683M13.3335 14.168H6.66683M8.3335 7.5013H6.66683M11.6668 1.66797H7.3335C5.93336 1.66797 5.2333 1.66797 4.69852 1.94045C4.22811 2.18014 3.84566 2.56259 3.60598 3.03299C3.3335 3.56777 3.3335 4.26784 3.3335 5.66797V14.3346C3.3335 15.7348 3.3335 16.4348 3.60598 16.9696C3.84566 17.44 4.22811 17.8225 4.69852 18.0622C5.2333 18.3346 5.93336 18.3346 7.3335 18.3346H12.6668C14.067 18.3346 14.767 18.3346 15.3018 18.0622C15.7722 17.8225 16.1547 17.44 16.3943 16.9696C16.6668 16.4348 16.6668 15.7348 16.6668 14.3346V6.66797L11.6668 1.66797Z"
+          stroke="#525252"
+          strokeWidth="1.67"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    );
+  }
+
+  return (
+    <PosterChildIcon
+      name={iconName}
+      size={20}
+      strokeWidth={1.67}
+    />
+  );
 };
 
 interface JoinDecisionOptionProps {
@@ -67,7 +171,7 @@ const JoinDecisionOption = React.memo(function JoinDecisionOption({
             />
           </svg>
         ) : (
-          <PosterChildIcon name={iconName} size={18} strokeWidth={2} />
+          renderJoinChoiceIcon(option.id, iconName)
         )}
       </span>
 
@@ -108,6 +212,7 @@ const JoinDecisionOption = React.memo(function JoinDecisionOption({
 
 export default function Join() {
   const { sessionId = 'PC26' } = useParams<{ sessionId?: string }>();
+  const chatContentRef = useRef<HTMLElement | null>(null);
   const { state, clientVote, vote } = useSession(sessionId);
   const clientId = activeSessionAdapter.getClientId();
 
@@ -192,6 +297,51 @@ export default function Join() {
   const winningVoteCount = winningTally?.count ?? 0;
   const winningPercentage = winningTally?.percentage ?? (totalVotes > 0 ? Math.round((winningVoteCount / totalVotes) * 100) : 0);
 
+  const decisionHistory = useMemo(() => {
+    return (state.decisionHistory || []).map((item) => {
+      const decision = getDecision(item.decisionId);
+
+      const winningOption = decision.options.find(
+        (option) => option.id === item.winningOptionId
+      );
+
+      return {
+        ...item,
+        question: decision.question,
+        winningLabel:
+          winningOption?.label ||
+          item.winningOptionId ||
+          'Choice locked in',
+        winningIcon:
+          (winningOption?.iconName as PosterChildIconName) ||
+          OPTION_ICON_MAP[item.winningOptionId || ''] ||
+          'stars-01',
+      };
+    });
+  }, [state.decisionHistory]);
+
+  useEffect(() => {
+    const container = chatContentRef.current;
+    if (!container) return;
+
+    const scrollTimer = window.setTimeout(() => {
+      container.scrollTo({
+        top: container.scrollHeight,
+        behavior: 'smooth',
+      });
+    }, 120);
+
+    return () => window.clearTimeout(scrollTimer);
+  }, [
+    decisionHistory.length,
+    state.activeDecisionId,
+    state.decisionStatus,
+    state.isVoteRevealed,
+    isVotingActive,
+    isVotedLocked,
+    isResultState,
+  ]);
+
   return (
     <main className="phone-app" aria-label="Postie Retreat Interface">
       {/* 1. Header with PosterChild / Postie branding & session badge */}
@@ -210,11 +360,71 @@ export default function Join() {
       </header>
 
       {/* 2. Scrollable conversation & voting stack */}
-      <section className="phone-postie-content">
-        {/* ============================================================
-            STATE 1: WAITING STATE
-            Calm mobile shell, waiting for presenter question
-           ============================================================ */}
+      <section
+        ref={chatContentRef}
+        className="phone-postie-content"
+      >
+        {decisionHistory.map((item, index) => (
+          <div
+            key={`${item.decisionId}-${item.resolvedAt ?? index}`}
+            className="phone-postie-history-block"
+          >
+            <div className="phone-postie-question-message">
+              <div className="phone-postie-question-meta">
+                <div className="phone-postie-question-author">
+                  <PostieAnimatedIcon
+                    size={20}
+                    speed="ambient"
+                    interactive={false}
+                  />
+                  <span>Postie</span>
+                </div>
+
+                <span className="phone-postie-question-time">
+                  {item.resolvedAt
+                    ? new Date(item.resolvedAt).toLocaleTimeString([], {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })
+                    : 'Earlier'}
+                </span>
+              </div>
+
+              <div className="phone-postie-question-bubble">
+                <p>{item.question}</p>
+              </div>
+            </div>
+
+            <div className="pc-retreat-team-choice">
+              <div className="pc-retreat-team-choice-header">
+                <span>Team Choice</span>
+                <span className="pc-retreat-team-choice-time">
+                  {item.resolvedAt
+                    ? new Date(item.resolvedAt).toLocaleTimeString([], {
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })
+                    : 'Earlier'}
+                </span>
+              </div>
+
+              <div className="pc-retreat-team-choice-card">
+                <div className="pc-retreat-team-choice-icon">
+                  {renderJoinChoiceIcon(
+                    item.winningOptionId,
+                    item.winningIcon
+                  )}
+                </div>
+
+                <div className="pc-retreat-team-choice-content">
+                  <div className="pc-retreat-team-choice-title">
+                    {item.winningLabel}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
         {isWaitingState && (
           <div className="phone-postie-waiting-screen">
             <div className="phone-postie-waiting-identity">
@@ -378,70 +588,23 @@ export default function Join() {
            ============================================================ */}
         {isResultState && (
           <div className="phone-postie-flow-block">
-            {/* Postie Consensus Bubble */}
-            <div className="phone-postie-message">
-              <div className="phone-postie-msg-meta">
-                <div className="phone-postie-meta-left">
-                  <PostieAnimatedIcon size={20} speed="ambient" interactive={false} />
-                  <span className="phone-postie-author-name">Postie</span>
-                  <span className="phone-postie-role-badge">Consensus</span>
-                </div>
-                <span className="phone-postie-meta-time">Resolved</span>
-              </div>
-
-              <div className="phone-postie-bubble is-result">
-                <h1 className="phone-postie-bubble-title">The room has decided.</h1>
-                <p className="phone-postie-bubble-desc">
-                  Here is the strategic direction chosen by the retreat group.
-                </p>
-              </div>
-            </div>
-
-            {/* Lightweight Confirmation Card */}
-            <div className="phone-postie-reveal-card" role="status" aria-label="Team choice summary">
-              <div className="phone-postie-reveal-top">
-                <Badge variant="brand" iconLeading="check" size="md">
-                  Team choice
-                </Badge>
-                {totalVotes > 0 && (
-                  <span className="phone-postie-reveal-tally">
-                    {winningPercentage}% of votes ({winningVoteCount} {winningVoteCount === 1 ? 'vote' : 'votes'})
-                  </span>
-                )}
-              </div>
-              <div className="phone-postie-reveal-winner">{winningLabel || 'Choice locked in'}</div>
-            </div>
-
-            {/* Result Options Stack: Winning option highlighted, all disabled */}
-            <div className="phone-postie-options-stack" role="group" aria-label="Voting results">
-              {displayOptions.map((opt) => {
-                const isWinner = winningOption?.id === opt.id || (opt.id === 'campaigns' && state.winningOptionId === 'campaign');
-                const isSelected = currentSelection === opt.id || (opt.id === 'campaigns' && currentSelection === 'campaign');
-
-                return (
-                  <JoinDecisionOption
-                    key={opt.id}
-                    option={opt}
-                    isSelected={isSelected}
-                    isWinner={Boolean(isWinner)}
-                    disabled={true}
-                    onVote={() => { }}
-                    showWinnerTag={true}
-                  />
-                );
-              })}
-            </div>
-
-            {/* Next Step Holding State */}
             <div className="phone-postie-status-wrap">
               <div className="phone-postie-holding-note">
-                <PosterChildIcon name="stars-01" size={15} color="#D99A00" strokeWidth={2} />
+                <PosterChildIcon
+                  name="stars-01"
+                  size={15}
+                  color="#D99A00"
+                  strokeWidth={2}
+                />
                 <span>Presenter is advancing to this destination on screen ✨</span>
               </div>
             </div>
           </div>
         )}
+
       </section>
+
+      {/* 3. Bottom Postie Composer Area (Disabled, ambient status indicator) */}
 
       {/* 3. Bottom Postie Composer Area (Disabled, ambient status indicator) */}
       <footer className="phone-postie-composer-wrap">
@@ -464,6 +627,6 @@ export default function Join() {
           </div>
         </div>
       </footer>
-    </main>
+    </main >
   );
 }

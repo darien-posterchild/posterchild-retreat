@@ -91,7 +91,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
   }
 
   registerPresence(sessionId: string, clientId: string): () => void {
-    if (!isFirebaseConfigured() || typeof window === 'undefined') return () => {};
+    if (!isFirebaseConfigured() || typeof window === 'undefined') return () => { };
 
     try {
       const db = this.ensureDatabase();
@@ -100,13 +100,13 @@ export class FirebaseSessionAdapter implements SessionAdapter {
 
       const connectedUnsub = onValue(connectedRef, (snap) => {
         if (snap.val() === true) {
-          onDisconnect(presenceRef).remove().catch(() => {});
+          onDisconnect(presenceRef).remove().catch(() => { });
           set(presenceRef, {
             participantId: clientId,
             connected: true,
             joinedAt: Date.now(),
             lastSeen: Date.now()
-          }).catch(() => {});
+          }).catch(() => { });
         }
       });
 
@@ -114,14 +114,14 @@ export class FirebaseSessionAdapter implements SessionAdapter {
         update(presenceRef, {
           lastSeen: Date.now(),
           connected: true
-        }).catch(() => {});
+        }).catch(() => { });
       }, 5000);
 
       const cleanup = () => {
         window.clearInterval(heartbeatInterval);
         connectedUnsub();
-        onDisconnect(presenceRef).cancel().catch(() => {});
-        remove(presenceRef).catch(() => {});
+        onDisconnect(presenceRef).cancel().catch(() => { });
+        remove(presenceRef).catch(() => { });
       };
 
       window.addEventListener('beforeunload', cleanup, { once: true });
@@ -130,7 +130,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
       return cleanup;
     } catch (err) {
       console.error('[FirebaseSessionAdapter] registerPresence error:', err);
-      return () => {};
+      return () => { };
     }
   }
 
@@ -151,7 +151,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
       console.warn(
         `[FirebaseSessionAdapter] Firebase is not fully configured. Using cached state for session: ${sessionId}`
       );
-      return () => {};
+      return () => { };
     }
 
     try {
@@ -194,7 +194,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
               decisionStatus: data.decisionStatus || initial.decisionStatus,
               simulatedParticipants: 0,
               updatedAt: Date.now()
-            }).catch(() => {});
+            }).catch(() => { });
           }
 
           const participants = data.participants || {};
@@ -209,7 +209,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
               livePresenceCount++;
             } else if (p && now - (p.lastSeen || p.joinedAt || 0) >= 45000) {
               // Asynchronously clean up stale presence record
-              remove(ref(db, `sessions/${sessionId}/presence/${pId}`)).catch(() => {});
+              remove(ref(db, `sessions/${sessionId}/presence/${pId}`)).catch(() => { });
             }
           }
 
@@ -257,7 +257,7 @@ export class FirebaseSessionAdapter implements SessionAdapter {
       };
     } catch (err) {
       console.error('[FirebaseSessionAdapter] Subscription failed:', err);
-      return () => {};
+      return () => { };
     }
   }
 
@@ -351,14 +351,32 @@ export class FirebaseSessionAdapter implements SessionAdapter {
             updatedAt: Date.now()
           });
         } else {
+          const winningOptionId = resolution.winner?.id ?? null;
+
+          const existingHistory = Array.isArray(data.decisionHistory)
+            ? data.decisionHistory
+            : Object.values(data.decisionHistory || {});
+
+          const nextHistory = data.isVoteRevealed
+            ? existingHistory
+            : [
+              ...existingHistory,
+              {
+                decisionId: activeDecisionId,
+                winningOptionId,
+                resolvedAt: Date.now(),
+              },
+            ];
+
           await update(sessionRef, {
             scene: 'result',
             decisionStatus: 'result',
-            winner: resolution.winner?.id ?? null,
-            winningOptionId: resolution.winner?.id ?? null,
+            winner: winningOptionId,
+            winningOptionId,
             tiedOptionIds: null,
+            decisionHistory: nextHistory,
             isVoteRevealed: true,
-            updatedAt: Date.now()
+            updatedAt: Date.now(),
           });
         }
         break;

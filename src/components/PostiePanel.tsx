@@ -261,10 +261,11 @@ function getRetreatDynamicReply(
       ];
     }
   } else if (pathname.includes('/raise/opportunities/kresge')) {
-    replyText = 'Kresge closes in 12 days with a 92% match. Your Youth Career Pathways work aligns well with Kresge’s focus on economic mobility, equity, and opportunity.';
-    usedCtx = ['Kresge Foundation', '92% Match', 'Action Plan'];
+    replyText =
+      'Before jumping into the full action plan, I’d share this opportunity with the team member closest to the workforce budget. That’s the main readiness gap and the fastest way to unblock the application.';
+    usedCtx = ['Kresge Foundation', 'Workforce Budget', '92% Match'];
     actions = [
-      { label: 'View Action Plan', actionType: 'navigate', target: '/raise/opportunities/kresge?tab=action-plan', iconType: 'arrow' }
+      { label: 'Share Opportunity', actionType: 'navigate', target: '/raise/opportunities/kresge?action=share-opportunity', iconType: 'arrow' }
     ];
   } else if (pathname.includes('/tell/connect')) {
     replyText = '4 new testimonials received around workforce development. You can anchor these directly into the Youth Career Pathways story draft.';
@@ -362,14 +363,44 @@ function renderTeamChoiceIcon(title: string) {
         viewBox="0 0 20 20"
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
+        aria-hidden="true"
       >
-        <path
-          d="M7.15833 11.2596L12.85 14.5763M12.8417 5.4263L7.15833 8.74297M17.5 4.16797C17.5 5.54868 16.3807 6.66797 15 6.66797C13.6193 6.66797 12.5 5.54868 12.5 4.16797C12.5 2.78726 13.6193 1.66797 15 1.66797C16.3807 1.66797 17.5 2.78726 17.5 4.16797ZM7.5 10.0013C7.5 11.382 6.38071 12.5013 5 12.5013C3.61929 12.5013 2.5 11.382 2.5 10.0013C2.5 8.62059 3.61929 7.5013 5 7.5013C6.38071 7.5013 7.5 8.62059 7.5 10.0013ZM17.5 15.8346C17.5 17.2153 16.3807 18.3346 15 18.3346C13.6193 18.3346 12.5 17.2153 12.5 15.8346C12.5 14.4539 13.6193 13.3346 15 13.3346C16.3807 13.3346 17.5 14.4539 17.5 15.8346Z"
-          stroke="#171717"
-          strokeWidth="1.67"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
+        <g clipPath="url(#pc-social-palette-clip)">
+          <path
+            d="M1.6665 10.0013C1.6665 14.6037 5.39746 18.3346 9.99984 18.3346C11.3805 18.3346 12.4998 17.2153 12.4998 15.8346V15.418C12.4998 15.031 12.4998 14.8374 12.5212 14.675C12.6689 13.5532 13.5517 12.6704 14.6735 12.5227C14.836 12.5013 15.0295 12.5013 15.4165 12.5013H15.8332C17.2139 12.5013 18.3332 11.382 18.3332 10.0013C18.3332 5.39893 14.6022 1.66797 9.99984 1.66797C5.39746 1.66797 1.6665 5.39893 1.6665 10.0013Z"
+            stroke="#525252"
+            strokeWidth="1.67"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M5.83317 10.8346C6.29341 10.8346 6.6665 10.4615 6.6665 10.0013C6.6665 9.54106 6.29341 9.16797 5.83317 9.16797C5.37293 9.16797 4.99984 9.54106 4.99984 10.0013C4.99984 10.4615 5.37293 10.8346 5.83317 10.8346Z"
+            stroke="#525252"
+            strokeWidth="1.67"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M13.3332 7.5013C13.7934 7.5013 14.1665 7.12821 14.1665 6.66797C14.1665 6.20773 13.7934 5.83464 13.3332 5.83464C12.8729 5.83464 12.4998 6.20773 12.4998 6.66797C12.4998 7.12821 12.8729 7.5013 13.3332 7.5013Z"
+            stroke="#525252"
+            strokeWidth="1.67"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+          <path
+            d="M8.33317 6.66797C8.79341 6.66797 9.1665 6.29487 9.1665 5.83464C9.1665 5.3744 8.79341 5.0013 8.33317 5.0013C7.87293 5.0013 7.49984 5.3744 7.49984 5.83464C7.49984 6.29487 7.87293 6.66797 8.33317 6.66797Z"
+            stroke="#525252"
+            strokeWidth="1.67"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </g>
+
+        <defs>
+          <clipPath id="pc-social-palette-clip">
+            <rect width="20" height="20" fill="white" />
+          </clipPath>
+        </defs>
       </svg>
     );
   }
@@ -560,6 +591,17 @@ export function PostiePanel({
     }
 
     if (action.actionType === 'navigate') {
+      if (action.target.includes('action=share-opportunity') && onTimelineCta) {
+        onTimelineCta({
+          id: 'share-opportunity-cta',
+          type: 'postie-response',
+          title: '',
+          body: '',
+          ctaLabel: 'Share Opportunity',
+          ctaTarget: `/present/${sessionId}/raise/opportunities/kresge?action=share-opportunity`
+        });
+        return;
+      }
       const dest = action.target.startsWith('/present')
         ? action.target
         : `/present/${sessionId}${action.target.startsWith('/') ? action.target : `/${action.target}`}`;

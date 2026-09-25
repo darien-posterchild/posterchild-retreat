@@ -96,7 +96,7 @@ const CONTEXT_SUGGESTIONS: Record<string, PostieSuggestion[]> = {
       text: 'Which funding opportunity should I focus on first?',
       iconName: 'coins-hand',
       response: {
-        text: 'I’d start with Kresge. Your Youth Career Pathways work aligns well with Kresge’s focus on economic mobility, equity, and opportunity for people with low incomes. You already have strong participant stories and impact evidence. The main readiness gap is the workforce program budget, last updated in 2025.',
+        text: 'I’d definitely put our chips on Kresge first. Our Youth Career Pathways data maps cleanly to their priorities, and we have the evidence lined up. The only real holdup is updating that workforce program budget.',
         usedContext: ['Raise', 'Needs attention', 'Kresge Foundation'],
         actions: []
       }
@@ -106,7 +106,7 @@ const CONTEXT_SUGGESTIONS: Record<string, PostieSuggestion[]> = {
       text: 'How can we strengthen this application?',
       iconName: 'file-check-02',
       response: {
-        text: 'Updating the workforce program budget to 2026 and pairing it with participant testimonials from the Youth Voices initiative will strengthen the budget justification.',
+        text: 'One thing that stood out to me: if we update the workforce line items to 2026 and back them with quotes from the Youth Voices cohort, the budget justification becomes much harder to turn down.',
         usedContext: ['Kresge Foundation', 'Application Readiness'],
         actions: []
       }
@@ -118,7 +118,7 @@ const CONTEXT_SUGGESTIONS: Record<string, PostieSuggestion[]> = {
       text: 'What are we hearing from our community?',
       iconName: 'message-chat-circle',
       response: {
-        text: 'Transportation is the clearest recurring theme in Youth Career Pathways. I also found 3 Spring Alumni responses detailed enough to review as possible story sources.',
+        text: 'Transportation is the loud signal right now across the Youth Career Pathways feedback. Also caught 3 responses from the Spring Alumni group that are rich enough to build whole stories around.',
         usedContext: ['Connect', 'Youth Career Pathways', 'Testimonials'],
         actions: []
       }
@@ -128,7 +128,7 @@ const CONTEXT_SUGGESTIONS: Record<string, PostieSuggestion[]> = {
       text: 'How can we use these responses?',
       iconName: 'share-04',
       response: {
-        text: 'You can link these quotes directly into the Youth Career Pathways narrative or draft a new donor update focusing on transit equity.',
+        text: 'I’d probably drop these quotes right into the Youth Career Pathways narrative, or spin up a focused donor note around transit equity while it’s fresh.',
         usedContext: ['Connect', 'Community Voice'],
         actions: []
       }
@@ -140,7 +140,7 @@ const CONTEXT_SUGGESTIONS: Record<string, PostieSuggestion[]> = {
       text: 'Can you tighten the short caption?',
       iconName: 'edit-04',
       response: {
-        text: 'Yes. I’d make the opening more direct and keep the proof point in the second sentence. I can also adapt it for LinkedIn or Instagram without changing the core story.',
+        text: 'Yeah, let’s punch up that first sentence and move the proof point right into line two. It’ll stop people scrolling without losing the heart of the story.',
         usedContext: ['Youth Career Pathways', 'Social Media', 'Carousel'],
         actions: []
       }
@@ -150,7 +150,7 @@ const CONTEXT_SUGGESTIONS: Record<string, PostieSuggestion[]> = {
       text: 'Can you make the opening stronger?',
       iconName: 'edit-02',
       response: {
-        text: 'Yes. I’d open with the participant insight first, then explain the pattern across all four testimonials. That makes the article feel more human before introducing the broader program context.',
+        text: 'Right now it opens a bit too high-level. I’d lead directly with the participant quote, then zoom out to the broader cohort trend. Hits much harder that way.',
         usedContext: ['Youth Career Pathways', 'Article'],
         actions: []
       }
@@ -162,7 +162,7 @@ const CONTEXT_SUGGESTIONS: Record<string, PostieSuggestion[]> = {
       text: 'What context does PosterChild use?',
       iconName: 'database-01',
       response: {
-        text: 'This is the context PosterChild uses to understand your organization — your knowledge, assets, people, connections, and operations.',
+        text: 'This is essentially our team’s collective brain — connecting all the internal docs, community signals, assets, and operational context we run on.',
         usedContext: ['Manage', 'Organization'],
         actions: []
       }
@@ -174,7 +174,7 @@ const CONTEXT_SUGGESTIONS: Record<string, PostieSuggestion[]> = {
       text: 'What stories are ready for review?',
       iconName: 'file-06',
       response: {
-        text: 'You have 3 impact stories drafted, with Youth Career Pathways ready for final review and social publishing.',
+        text: 'We have 3 stories in the hopper. Youth Career Pathways is the closest to the finish line — just needs a quick review on the social cut and we can push it out.',
         usedContext: ['Tell', 'Stories'],
         actions: [
           { label: 'Review stories', actionType: 'navigate', target: '/tell/stories/review?story=youth-career-pathways', iconType: 'arrow' }
@@ -191,14 +191,14 @@ function getRetreatDynamicReply(
   pathname: string,
   pageContextLabel: string
 ): { replyText: string; usedCtx: string[]; actions: ActionItem[] } {
-  let replyText = 'I’d start with Kresge. It closes in 12 days and you already have most of the evidence. Your main gap is the workforce program budget, last updated in 2025.';
+  let replyText = 'Looking at what’s on our plate, Kresge is easily the most time-sensitive. I’d probably start there so we’re not scrambling on the deadline.';
   let usedCtx = [pageContextLabel || 'Home'];
   let actions: ActionItem[] = [
     { label: 'Review opportunity', actionType: 'navigate', target: '/raise/opportunities/kresge', iconType: 'arrow' }
   ];
 
   if (decisionStatus === 'tie') {
-    replyText = 'The team vote resulted in a tie! We have an even split across priorities. Would you like to run a quick tie-breaker?';
+    replyText = 'Dead heat in the room! The votes are split right down the middle. We can trigger a quick tie-breaker whenever you want to settle it.';
     usedCtx = ['Tie Detected', 'Tie-Breaker Ready'];
     actions = [];
   } else if (decisionStatus === 'open') {
@@ -209,7 +209,7 @@ function getRetreatDynamicReply(
       replyText = 'The team is deciding which story to move forward. Remote votes are arriving in realtime.';
       usedCtx = ['Story Selection', 'Live Voting'];
     } else {
-      replyText = 'The team is deciding what to focus on first. Remote votes are arriving in realtime from participants.';
+      replyText = 'Votes are rolling in live right now — watching how the room splits before we lock it in.';
       usedCtx = ['Live Voting', 'Room Consensus'];
     }
     actions = [];
@@ -217,46 +217,46 @@ function getRetreatDynamicReply(
     const norm = (winnerTitle || '').toLowerCase();
     if (activeDecisionId === 'campaigns-next' || norm.includes('launch') || (norm.includes('refine') && !norm.includes('story')) || (norm.includes('postie') && !norm.includes('insight'))) {
       if (norm.includes('launch')) {
-        replyText = "The team chose to launch. The campaign is ready, so let's move into the final launch review.";
+        replyText = "Looks like the team wants to launch. The pieces are all lined up, so let's walk through the final review.";
         usedCtx = ['Launch Campaign', 'Team Choice'];
       } else if (norm.includes('refine')) {
-        replyText = "The team chose to refine first. Let's tighten the message and audience before launch.";
+        replyText = "Looks like the team wants to sharpen this first. Good instinct — let's tighten the messaging and audience cut before putting it out there.";
         usedCtx = ['Refine First', 'Team Choice'];
       } else if (norm.includes('postie')) {
-        replyText = "The team chose Postie. I'd recommend addressing the Kresge Foundation opportunity first.";
+        replyText = "Room voted to hand the baton to me! Looking at our deadlines, Kresge is the most time-sensitive priority on the board right now, so I’d head there next.";
         usedCtx = ['Ask Postie', 'Team Choice', 'Kresge Foundation'];
         actions = [
           { label: 'Review opportunity', actionType: 'navigate', target: '/raise/opportunities/kresge', iconType: 'arrow' }
         ];
       } else {
-        replyText = `The team chose "${winnerTitle || 'Action'}". When you're ready, advance to that branch.`;
+        replyText = `Looks like the team picked "${winnerTitle || 'Action'}". Whenever you're ready, let's head that way.`;
         usedCtx = [winnerTitle || 'Action', 'Team Choice'];
       }
     } else if (activeDecisionId === 'stories-next' || norm.includes('maya') || norm.includes('youth') || norm.includes('garden')) {
       if (norm.includes('maya')) {
-        replyText = "The team chose Maya’s Journey. This piece has high resonance with youth mentorship funders. Let's review the narrative arc.";
+        replyText = "Looks like the room went with Maya’s Journey. Mentorship funders eat this kind of personal story up — let's review the narrative arc.";
         usedCtx = ["Maya's Journey", 'Team Choice'];
       } else if (norm.includes('youth')) {
-        replyText = "The team chose Youth Voices Initiative. A strong peer-led mental health story. Let's review the narrative arc.";
+        replyText = "Team picked Youth Voices Initiative. It’s a really compelling peer-led angle — let's open up the draft and make sure it flows.";
         usedCtx = ['Youth Voices', 'Team Choice'];
       } else if (norm.includes('garden')) {
-        replyText = "The team chose Community Gardens. An impactful story on grassroots food security. Let's review the narrative arc.";
+        replyText = "Room went with Community Gardens. Grassroots food security always resonates — let's check the story arc and sharpen it.";
         usedCtx = ['Community Gardens', 'Team Choice'];
       } else {
-        replyText = `The team chose "${winnerTitle || 'Story'}". Let's review the narrative arc and finalize it.`;
+        replyText = `Looks like the team picked "${winnerTitle || 'Story'}". Let's walk through the draft together and get it across the finish line.`;
         usedCtx = [winnerTitle || 'Story', 'Team Choice'];
       }
     } else if (norm.includes('campaign')) {
-      replyText = "The team chose Campaigns. There's already a campaign ready to launch.";
+      replyText = "Looks like the team picked Campaigns. We already have one queued up and ready for prime time.";
       usedCtx = ['Campaigns', 'Team Choice'];
     } else if (norm.includes('quote') || norm.includes('testimonial')) {
-      replyText = 'The team chose Testimonials & Connect. 4 new quotes are ready to link into stories.';
+      replyText = 'Team went with Testimonials & Connect. We’ve got 4 fresh community quotes ready to anchor into our active stories.';
       usedCtx = ['Testimonials', 'Team Choice'];
       actions = [
         { label: 'Explore Connect', actionType: 'navigate', target: '/tell/connect', iconType: 'arrow' }
       ];
     } else {
-      replyText = "I’d start with Kresge. It closes in 12 days and you already have most of the evidence. Your main gap is the workforce program budget, last updated in 2025.";
+      replyText = "Looking at what’s on our plate, Kresge is easily the most time-sensitive. I’d probably start there so we’re not scrambling on the deadline.";
       usedCtx = ['Needs attention', 'Kresge Foundation', 'Team Choice'];
       actions = [
         { label: 'Review opportunity', actionType: 'navigate', target: '/raise/opportunities/kresge', iconType: 'arrow' }
@@ -264,23 +264,26 @@ function getRetreatDynamicReply(
     }
   } else if (pathname.includes('/raise/opportunities/kresge')) {
     replyText =
-      'Before jumping into the full action plan, I’d share this opportunity with the team member closest to the workforce budget. That’s the main readiness gap and the fastest way to unblock the application.';
+      'I took a pass at the Kresge requirements. Quick heads-up: our workforce budget is the only real gap holding this back. I think the fastest move here is sharing this directly with whoever owns those numbers so we can unblock the submission.';
     usedCtx = ['Kresge Foundation', 'Workforce Budget', '92% Match'];
     actions = [
       { label: 'Share Opportunity', actionType: 'navigate', target: '/raise/opportunities/kresge?action=share-opportunity', iconType: 'arrow' }
     ];
   } else if (pathname.includes('/tell/connect')) {
-    replyText = '4 new testimonials received around workforce development. You can anchor these directly into the Youth Career Pathways story draft.';
+    replyText =
+      'One thing that stood out to me in the recent feedback is transportation — it keeps coming up. I’d pull those quotes right into the Youth Career Pathways piece; it\'ll give the story much sharper teeth before we publish.';
     usedCtx = ['Connect', 'Testimonials'];
     actions = [
       { label: 'Review story draft', actionType: 'navigate', target: '/tell/stories/review?story=youth-career-pathways', iconType: 'arrow' }
     ];
   } else if (pathname.includes('/tell/stories/review')) {
-    replyText = 'Youth Career Pathways draft is ready for review. Recommended primary output: Social media spotlight carousel.';
+    replyText =
+      'I read through the story draft. The core piece is solid, but the social cut feels a little quiet. I’d refresh the social post first — a punchier hook and bolder visuals will make it land way better.';
     usedCtx = ['Youth Career Pathways', 'Social Media'];
     actions = [];
   } else if (pathname.includes('/manage')) {
-    replyText = 'This is the context PosterChild uses to understand your organization — your knowledge, assets, people, connections, and operations.';
+    replyText =
+      'This is essentially our team’s collective brain — connecting all the internal docs, community signals, assets, and operational context we run on.';
     usedCtx = ['Manage', 'Organization'];
     actions = [];
   }

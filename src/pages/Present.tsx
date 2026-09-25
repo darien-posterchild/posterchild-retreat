@@ -280,7 +280,7 @@ function PresentInner() {
 
       if (isKresgeCompleted) {
         return {
-          text: "Since we've already reviewed the Kresge opportunity, I recommend exploring our Youth Career Pathways suggested story next. It has high community resonance and is ready for campaign activation.",
+          text: "Now that Kresge is rolling, I’d dive right into the Youth Career Pathways draft. The community quotes in there are strong, and it’s basically ready for a final sign-off.",
           ctaLabel: 'Review story',
           ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`,
           usedContext: ['Home', 'Youth Career Pathways', 'Story Review']
@@ -288,7 +288,7 @@ function PresentInner() {
       }
 
       return {
-        text: "I'd start with the Kresge Foundation opportunity. It closes in 12 days, has a 92% match, and the application is ready for review. Your main readiness gap is the workforce program budget.",
+        text: "Hey Darien, looking at what’s on our plate, Kresge is easily the most time-sensitive. I’d probably start there so we’re not scrambling on the deadline.",
         ctaLabel: 'Review opportunity',
         ctaTarget: `/present/${sessionId}/raise/opportunities/kresge`,
         usedContext: ['Home', 'Kresge Foundation', 'Needs Attention']
@@ -296,7 +296,7 @@ function PresentInner() {
     }
     if (location.pathname.includes('/tell/connect')) {
       return {
-        text: "Transportation appears across several recent Youth Career Pathways responses. I'd use this signal to strengthen the narrative and gather one more layer of detail before publishing.",
+        text: "One thing that stood out to me in the recent feedback is transportation — it keeps coming up. I’d pull those quotes right into the Youth Career Pathways piece; it'll give the story much sharper teeth before we publish.",
         ctaLabel: 'Use in story',
         ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social`,
         usedContext: ['Connect', 'Youth Career Pathways', 'Testimonials']
@@ -304,7 +304,7 @@ function PresentInner() {
     }
     if (location.pathname.includes('/raise/opportunities/kresge')) {
       return {
-        text: "Before jumping into the full action plan, I’d share this opportunity with the team member closest to the workforce budget. That’s the main readiness gap and the fastest way to unblock the application.",
+        text: "I took a pass at the Kresge requirements. Quick heads-up: our workforce budget is the only real gap holding this back. I think the fastest move here is sharing this directly with whoever owns those numbers so we can unblock the submission.",
         ctaLabel: 'Share Opportunity',
         ctaTarget: `/present/${sessionId}/raise/opportunities/kresge?action=share-opportunity`,
         usedContext: ['Kresge Foundation', 'Workforce Budget', '92% Match']
@@ -312,14 +312,14 @@ function PresentInner() {
     }
     if (location.pathname.includes('/tell/stories/review')) {
       return {
-        text: "I’d refresh the social version before publishing — starting with a stronger opening and a more distinctive visual direction.",
+        text: "I read through the story draft. The core piece is solid, but the social cut feels a little quiet. I’d refresh the social post first — a punchier hook and bolder visuals will make it land way better.",
         ctaLabel: 'Refresh Social Post',
         ctaTarget: `/present/${sessionId}/tell/stories/review?story=youth-career-pathways&tab=social&refresh=1`,
         usedContext: ['Youth Career Pathways', 'Refresh Social Post']
       };
     }
     return {
-      text: "I'd start with the Kresge Foundation opportunity — it has the strongest urgency and match for your current priorities.",
+      text: "Looking at what’s on our plate, Kresge is easily the most time-sensitive. I’d probably start there so we’re not scrambling on the deadline.",
       ctaLabel: 'Review opportunity',
       ctaTarget: `/present/${sessionId}/raise/opportunities/kresge`,
       usedContext: ['Home', 'Kresge Foundation']
@@ -1066,13 +1066,13 @@ function PresentInner() {
 
         <div className="present-intro__content">
           <div className="present-intro__copy">
-            <span className="section-eyebrow">Product Vision Experience</span>
+            <span className="section-eyebrow">PRODUCT DESIGN EXPLORATION</span>
             <h1 className="present-intro__title">
-              The future of<br />
+              Exploring the next<br />
               <span className="title-highlight">PosterChild</span>
             </h1>
             <p className="present-intro__subtitle">
-              An interactive product experience grounded in Postie.
+              An interactive look at how PosterChild could look, feel, and work — with Postie at the center.
             </p>
 
             <div className="present-intro__guidance">
@@ -1080,15 +1080,15 @@ function PresentInner() {
                 <span className="guidance-step__num">1</span>
                 <span>Join from your phone</span>
               </div>
-              <div className="guidance-step__arrow">→</div>
+              <div className="guidance-step__arrow" aria-hidden="true">→</div>
               <div className="guidance-step">
                 <span className="guidance-step__num">2</span>
-                <span>See what PosterChild surfaces</span>
+                <span>Explore the experience</span>
               </div>
-              <div className="guidance-step__arrow">→</div>
+              <div className="guidance-step__arrow" aria-hidden="true">→</div>
               <div className="guidance-step">
                 <span className="guidance-step__num">3</span>
-                <span>Help choose what happens first</span>
+                <span>Help shape what happens next</span>
               </div>
             </div>
           </div>

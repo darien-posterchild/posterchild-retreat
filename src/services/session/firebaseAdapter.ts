@@ -52,12 +52,12 @@ export class FirebaseSessionAdapter implements SessionAdapter {
 
   getClientId(): string {
     if (typeof window === 'undefined') return 'server';
-    let id = sessionStorage.getItem(CLIENT_KEY);
+    let id = localStorage.getItem(CLIENT_KEY);
     if (!id) {
       id = typeof crypto !== 'undefined' && crypto.randomUUID
         ? crypto.randomUUID()
         : `client-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-      sessionStorage.setItem(CLIENT_KEY, id);
+      localStorage.setItem(CLIENT_KEY, id);
     }
     return id;
   }
@@ -252,7 +252,62 @@ export class FirebaseSessionAdapter implements SessionAdapter {
         }
       );
 
+      const presenceRefreshInterval = window.setInterval(async () => {
+        try {
+          const snapshot = await get(sessionRef);
+          if (!snapshot.exists()) return;
+
+          const data = snapshot.val() || {};
+          const presence = data.presence || {};
+          const now = Date.now();
+          let livePresenceCount = 0;
+
+          for (const [pId, pVal] of Object.entries(presence)) {
+            const p = pVal as {
+              connected?: boolean;
+              lastSeen?: number;
+              joinedAt?: number;
+            };
+
+            const lastActivity = p.lastSeen || p.joinedAt || 0;
+
+            if (
+              p &&
+              p.connected !== false &&
+              now - lastActivity < 45000
+            ) {
+              livePresenceCount++;
+            } else if (p && now - lastActivity >= 45000) {
+              remove(
+                ref(db, `sessions/${sessionId}/presence/${pId}`)
+              ).catch(() => { });
+            }
+          }
+
+          const cachedState = this.stateCache.get(sessionId);
+
+          if (
+            cachedState &&
+            cachedState.joinedParticipants !== livePresenceCount
+          ) {
+            const refreshedState: SessionState = {
+              ...cachedState,
+              joinedParticipants: livePresenceCount,
+            };
+
+            this.stateCache.set(sessionId, refreshedState);
+            callback(refreshedState);
+          }
+        } catch (error) {
+          console.error(
+            `[FirebaseSessionAdapter] Presence refresh failed for ${sessionId}:`,
+            error
+          );
+        }
+      }, 10000);
+
       return () => {
+        window.clearInterval(presenceRefreshInterval);
         unsubscribe();
       };
     } catch (err) {
